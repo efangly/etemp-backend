@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { sign } from "jsonwebtoken";
-import { expressjwt } from "express-jwt";
+import { expressjwt, UnauthorizedError } from "express-jwt";
 import prisma from "../configs/prisma.config";
 import bcrypt from "bcrypt";
 import { users } from "@prisma/client";
@@ -23,9 +23,10 @@ const register = async (req: Request, res: Response) => {
     await prisma.users.create({
       data: value
     }).then((result) => {
-      res.status(200).json({ 
-        status: 200,
-        msg: "Create Suscess!!" 
+      res.status(201).json({ 
+        status: 201,
+        msg: "Create Suscess!!",
+        data: result
       });
     }).catch((err) => {
       res.status(400).json({ error: err });
@@ -43,9 +44,9 @@ const checkLogin = async (req: Request, res: Response) => {
       if(match){
         const userid: number = result.user_id;
         const username: string = result.user_name;
-        const displayname: string | null = result.display_name;
-        const token: string = sign({ userid,username,displayname }, String(process.env.JWT_SECRET), { expiresIn:'1d' });
-        return res.status(200).json({ token });
+        const display: string | null = result.display_name;
+        const token: string = sign({ userid,username,display }, String(process.env.JWT_SECRET), { expiresIn:'1d' });
+        return res.status(200).json({ token, username, display });
       }else{
         return res.status(400).json({ error:"รหัสผ่านไม่ถูกต้อง" })
       }
@@ -61,10 +62,20 @@ const checkLogin = async (req: Request, res: Response) => {
   });
 };
 
-const requireLogin = expressjwt({
-  secret: String(process.env.JWT_SECRET),
-  algorithms: ["HS256"]
-});
+const requireLogin = () => {
+  return [
+    expressjwt({
+      secret: String(process.env.JWT_SECRET),
+      algorithms: ["HS256"]
+    }),(err: UnauthorizedError, req: Request, res: Response, next: NextFunction) => {
+      res.status(err.status).json({
+        status: err.status,
+        msg: err.name,
+        error: err.message,
+      });
+    }
+  ]
+}
 
 export {
   checkLogin,

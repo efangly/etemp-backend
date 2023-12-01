@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import prisma from "./configs/prisma.config";
 import UserRouter from "./routes/user";
 import NotiRouter from "./routes/noti";
+import AuthRouter from "./routes/auth";
 import { credential } from "firebase-admin";
 import { initializeApp } from 'firebase-admin/app';
 import { connectMqtt } from "./configs/mqtt.config";
@@ -29,5 +30,6 @@ connectMqtt();
 
 //route
 App.use('/api/user', UserRouter);
-App.use('/api', NotiRouter);
+App.use('/api/noti', NotiRouter);
+App.use('/api', AuthRouter);
 App.listen(port, () => console.log(`Start server in port ${port}`));
