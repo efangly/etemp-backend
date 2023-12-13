@@ -6,10 +6,10 @@ import prisma from "./configs/prisma.config";
 import UserRouter from "./routes/user";
 import NotiRouter from "./routes/noti";
 import AuthRouter from "./routes/auth";
+import DeviceRouter from "./routes/device";
 import { credential } from "firebase-admin";
 import { initializeApp } from 'firebase-admin/app';
 import { connectMqtt } from "./configs/mqtt.config";
-const serviceAccount = require('../temp-alarm-firebase-adminsdk-8vqko-fe5609cb68.json');
 
 const App: Application = express();
 
@@ -22,7 +22,7 @@ App.use(cors({ origin: '*' }));
 App.use(morgan("dev"));
 //firebase
 initializeApp({
-  credential: credential.cert(serviceAccount),
+  credential: credential.cert(require('../temp-alarm-firebase-adminsdk-8vqko-fe5609cb68.json')),
   projectId: 'temp-alarm',
 });
 //mqtt
@@ -31,5 +31,6 @@ connectMqtt();
 //route
 App.use('/api/user', UserRouter);
 App.use('/api/noti', NotiRouter);
+App.use('/api/device', DeviceRouter);
 App.use('/api', AuthRouter);
 App.listen(port, () => console.log(`Start server in port ${port}`));

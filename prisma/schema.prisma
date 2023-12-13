@@ -9,7 +9,7 @@ datasource db {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model devices {
-  dev_id           Int       @default(autoincrement())
+  dev_id           String    @id @db.VarChar(100)
   hos_id           Int
   group_id         Int
   guarantee_id     Int?
@@ -27,20 +27,18 @@ model devices {
   repair_status    Int?      @default(0)
   dev_zone         String?   @db.VarChar(155)
   install_location String?   @db.VarChar(155)
-  location_pic     String    @db.VarChar(200)
+  location_pic     String?   @default("") @db.VarChar(200)
   install_date     DateTime? @default(now()) @db.DateTime(0)
-  dev_ip           String    @db.VarChar(16)
-  dev_gatway       String    @db.VarChar(16)
+  dev_ip           String?   @default("") @db.VarChar(16)
+  dev_gatway       String?   @default("") @db.VarChar(16)
   dev_subnet       String?   @db.VarChar(16)
-  dev_macaddress   String    @db.VarChar(12)
+  dev_macaddress   String?   @default("") @db.VarChar(12)
   software_version String?   @db.VarChar(55)
   firmware_version String?   @db.VarChar(55)
   createby         String?   @db.VarChar(100)
   comment          String?   @db.VarChar(155)
   lastmodified     DateTime? @db.DateTime(0)
   backup_status    Int?      @default(0)
-
-  @@id([dev_id, group_id])
 }
 
 model group {
@@ -92,148 +90,30 @@ model repairs {
   bastatus        Int?      @default(0)
 }
 
-model tb_job_customer {
-  f_job_customer_code              String    @id @db.VarChar(30)
-  f_job_customer_name              String?   @db.VarChar(200)
-  f_job_customer_point             Int?      @default(0) @db.UnsignedInt
-  f_job_customer_level             String?   @db.VarChar(100)
-  f_job_customer_rootcode          String?   @db.VarChar(30)
-  f_job_customer_rootlevel         Int?      @default(0) @db.UnsignedInt
-  f_job_customer_desc              String?   @db.VarChar(200)
-  f_job_customer_localpart         Int?      @default(0) @db.UnsignedInt
-  f_job_customer_localprovincecode String?   @db.VarChar(20)
-  f_job_customer_localprovincename String?   @db.VarChar(100)
-  f_job_customer_localpartcode     String?   @db.VarChar(20)
-  f_job_customer_localpartname     String?   @db.VarChar(100)
-  f_job_customer_localzonecode     String?   @db.VarChar(20)
-  f_job_customer_localzonename     String?   @db.VarChar(100)
-  f_job_customer_countrycode       String?   @db.VarChar(20)
-  f_job_customer_countryname       String?   @db.VarChar(100)
-  f_job_customer_localprovince     String?   @db.VarChar(100)
-  f_job_customer_localaddress      String?   @db.VarChar(200)
-  f_job_customer_localaddressSA    String?   @db.VarChar(200)
-  f_job_customer_localaddressSB    String?   @db.VarChar(200)
-  f_job_customer_piority           Int?      @default(0) @db.UnsignedInt
-  f_job_customer_zone              Int?      @default(0)
-  f_job_customer_postcode          String?   @db.VarChar(20)
-  f_job_customer_havejobonline     Int?      @default(0)
-  f_job_customer_headoffice        Int?      @default(0)
-  f_job_customer_headofficename    String?   @db.VarChar(100)
-  f_job_customer_createdatetime    DateTime? @db.DateTime(0)
-  f_job_customer_createby          String?   @db.VarChar(60)
-  f_job_customer_createbyname      String?   @db.VarChar(100)
-  f_job_customer_confirmdatetime   DateTime? @db.DateTime(0)
-  f_job_customer_confirmby         String?   @db.VarChar(60)
-  f_job_customer_confirmbyname     String?   @db.VarChar(100)
-  f_job_customer_TAXNo             String?   @db.VarChar(20)
-  f_job_customer_Telephone         String?   @db.VarChar(60)
-  f_job_customer_FAX               String?   @db.VarChar(30)
-  f_job_customer_website           String?   @db.VarChar(100)
-  f_job_customer_Email             String?   @db.VarChar(100)
-  f_job_customer_search            String?   @db.VarChar(50)
-  f_job_customer_remark            String?   @db.VarChar(200)
-  f_job_customer_refcode           String?   @db.VarChar(100)
-  f_job_customer_ADDB_KEY          Int?      @db.UnsignedInt
-  f_job_company_code               String?   @db.VarChar(30)
-  f_job_company_lat                String?   @db.VarChar(50)
-  f_job_company_lon                String?   @db.VarChar(50)
-  f_job_company_acc                String?   @db.VarChar(50)
-  f_job_company_discontinue        Int?      @default(0)
-  f_job_customer_comment           String?   @db.VarChar(200)
-  f_job_customer_status            Int?      @default(0)
-  f_job_customer_bastatus          Int?      @default(0)
-  f_job_customer_lastmodified      DateTime? @db.DateTime(0)
-}
-
-model tb_job_master_country {
-  f_job_master_countrycode         String    @id @db.VarChar(20)
-  f_job_master_countryname         String?   @db.VarChar(200)
-  f_job_master_countrycreatedate   DateTime? @db.DateTime(0)
-  f_job_master_countrycomment      String?   @db.VarChar(200)
-  f_job_master_countrystatus       Decimal?  @default(0) @db.Decimal(1, 0)
-  f_job_master_countrybastatus     Decimal?  @default(0) @db.Decimal(1, 0)
-  f_job_master_countrylastmodified DateTime? @db.DateTime(0)
-}
-
-model tb_job_master_countrypart {
-  f_job_master_countrycode             String    @db.VarChar(20)
-  f_job_master_countrypartcode         String    @db.VarChar(20)
-  f_job_master_countrypartname         String?   @db.VarChar(200)
-  f_job_master_countrypartcreatedate   DateTime? @db.DateTime(0)
-  f_job_master_countrypartcomment      String?   @db.VarChar(200)
-  f_job_master_countrypartstatus       Decimal?  @default(0) @db.Decimal(1, 0)
-  f_job_master_countrypartbastatus     Decimal?  @default(0) @db.Decimal(1, 0)
-  f_job_master_countrypartlastmodified DateTime? @db.DateTime(0)
-
-  @@id([f_job_master_countrycode, f_job_master_countrypartcode])
-}
-
-model tb_job_master_province {
-  f_job_master_countrycode          String    @db.VarChar(20)
-  f_job_master_countrypartcode      String    @db.VarChar(20)
-  f_job_master_zonecode             String    @db.VarChar(20)
-  f_job_master_provincecode         String    @db.VarChar(20)
-  f_job_master_provincename         String?   @db.VarChar(200)
-  f_job_master_provincecreatedate   DateTime? @db.DateTime(0)
-  f_job_master_provincecomment      String?   @db.VarChar(200)
-  f_job_master_provincestatus       Decimal?  @default(0) @db.Decimal(1, 0)
-  f_job_master_provincebastatus     Decimal?  @default(0) @db.Decimal(1, 0)
-  f_job_master_provincelastmodified DateTime? @db.DateTime(0)
-
-  @@id([f_job_master_countrycode, f_job_master_countrypartcode, f_job_master_zonecode, f_job_master_provincecode])
-}
-
-model tb_job_master_zone {
-  f_job_master_countrycode      String    @db.VarChar(20)
-  f_job_master_countrypartcode  String    @db.VarChar(20)
-  f_job_master_zonecode         String    @db.VarChar(20)
-  f_job_master_zonename         String?   @db.VarChar(200)
-  f_job_master_zonecreatedate   DateTime? @db.DateTime(0)
-  f_job_master_zonecomment      String?   @db.VarChar(200)
-  f_job_master_zonestatus       Decimal?  @default(0) @db.Decimal(1, 0)
-  f_job_master_zonebastatus     Decimal?  @default(0) @db.Decimal(1, 0)
-  f_job_master_zonelastmodified DateTime? @db.DateTime(0)
-
-  @@id([f_job_master_countrycode, f_job_master_countrypartcode, f_job_master_zonecode])
-}
-
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model users {
-  user_id       Int       @default(autoincrement())
-  hos_id        Int       @default(0)
+  user_id       String    @id @db.VarChar(100)
+  hos_id        Int       
   group_id      Int?
   user_name     String    @unique @db.VarChar(155)
   user_password String    @db.VarChar(155)
   display_name  String?   @db.VarChar(150)
   user_picture  String?   @db.VarChar(255)
-  create_date   DateTime? @db.DateTime(0)
+  create_date   DateTime? @default(now()) @db.DateTime(0)
   user_status   String?   @db.VarChar(255)
   user_level    Int?      @default(0)
   creade_by     String?   @db.VarChar(155)
-  lastmodified  DateTime? @db.DateTime(0)
+  lastmodified  DateTime? @default(now()) @db.DateTime(0)
   bastatus      Int?
   comment       String?   @db.VarChar(255)
-
-  @@id([user_id, hos_id])
-}
-
-model users_logs {
-  logs_ID      Int       @id @default(autoincrement())
-  user_id      Int?
-  username     String?   @db.VarChar(155)
-  page_clicked String?   @db.VarChar(155)
-  browser      String?   @db.VarChar(155)
-  platform     String?   @db.VarChar(155)
-  event_time   DateTime? @db.DateTime(0)
-  event_detail String?   @db.VarChar(155)
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model notification {
-  noti_id     String   @id @db.VarChar(10)
-  noti_name   String   @db.VarChar(255)
-  noti_detail String   @db.VarChar(255)
-  noti_status String   @db.Char(1)
-  createAt    DateTime @default(now())
-  updateAt    DateTime @updatedAt
+  noti_id     String    @id @db.VarChar(100)
+  dev_id      String
+  noti_detail String    @db.VarChar(255)
+  noti_status String?   @default("0") @db.Char(1)
+  createAt    DateTime? @default(now()) @db.DateTime(0)
+  updateAt    DateTime? @default(now()) @updatedAt @db.DateTime(0)
 }

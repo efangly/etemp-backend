@@ -1,8 +1,6 @@
 import { Request, Response } from "express";
-import dotenv from "dotenv";
 import prisma from "../configs/prisma.config";
 import { users } from "@prisma/client";
-dotenv.config();
 
 const getUser = async (req: Request, res: Response) => {
   await prisma.users.findMany().then((result) => {

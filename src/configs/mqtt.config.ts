@@ -1,6 +1,8 @@
 import { connect, IClientOptions, MqttClient } from "mqtt";
+import { ReceiveMsg } from "../interfaces/notification.interface";
+import { createNotification } from "../services/notification";
 import dotenv from "dotenv";
-import { sendToPushNoti } from "../services/sendnotification";
+
 dotenv.config();
 
 let client: MqttClient;
@@ -16,7 +18,7 @@ const connectMqtt = () => {
   client = connect(options);
   client.on('connect', () => {
     console.log("MQTT Connect");
-    client.subscribe('test/msg', (err) => {
+    client.subscribe(['psu/noti','testtopic'], (err) => {
       if(err){
         console.log(err);
       }
@@ -32,8 +34,9 @@ const connectMqtt = () => {
     });
 
     client.on('message', (topic, message) => {
-      let value: { temp: number, hum: number } = JSON.parse(message.toString());
-      sendToPushNoti('fdjiQi3cTAKEVyHgmUa8EC:APA91bECUOnV6IWeIpMXEjd2iGd-UFUx6kfzLTuzMzb_sLirqinzg_p5HjFRJdDVyIWA7zw-t4tcjew1lMVPFrHGpOe5s77rw6OAaZv2cBs9HlIC5Z90Zz7bIy-S5i2KVVs09OdvWOy_',value.temp,value.hum);
+      console.log(topic);
+      let value: ReceiveMsg = JSON.parse(message.toString());
+      createNotification(value);
       console.log(value);
     });
   });
