@@ -10,8 +10,8 @@ datasource db {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model devices {
   dev_id           String    @id @db.VarChar(100)
-  hos_id           Int
-  group_id         Int
+  hos_id           String    @db.VarChar(100)
+  group_id         String    @db.VarChar(100)
   guarantee_id     Int?
   dev_sn           String    @db.VarChar(22)
   dev_name         String    @db.VarChar(155)
@@ -42,9 +42,9 @@ model devices {
 }
 
 model group {
-  group_id   Int    @id @default(autoincrement())
-  group_name String @db.VarChar(155)
-  hos_id     Int
+  group_id   String    @id 
+  group_name String    @db.VarChar(155)
+  hos_id     String    @db.VarChar(100)
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -58,7 +58,7 @@ model guarantees {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model hospitals {
-  hos_id            Int       @id @default(autoincrement())
+  hos_id            String    @id @db.VarChar(100)
   hos_name          String    @db.VarChar(155)
   hos_address       String?   @db.VarChar(155)
   hos_telephone     Decimal?  @db.Decimal(15, 0)
@@ -72,9 +72,9 @@ model hospitals {
 }
 
 model repairs {
-  repair_id       Int       @id @default(autoincrement())
-  dev_id          Int?
-  hos_id          Int?
+  repair_id       String    @id @db.VarChar(100)
+  dev_id          String?   @db.VarChar(100)
+  hos_id          String?   @db.VarChar(100)
   dev_sn          String?   @db.VarChar(155)
   dev_name        String?   @db.VarChar(155)
   date_time       DateTime? @db.DateTime(0)
@@ -93,8 +93,8 @@ model repairs {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model users {
   user_id       String    @id @db.VarChar(100)
-  hos_id        Int       
-  group_id      Int?
+  hos_id        String    @db.VarChar(100)   
+  group_id      String?   @db.VarChar(100)
   user_name     String    @unique @db.VarChar(155)
   user_password String    @db.VarChar(155)
   display_name  String?   @db.VarChar(150)

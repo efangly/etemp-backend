@@ -11,7 +11,7 @@ interface UserLogin {
 
 interface Regis {
   user_id: string
-  hos_id: number
+  hos_id: string
   user_name: string
   user_password: string,
   display_name: string
@@ -53,7 +53,7 @@ const checkLogin = async (req: Request, res: Response) => {
         const userid: string = result.user_id;
         const username: string = result.user_name;
         const display: string | null = result.display_name;
-        const token: string = sign({ userid,username,display }, String(process.env.JWT_SECRET), { expiresIn:'1d' });
+        const token: string = sign({ userid,username,display }, String(process.env.JWT_SECRET));
         return res.status(200).json({ token, username, display });
       }else{
         return res.status(400).json({ error: "รหัสผ่านไม่ถูกต้อง" })

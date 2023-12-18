@@ -33,4 +33,4 @@ App.use('/api/user', UserRouter);
 App.use('/api/noti', NotiRouter);
 App.use('/api/device', DeviceRouter);
 App.use('/api', AuthRouter);
-App.listen(port, '127.0.0.1', () => console.log(`Start server in port ${port}`));
+App.listen(port, 'localhost', () => console.log(`Start server in port ${port}`));
