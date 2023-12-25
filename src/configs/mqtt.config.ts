@@ -11,7 +11,7 @@ const options: IClientOptions = {
   port: Number(process.env.MQTT_PORT),
   username: process.env.MQTT_USER,
   password: process.env.MQTT_PASSWORD,
-  clientId: "mqtt_dev_fanglyy"
+  clientId: process.env.MQTT_NAME
 }
 
 const connectMqtt = () => {

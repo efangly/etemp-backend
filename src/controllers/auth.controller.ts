@@ -52,7 +52,6 @@ const checkLogin = async (req: Request, res: Response) => {
       hospital: true
     }
   }).then( async (result) => {
-    console.log(result)
     if(result){
       const match = await bcrypt.compare(password, result.user_password);
       if(match){
