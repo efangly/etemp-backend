@@ -45,16 +45,29 @@ const register = async (req: Request, res: Response) => {
 const checkLogin = async (req: Request, res: Response) => {
   const { username, password }: UserLogin = req.body;
   await prisma.users.findUnique({
-    where: { user_name : username }
+    where: {
+      user_name: username
+    },
+    include: {
+      hospital: true
+    }
   }).then( async (result) => {
+    console.log(result)
     if(result){
       const match = await bcrypt.compare(password, result.user_password);
       if(match){
         const userid: string = result.user_id;
+        const hos_id: string = result.hos_id;
         const username: string = result.user_name;
         const display: string | null = result.display_name;
-        const token: string = sign({ userid,username,display }, String(process.env.JWT_SECRET));
-        return res.status(200).json({ token, username, display });
+        const user_pic: string | null = result.user_picture;
+        const user_level: number | null = result.user_level;
+        const hos_picture: string | null = result.hospital.hos_picture;
+        const hos_name: string | null = result.hospital.hos_name;
+        const group_id: string | null = result.group_id;
+        const user_status: string | null = result.user_status;
+        const token: string = sign({ userid }, String(process.env.JWT_SECRET));
+        return res.status(200).json({ token,userid, hos_id, username, display, user_pic, user_level, hos_picture, hos_name, group_id, user_status });
       }else{
         return res.status(400).json({ error: "รหัสผ่านไม่ถูกต้อง" })
       }

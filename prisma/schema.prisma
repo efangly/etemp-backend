@@ -69,6 +69,7 @@ model hospitals {
   hos_latitude      String?   @db.VarChar(155)
   hos_longitude     String?   @db.VarChar(155)
   hos_picture       String?   @db.VarChar(255)
+  user              users[]
 }
 
 model repairs {
@@ -106,6 +107,7 @@ model users {
   lastmodified  DateTime? @default(now()) @db.DateTime(0)
   bastatus      Int?
   comment       String?   @db.VarChar(255)
+  hospital      hospitals @relation(fields: [hos_id], references: [hos_id])
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
