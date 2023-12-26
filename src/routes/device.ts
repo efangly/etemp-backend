@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { requireLogin } from "../controllers/auth.controller";
+import { requireLogin } from "../middlewares/auth";
 import { getDevice, getDeviceByid, createDevice, updateDevice, deleteDevice } from "../controllers/device.controller";
 const DeviceRouter: Router = Router();
 

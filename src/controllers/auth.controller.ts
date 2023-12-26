@@ -1,6 +1,5 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { sign } from "jsonwebtoken";
-import { expressjwt, UnauthorizedError } from "express-jwt";
 import prisma from "../configs/prisma.config";
 import bcrypt from "bcrypt";
 
@@ -65,7 +64,7 @@ const checkLogin = async (req: Request, res: Response) => {
         const hos_name: string | null = result.hospital.hos_name;
         const group_id: string | null = result.group_id;
         const user_status: string | null = result.user_status;
-        const token: string = sign({ userid }, String(process.env.JWT_SECRET));
+        const token: string = sign({ userid, user_level }, String(process.env.JWT_SECRET));
         return res.status(200).json({ token,userid, hos_id, username, display, user_pic, user_level, hos_picture, hos_name, group_id, user_status });
       }else{
         return res.status(400).json({ error: "รหัสผ่านไม่ถูกต้อง" })
@@ -82,23 +81,9 @@ const checkLogin = async (req: Request, res: Response) => {
   });
 };
 
-const requireLogin = () => {
-  return [
-    expressjwt({
-      secret: String(process.env.JWT_SECRET),
-      algorithms: ["HS256"]
-    }),(err: UnauthorizedError, req: Request, res: Response, next: NextFunction) => {
-      res.status(err.status).json({
-        status: err.status,
-        msg: err.name,
-        error: err.message,
-      });
-    }
-  ]
-}
+
 
 export {
   checkLogin,
   register,
-  requireLogin
 };

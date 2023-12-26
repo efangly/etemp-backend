@@ -1,15 +1,9 @@
 import { Request, Response } from "express";
 import prisma from "../configs/prisma.config";
-import { users } from "@prisma/client";
+import { repairs } from "@prisma/client";
 
-const getUser = async (req: Request, res: Response) => {
-  const { user_level } = res.locals.token;
-  console.log(user_level)
-  await prisma.users.findMany({
-    where: {
-      user_level: user_level
-    }
-  }).then((result) => {
+const getRepair = async (req: Request, res: Response) => {
+  await prisma.repairs.findMany().then((result) => {
     res.json({ 
       status: 200,
       value : result
@@ -19,11 +13,11 @@ const getUser = async (req: Request, res: Response) => {
   });
 }
 
-const getUserById = async (req: Request, res: Response) => {
-  const { username } = req.params;
-  await prisma.users.findUnique({
+const getRepairById = async (req: Request, res: Response) => {
+  const { repairid } = req.params;
+  await prisma.repairs.findUnique({
     where: { 
-      user_name: username 
+      repair_id: repairid 
     }
   }).then((result) => {
     if(result){
@@ -34,7 +28,7 @@ const getUserById = async (req: Request, res: Response) => {
     }else{
       res.status(404).json({ 
         status: 404,
-        value : 'ไม่พบข้อมูลผู้ใช้งาน'
+        value : 'ไม่พบข้อมูล'
       });
     }
   }).catch((err) => {
@@ -42,12 +36,12 @@ const getUserById = async (req: Request, res: Response) => {
   });
 }
 
-const updateUser = async (req: Request, res: Response) => {
-  const value: users = req.body;
-  const { username } = req.params;
-  await prisma.users.update({
+const updateRepair = async (req: Request, res: Response) => {
+  const value: repairs = req.body;
+  const { repairid } = req.params;
+  await prisma.repairs.update({
     where: { 
-      user_name : username 
+      repair_id : repairid 
     },
     data: value
   }).then((result) => {
@@ -61,11 +55,11 @@ const updateUser = async (req: Request, res: Response) => {
   });
 }
 
-const deleteUser = async (req: Request, res: Response) => {
-  const { username } = req.params;
-  await prisma.users.delete({
+const deleteRepair = async (req: Request, res: Response) => {
+  const { repairid } = req.params;
+  await prisma.repairs.delete({
     where: { 
-      user_name: username 
+      repair_id: repairid 
     }
   }).then((result) => {
     res.json({ 
@@ -79,8 +73,8 @@ const deleteUser = async (req: Request, res: Response) => {
 }
 
 export {
-  getUser,
-  getUserById,
-  updateUser,
-  deleteUser
+  getRepair,
+  getRepairById,
+  updateRepair,
+  deleteRepair
 };
