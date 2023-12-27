@@ -45,6 +45,8 @@ model group {
   group_id   String    @id 
   group_name String    @db.VarChar(155)
   hos_id     String    @db.VarChar(100)
+  hospital   hospitals @relation(fields: [ hos_id ], references: [ hos_id ])
+  user       users[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -69,7 +71,7 @@ model hospitals {
   hos_latitude      String?   @db.VarChar(155)
   hos_longitude     String?   @db.VarChar(155)
   hos_picture       String?   @db.VarChar(255)
-  user              users[]
+  groups            group[]
 }
 
 model repairs {
@@ -95,7 +97,7 @@ model repairs {
 model users {
   user_id       String    @id @db.VarChar(100)
   hos_id        String    @db.VarChar(100)   
-  group_id      String?   @db.VarChar(100)
+  group_id      String    @db.VarChar(100)
   user_name     String    @unique @db.VarChar(155)
   user_password String    @db.VarChar(155)
   display_name  String?   @db.VarChar(150)
@@ -103,11 +105,11 @@ model users {
   create_date   DateTime? @default(now()) @db.DateTime(0)
   user_status   String?   @db.VarChar(255)
   user_level    Int?      @default(0)
-  creade_by     String?   @db.VarChar(155)
+  create_by     String?   @db.VarChar(155)
   lastmodified  DateTime? @default(now()) @db.DateTime(0)
   bastatus      Int?
   comment       String?   @db.VarChar(255)
-  hospital      hospitals @relation(fields: [hos_id], references: [hos_id])
+  ward          group     @relation(fields: [ group_id ], references: [ group_id ])
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments

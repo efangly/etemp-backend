@@ -1,44 +1,59 @@
 import { Request, Response } from "express";
 import { sign } from "jsonwebtoken";
+import { v4 as uuidv4 } from 'uuid';
 import prisma from "../configs/prisma.config";
 import bcrypt from "bcrypt";
+import { users } from "@prisma/client";
 
 interface UserLogin {
   username: string,
   password: string
 }
 
-interface Regis {
-  user_id: string
-  hos_id: string
-  user_name: string
-  user_password: string,
-  display_name: string
-}
-
 const register = async (req: Request, res: Response) => {
-  const { user_id, hos_id, user_name, user_password, display_name }: Regis = req.body;
-  const saltRounds = 10;
-  bcrypt.hash(user_password, saltRounds, async (err, hash) => {
-    const values: Regis = {
-      user_id: user_id,
-      hos_id: hos_id,
-      user_name: user_name,
-      user_password: hash,
-      display_name: display_name
-    } 
-    await prisma.users.create({
-      data: values
-    }).then((result) => {
-      res.status(201).json({ 
-        status: 201,
-        msg: "Create Suscess!!",
-        data: result
+  if(req.file === undefined){
+    res.status(400).json({ status: 400 ,message: "ไม่พบไฟล์รูป" })
+  }else{
+    let pathfile: string = `/images/${req.file?.filename}`
+    const { hos_id, group_id, user_name, user_password, display_name, user_level } = req.body;
+    const saltRounds = 10;
+    bcrypt.hash(user_password, saltRounds, async (err, hash) => {
+      const values: users = {
+        user_id: `UID-${uuidv4()}`,
+        hos_id: hos_id,
+        user_name: user_name,
+        user_password: hash,
+        display_name: display_name,
+        group_id: group_id,
+        user_picture: pathfile,
+        create_date: null,
+        user_status: null,
+        user_level: Number(user_level),
+        create_by: null,
+        lastmodified: null,
+        bastatus: null,
+        comment: null
+      } 
+      await prisma.users.create({
+        data: values,
+        include: {
+          ward: {
+            include: {
+              hospital: true
+            }
+          }
+        }
+      }).then((result) => {
+        res.status(201).json({ 
+          status: 201,
+          msg: "Create Suscess!!",
+          data: result
+        });
+      }).catch((err) => {
+        res.status(400).json({ status: 400, error: err });
       });
-    }).catch((err) => {
-      res.status(400).json({ error: err });
     });
-  });
+  }
 };
 
 const checkLogin = async (req: Request, res: Response) => {
@@ -48,7 +63,11 @@ const checkLogin = async (req: Request, res: Response) => {
       user_name: username
     },
     include: {
-      hospital: true
+      ward: {
+        include: {
+          hospital: true
+        }
+      },
     }
   }).then( async (result) => {
     if(result){
@@ -60,8 +79,8 @@ const checkLogin = async (req: Request, res: Response) => {
         const display: string | null = result.display_name;
         const user_pic: string | null = result.user_picture;
         const user_level: number | null = result.user_level;
-        const hos_picture: string | null = result.hospital.hos_picture;
-        const hos_name: string | null = result.hospital.hos_name;
+        const hos_picture: string | null = result.ward.hospital.hos_picture;
+        const hos_name: string | null = result.ward.hospital.hos_name;
         const group_id: string | null = result.group_id;
         const user_status: string | null = result.user_status;
         const token: string = sign({ userid, user_level }, String(process.env.JWT_SECRET));

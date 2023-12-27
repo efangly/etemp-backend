@@ -19,6 +19,7 @@ const port: number = parseInt(process.env.PORT as string, 10);
 
 //middleware
 App.use(express.json());
+App.use(express.urlencoded({ extended: false }));
 App.use(cors({ origin: '*' }));
 App.use(morgan("dev"));
 //firebase
