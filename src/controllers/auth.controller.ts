@@ -3,7 +3,6 @@ import { sign } from "jsonwebtoken";
 import { v4 as uuidv4 } from 'uuid';
 import prisma from "../configs/prisma.config";
 import bcrypt from "bcrypt";
-import { users } from "@prisma/client";
 
 interface UserLogin {
   username: string,

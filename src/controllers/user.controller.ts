@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import prisma from "../configs/prisma.config";
-import { users } from "@prisma/client";
+import fs from "node:fs"
+import path from "node:path";
 
 const getUser = async (req: Request, res: Response) => {
   const { user_level } = res.locals.token;
-  console.log(user_level)
   await prisma.users.findMany({
     where: {
       user_level: user_level
@@ -20,10 +20,10 @@ const getUser = async (req: Request, res: Response) => {
 }
 
 const getUserById = async (req: Request, res: Response) => {
-  const { username } = req.params;
+  const { user_id } = req.params;
   await prisma.users.findUnique({
     where: { 
-      user_name: username 
+      user_id: user_id 
     }
   }).then((result) => {
     if(result){
@@ -43,31 +43,45 @@ const getUserById = async (req: Request, res: Response) => {
 }
 
 const updateUser = async (req: Request, res: Response) => {
-  const value: users = req.body;
-  const { username } = req.params;
-  await prisma.users.update({
-    where: { 
-      user_name : username 
-    },
-    data: value
-  }).then((result) => {
-    res.json({ 
-      status: 200,
-      msg: 'Update Successful!!',
-      value : result
+  if(req.file === undefined){
+    res.status(400).json({ status: 400 ,message: "ไม่พบไฟล์รูป" })
+  }else{
+    const { user_name, display_name, user_status } = req.body;
+    const { user_id, filename } = req.params;
+    let file: string = req.file?.filename; 
+    let value = {
+      user_name: user_name,
+      display_name: display_name,
+      user_status: Number(user_status), 
+      user_picture: `/images/${file}` 
+    };
+    await prisma.users.update({
+      where: { 
+        user_id : user_id 
+      },
+      data: value
+    }).then((result) => {
+      fs.unlinkSync(path.join('public/images', filename));
+      res.json({ 
+        status: 200,
+        msg: 'Update Successful!!',
+        value : result
+      });
+    }).catch((err) => {
+      fs.unlinkSync(path.join('public/images', file));
+      res.status(400).json({ error: err });
     });
-  }).catch((err) => {
-    res.status(400).json({ error: err });
-  });
+  }
 }
 
 const deleteUser = async (req: Request, res: Response) => {
-  const { username } = req.params;
+  const { user_id, filename } = req.params;
   await prisma.users.delete({
     where: { 
-      user_name: username 
+      user_id: user_id 
     }
   }).then((result) => {
+    fs.unlinkSync(path.join('public/images', filename));
     res.json({ 
       status: 200,
       msg: 'Delete Successful!!',
