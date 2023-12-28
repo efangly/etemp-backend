@@ -15,10 +15,10 @@ const register = async (req: Request, res: Response) => {
     res.status(400).json({ status: 400 ,message: "ไม่พบไฟล์รูป" })
   }else{
     let pathfile: string = `/images/${req.file?.filename}`
-    const { hos_id, group_id, user_name, user_password, display_name, user_level } = req.body;
+    const { hos_id, group_id, user_name, user_password, display_name, user_level, create_by } = req.body;
     const saltRounds = 10;
     bcrypt.hash(user_password, saltRounds, async (err, hash) => {
-      const values: users = {
+      const values = {
         user_id: `UID-${uuidv4()}`,
         hos_id: hos_id,
         user_name: user_name,
@@ -26,13 +26,8 @@ const register = async (req: Request, res: Response) => {
         display_name: display_name,
         group_id: group_id,
         user_picture: pathfile,
-        create_date: null,
-        user_status: null,
         user_level: Number(user_level),
-        create_by: null,
-        lastmodified: null,
-        bastatus: null,
-        comment: null
+        create_by: create_by,
       } 
       await prisma.users.create({
         data: values,
@@ -82,7 +77,7 @@ const checkLogin = async (req: Request, res: Response) => {
         const hos_picture: string | null = result.ward.hospital.hos_picture;
         const hos_name: string | null = result.ward.hospital.hos_name;
         const group_id: string | null = result.group_id;
-        const user_status: string | null = result.user_status;
+        const user_status: number | null = result.user_status;
         const token: string = sign({ userid, user_level }, String(process.env.JWT_SECRET));
         return res.status(200).json({ token,userid, hos_id, username, display, user_pic, user_level, hos_picture, hos_name, group_id, user_status });
       }else{
