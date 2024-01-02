@@ -13,7 +13,7 @@ const register = async (req: Request, res: Response) => {
   if(req.file === undefined){
     res.status(400).json({ status: 400 ,message: "ไม่พบไฟล์รูป" })
   }else{
-    let pathfile: string = `/images/${req.file?.filename}`
+    let pathfile: string = `/img/${req.file?.filename}`
     const { hos_id, group_id, user_name, user_password, display_name, user_level, create_by } = req.body;
     const saltRounds = 10;
     bcrypt.hash(user_password, saltRounds, async (err, hash) => {

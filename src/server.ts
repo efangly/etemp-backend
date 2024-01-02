@@ -35,4 +35,5 @@ App.use('/api/noti', NotiRouter);
 App.use('/api/device', DeviceRouter);
 App.use('/api/repair', RepairRouter);
 App.use('/api', AuthRouter);
+App.use('/img', express.static('public/images'));
 App.listen(port, 'localhost', () => console.log(`Start server in port ${port}`));

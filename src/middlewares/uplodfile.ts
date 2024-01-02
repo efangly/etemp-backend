@@ -10,8 +10,8 @@ const storage: StorageEngine = diskStorage({
     callback(null, path.join('public/images'));
   },
   filename: (req: Request, file: Express.Multer.File, callback: FileNameCallback): void => {
-    let extArr = file.originalname.split('.');
-    let ext = extArr[extArr.length-1];
+    let extArr: string[] = file.originalname.split('.');
+    let ext: string = extArr[extArr.length-1];
     callback(null, `img-${Date.now()}.${ext}`);
   }
 });
