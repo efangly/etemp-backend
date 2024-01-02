@@ -14,7 +14,7 @@ const register = async (req: Request, res: Response) => {
     res.status(400).json({ status: 400 ,message: "ไม่พบไฟล์รูป" })
   }else{
     let pathfile: string = `/img/${req.file?.filename}`
-    const { hos_id, group_id, user_name, user_password, display_name, user_level, create_by } = req.body;
+    const { hos_id, group_id, user_name, user_password, display_name, user_status, user_level, create_by } = req.body;
     const saltRounds = 10;
     bcrypt.hash(user_password, saltRounds, async (err, hash) => {
       const values = {
@@ -25,7 +25,8 @@ const register = async (req: Request, res: Response) => {
         display_name: display_name,
         group_id: group_id,
         user_picture: pathfile,
-        user_level: Number(user_level),
+        user_status: Number(user_status) || 0,
+        user_level: Number(user_level) || 0,
         create_by: create_by,
       } 
       await prisma.users.create({
