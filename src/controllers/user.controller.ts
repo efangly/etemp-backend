@@ -54,7 +54,7 @@ const updateUser = async (req: Request, res: Response) => {
       user_name: user_name,
       display_name: display_name,
       user_status: Number(user_status),
-      user_picture: req.file === undefined ? filename : `/images/${file}`
+      user_picture: req.file === undefined ? filename : `/img/${file}`
     };
     const result: users = await prisma.users.update({
       where: {
