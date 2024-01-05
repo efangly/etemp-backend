@@ -12,6 +12,7 @@ import { initializeApp } from 'firebase-admin/app';
 import { connectMqtt } from "./configs/mqtt.config";
 import LogRouter from "./routes/log";
 import HospitalRouter from "./routes/hospital";
+import GroupRouter from "./routes/group";
 
 const App: Application = express();
 
@@ -36,6 +37,7 @@ App.use('/api/noti', NotiRouter);
 App.use('/api/device', DeviceRouter);
 App.use('/api/log', LogRouter);
 App.use('/api/hospital', HospitalRouter);
+App.use('/api/group', GroupRouter);
 App.use('/api', AuthRouter);
 App.use('/img', express.static('public/images'));
 App.listen(port, 'localhost', () => console.log(`Start server in port ${port}`));
