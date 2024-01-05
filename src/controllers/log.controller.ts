@@ -9,7 +9,7 @@ const getLog = async (req: Request, res: Response) => {
       value : result
     });
   }).catch((err) => {
-    res.status(err.status).json({ error: err });
+    res.status(400).json({ error: err });
   });
 }
 
@@ -32,7 +32,7 @@ const getLogById = async (req: Request, res: Response) => {
       });
     }
   }).catch((err) => {
-    res.status(err.status).json({ error: err });
+    res.status(400).json({ error: err });
   });
 }
 

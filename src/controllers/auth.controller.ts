@@ -112,8 +112,6 @@ const checkLogin = async (req: Request, res: Response) => {
   });
 };
 
-
-
 export default {
   checkLogin,
   register,

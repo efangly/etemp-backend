@@ -17,7 +17,7 @@ const getUser = async (req: Request, res: Response) => {
       value: result
     });
   }).catch((err) => {
-    res.status(err.status).json({ error: err });
+    res.status(400).json({ error: err });
   });
 }
 
@@ -40,7 +40,7 @@ const getUserById = async (req: Request, res: Response) => {
       });
     }
   }).catch((err) => {
-    res.status(err.status).json({ error: err });
+    res.status(400).json({ error: err });
   });
 }
 
