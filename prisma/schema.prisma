@@ -9,49 +9,55 @@ datasource db {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model devices {
-  dev_id           String    @id @db.VarChar(100)
-  hos_id           String    @db.VarChar(100)
-  group_id         String    @db.VarChar(100)
-  guarantee_id     Int?
-  dev_sn           String    @db.VarChar(22)
-  dev_name         String    @db.VarChar(155)
-  temp_min         Float?    @db.Float
-  temp_max         Float?    @db.Float
-  hum_min          Float?    @db.Float
-  hum_max          Float?    @db.Float
-  adjust_temp      Float?    @default(0.00) @db.Float
-  adjust_hum       Float?    @default(0.00) @db.Float
+  dev_id           String         @id @db.VarChar(100)
+  group_id         String         @db.VarChar(100)
+  guarantee_id     String?        @db.VarChar(100)
+  dev_sn           String         @db.VarChar(50)
+  dev_name         String         @db.VarChar(155)
+  dev_status       String         @default("0") @db.Char(1)
+  temp_min         Float          @default(0.00) @db.Float
+  temp_max         Float          @default(0.00) @db.Float
+  hum_min          Float          @default(0.00) @db.Float
+  hum_max          Float          @default(0.00) @db.Float
+  adjust_temp      Float          @default(0.00) @db.Float
+  adjust_hum       Float          @default(0.00) @db.Float
   delay_time       Int?
-  max_probe        Int?      @default(1)
-  door             Int?      @default(1)
-  repair_status    Int?      @default(0)
-  dev_zone         String?   @db.VarChar(155)
-  install_location String?   @db.VarChar(155)
-  location_pic     String?   @default("") @db.VarChar(200)
-  install_date     DateTime? @default(now()) @db.DateTime(0)
-  dev_ip           String?   @default("") @db.VarChar(16)
-  dev_gatway       String?   @default("") @db.VarChar(16)
-  dev_subnet       String?   @db.VarChar(16)
-  dev_macaddress   String?   @default("") @db.VarChar(12)
-  software_version String?   @db.VarChar(55)
-  firmware_version String?   @db.VarChar(55)
-  createby         String?   @db.VarChar(100)
-  comment          String?   @db.VarChar(155)
-  lastmodified     DateTime? @db.DateTime(0)
-  backup_status    Int?      @default(0)
+  max_probe        Int?           @default(1)
+  door             Int?           @default(1)
+  dev_zone         String?        @db.VarChar(155)
+  install_location String?        @db.VarChar(155)
+  location_pic     String?        @db.VarChar(200)
+  install_date     DateTime?      @default(now()) @db.DateTime(0)
+  dev_ip           String?        @db.VarChar(16)
+  dev_gatway       String?        @db.VarChar(16)
+  dev_subnet       String?        @db.VarChar(16)
+  dev_macaddress   String?        @db.VarChar(12)
+  software_version String?        @db.VarChar(55)
+  firmware_version String?        @db.VarChar(55)
+  invoice          String?        @default("0") @db.VarChar(50)
+  createby         String?        @db.VarChar(100)
+  comment          String?        @db.VarChar(155)
+  lastmodified     DateTime?      @updatedAt @db.DateTime(0)
+  backup_status    String?        @default("0") @db.Char(1)
+  move_status      String?        @db.VarChar(100)
+  ward             group?         @relation(fields: [group_id], references: [group_id])
+  noti             notification[]
+  log              logs_days[]
+  repair           repairs[]
 }
 
 model group {
-  group_id   String    @id 
+  group_id   String    @id @db.VarChar(100)
   group_name String    @db.VarChar(155)
   hos_id     String    @db.VarChar(100)
-  hospital   hospitals @relation(fields: [ hos_id ], references: [ hos_id ])
+  hospital   hospitals @relation(fields: [hos_id], references: [hos_id])
   user       users[]
+  device     devices[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model guarantees {
-  guarantee_id     Int       @id @default(autoincrement())
+  guarantee_id     String    @id @db.VarChar(100)
   guarantee_name   String    @db.VarChar(155)
   guarantee_day    Int
   guarantee_detail String?   @db.VarChar(255)
@@ -63,11 +69,11 @@ model hospitals {
   hos_id            String    @id @db.VarChar(100)
   hos_name          String    @db.VarChar(155)
   hos_address       String?   @db.VarChar(155)
-  hos_telephone     Decimal?  @db.Decimal(15, 0)
+  hos_telephone     String?   @db.VarChar(15)
   user_contact      String?   @db.VarChar(155)
   user_telephone    String?   @db.VarChar(15)
-  modification_date DateTime? @default(now()) @db.DateTime(0)
-  create_date       DateTime? @db.DateTime(0)
+  modification_date DateTime  @default(now()) @updatedAt @db.DateTime(0)
+  create_date       DateTime  @default(now()) @db.DateTime(0)
   hos_latitude      String?   @db.VarChar(155)
   hos_longitude     String?   @db.VarChar(155)
   hos_picture       String?   @db.VarChar(255)
@@ -76,10 +82,7 @@ model hospitals {
 
 model repairs {
   repair_id       String    @id @db.VarChar(100)
-  dev_id          String?   @db.VarChar(100)
-  hos_id          String?   @db.VarChar(100)
-  dev_sn          String?   @db.VarChar(155)
-  dev_name        String?   @db.VarChar(155)
+  dev_id          String    @db.VarChar(100)
   date_time       DateTime? @db.DateTime(0)
   repair_info     String?   @db.VarChar(155)
   repair_location String?   @db.VarChar(155)
@@ -87,37 +90,83 @@ model repairs {
   repair_details  String?   @db.VarChar(155)
   tel_number      String?   @db.VarChar(11)
   repair_status   String?   @db.VarChar(155)
-  warranty_status Int?
+  warranty_status String?   @db.Char(1)
   comment         String?   @db.VarChar(155)
-  lastmodified    DateTime? @db.DateTime(0)
-  bastatus        Int?      @default(0)
+  lastmodified    DateTime? @updatedAt @db.DateTime(0)
+  bastatus        String?   @default("0") @db.Char(1)
+  device      devices  @relation(fields: [dev_id], references: [dev_id])
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model users {
   user_id       String    @id @db.VarChar(100)
-  hos_id        String    @db.VarChar(100)   
   group_id      String    @db.VarChar(100)
   user_name     String    @unique @db.VarChar(155)
   user_password String    @db.VarChar(155)
   display_name  String?   @db.VarChar(150)
   user_picture  String?   @db.VarChar(255)
-  create_date   DateTime? @default(now()) @db.DateTime(0)
-  user_status   Int?      @default(0)
-  user_level    Int?      @default(0)
+  create_date   DateTime  @default(now()) @db.DateTime(0)
+  user_status   String    @default("0") @db.Char(1)
+  user_level    String    @default("0") @db.Char(1)
   create_by     String?   @db.VarChar(155)
-  lastmodified  DateTime? @default(now()) @db.DateTime(0)
-  bastatus      Int?      @default(0)
+  lastmodified  DateTime? @updatedAt @db.DateTime(0)
+  bastatus      String?   @db.Char(1)
   comment       String?   @db.VarChar(255)
-  ward          group     @relation(fields: [ group_id ], references: [ group_id ])
+  ward          group     @relation(fields: [group_id], references: [group_id])
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model notification {
-  noti_id     String    @id @db.VarChar(100)
-  dev_id      String
-  noti_detail String    @db.VarChar(255)
-  noti_status String?   @default("0") @db.Char(1)
-  createAt    DateTime? @default(now()) @db.DateTime(0)
-  updateAt    DateTime? @default(now()) @updatedAt @db.DateTime(0)
+  noti_id     String   @id @db.VarChar(100)
+  dev_id      String   @db.VarChar(100)
+  noti_detail String   @db.VarChar(255)
+  noti_status String   @default("0") @db.Char(1)
+  createAt    DateTime @default(now()) @db.DateTime(0)
+  updateAt    DateTime @default(now()) @updatedAt @db.DateTime(0)
+  device      devices  @relation(fields: [dev_id], references: [dev_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model logs_days {
+  log_id         String   @id @db.VarChar(100)
+  dev_id         String   @db.VarChar(100)
+  temp_value     Float    @default(0.00)
+  temp_avg       Float    @default(0.00)
+  humidity_value Float    @default(0.00)
+  humidity_avg   Float    @default(0.00)
+  send_time      DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  insert_time    DateTime @default(now()) @db.DateTime(0)
+  ac             String   @default("0") @db.Char(10)
+  door_1         String   @default("0") @db.Char(1)
+  door_2         String   @default("0") @db.Char(1)
+  door_3         String   @default("0") @db.Char(1)
+  internet       String?  @default("0") @db.Char(10)
+  probe          String   @default("0") @db.VarChar(10)
+  bettery        String?  @default("0") @db.Char(10)
+  ambient        Float?   @default(0.00)
+  sd_card        String?  @default("0") @db.Char(1)
+  event_counts   String?  @default("C000000000000000") @db.VarChar(20)
+  device         devices  @relation(fields: [dev_id], references: [dev_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model logs_days_backup {
+  log_id         String   @id @db.VarChar(100)
+  dev_id         String   @db.VarChar(100)
+  temp_value     Float    @default(0.00)
+  temp_avg       Float    @default(0.00)
+  humidity_value Float    @default(0.00)
+  humidity_avg   Float    @default(0.00)
+  send_time      DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  insert_time    DateTime @default(now()) @db.DateTime(0)
+  ac             String   @default("0") @db.Char(10)
+  door_1         String   @default("0") @db.Char(1)
+  door_2         String   @default("0") @db.Char(1)
+  door_3         String   @default("0") @db.Char(1)
+  internet       String?  @default("0") @db.Char(10)
+  probe          String   @default("0") @db.VarChar(10)
+  bettery        String?  @default("0") @db.Char(10)
+  ambient        Float?   @default(0.00)
+  sd_card        String?  @default("0") @db.Char(1)
+  event_counts   String?  @default("C000000000000000") @db.VarChar(20)
 }

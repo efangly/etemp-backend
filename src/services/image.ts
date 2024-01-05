@@ -26,8 +26,22 @@ const getHospitalImage = async (id: string): Promise<string | null | undefined> 
   }
 }
 
+const getDeviceImage = async (id: string): Promise<string | null | undefined> => {
+  try{
+    const image = await prisma.devices.findUnique({
+      where: { 
+        dev_id: id 
+      }
+    });
+    return image?.location_pic;
+  }catch(err){
+    throw new Error(`ERROR: ${err}`);
+  }
+}
+
 export {
   getUserImage,
-  getHospitalImage
+  getHospitalImage,
+  getDeviceImage
 }
 

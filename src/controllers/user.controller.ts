@@ -47,14 +47,14 @@ const getUserById = async (req: Request, res: Response) => {
 const updateUser = async (req: Request, res: Response) => {
   const { user_name, display_name, user_status } = req.body;
   const { user_id } = req.params;
-  let file: string | undefined = req.file?.filename;
+  const file: string | undefined = req.file?.filename;
   try {
     const filename = await getUserImage(user_id);
     let value = {
       user_name: user_name,
       display_name: display_name,
-      user_status: Number(user_status),
-      user_picture: req.file === undefined ? filename : `/img/${file}`
+      user_status: user_status,
+      user_picture: req.file === undefined ? filename : `/img/user/${file}`
     };
     const result: users = await prisma.users.update({
       where: {
@@ -63,7 +63,7 @@ const updateUser = async (req: Request, res: Response) => {
       data: value
     })
     if (req.file !== undefined && filename) {
-      fs.unlinkSync(path.join('public/images', String(filename?.split("/")[2])));
+      fs.unlinkSync(path.join('public/images/user', String(filename?.split("/")[3])));
     }
     res.json({
       status: 200,
@@ -71,7 +71,7 @@ const updateUser = async (req: Request, res: Response) => {
       value: result
     });
   } catch (err) {
-    if (req.file !== undefined) fs.unlinkSync(path.join('public/images', String(file)));
+    if (req.file !== undefined) fs.unlinkSync(path.join('public/images/user', String(file)));
     res.status(400).json({ error: err });
   }
 }
@@ -81,14 +81,14 @@ const deleteUser = async (req: Request, res: Response) => {
   try {
     const filename = await getUserImage(user_id);
     await prisma.users.delete({ where: { user_id: user_id } })
-    fs.unlinkSync(path.join('public/images', String(filename?.split("/")[2])));
+    fs.unlinkSync(path.join('public/images/user', String(filename?.split("/")[3])));
     res.json({ status: 200, msg: 'Delete Successful!!' });
   } catch (err) {
     res.status(400).json({ error: err });
   }
 }
 
-export {
+export default {
   getUser,
   getUserById,
   updateUser,

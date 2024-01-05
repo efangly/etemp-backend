@@ -10,7 +10,8 @@ import DeviceRouter from "./routes/device";
 import { credential } from "firebase-admin";
 import { initializeApp } from 'firebase-admin/app';
 import { connectMqtt } from "./configs/mqtt.config";
-import RepairRouter from "./routes/repair";
+import LogRouter from "./routes/log";
+import HospitalRouter from "./routes/hospital";
 
 const App: Application = express();
 
@@ -33,7 +34,8 @@ connectMqtt();
 App.use('/api/user', UserRouter);
 App.use('/api/noti', NotiRouter);
 App.use('/api/device', DeviceRouter);
-App.use('/api/repair', RepairRouter);
+App.use('/api/log', LogRouter);
+App.use('/api/hospital', HospitalRouter);
 App.use('/api', AuthRouter);
 App.use('/img', express.static('public/images'));
 App.listen(port, 'localhost', () => console.log(`Start server in port ${port}`));

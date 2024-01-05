@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import prisma from "../configs/prisma.config";
-import { repairs } from "@prisma/client";
+import { logs_days } from "@prisma/client";
 
-const getRepair = async (req: Request, res: Response) => {
-  await prisma.repairs.findMany().then((result) => {
+const getLog = async (req: Request, res: Response) => {
+  await prisma.logs_days.findMany().then((result) => {
     res.json({ 
       status: 200,
       value : result
@@ -13,11 +13,11 @@ const getRepair = async (req: Request, res: Response) => {
   });
 }
 
-const getRepairById = async (req: Request, res: Response) => {
-  const { repairid } = req.params;
-  await prisma.repairs.findUnique({
+const getLogById = async (req: Request, res: Response) => {
+  const { log_id } = req.params;
+  await prisma.logs_days.findUnique({
     where: { 
-      repair_id: repairid 
+      log_id: log_id 
     }
   }).then((result) => {
     if(result){
@@ -36,30 +36,22 @@ const getRepairById = async (req: Request, res: Response) => {
   });
 }
 
-const updateRepair = async (req: Request, res: Response) => {
-  const value: repairs = req.body;
-  const { repairid } = req.params;
-  await prisma.repairs.update({
-    where: { 
-      repair_id : repairid 
-    },
-    data: value
+const createLog = async (req: Request, res: Response) => {
+  const params: logs_days = req.body;
+  await prisma.logs_days.create({
+    data: params
   }).then((result) => {
-    res.json({ 
-      status: 200,
-      msg: 'Update Successful!!',
-      value : result
-    });
+    res.status(201).json({ status: 201, value : result });
   }).catch((err) => {
     res.status(400).json({ error: err });
   });
-}
+};
 
-const deleteRepair = async (req: Request, res: Response) => {
-  const { repairid } = req.params;
-  await prisma.repairs.delete({
+const deleteLog = async (req: Request, res: Response) => {
+  const { log_id } = req.params;
+  await prisma.logs_days.delete({
     where: { 
-      repair_id: repairid 
+      log_id: log_id 
     }
   }).then((result) => {
     res.json({ 
@@ -73,8 +65,8 @@ const deleteRepair = async (req: Request, res: Response) => {
 }
 
 export default {
-  getRepair,
-  getRepairById,
-  updateRepair,
-  deleteRepair
+  getLog,
+  getLogById,
+  createLog,
+  deleteLog
 };
