@@ -40,4 +40,4 @@ App.use('/api/hospital', HospitalRouter);
 App.use('/api/group', GroupRouter);
 App.use('/api', AuthRouter);
 App.use('/img', express.static('public/images'));
-App.listen(port, 'localhost', () => console.log(`Start server in port ${port}`));
+App.listen(port, () => console.log(`Start server in port ${port}`));
