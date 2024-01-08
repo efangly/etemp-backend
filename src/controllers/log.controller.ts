@@ -38,6 +38,7 @@ const getLogById = async (req: Request, res: Response) => {
 
 const createLog = async (req: Request, res: Response) => {
   const params = req.body;
+  console.log(params)
   res.status(201).json({ status: 201, value : params });
   // await prisma.logs_days.create({
   //   data: params
