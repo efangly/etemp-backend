@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../configs/prisma.config";
+import { v4 as uuidv4 } from 'uuid';
 import { logs_days } from "@prisma/client";
 
 const getLog = async (req: Request, res: Response) => {
@@ -37,16 +38,18 @@ const getLogById = async (req: Request, res: Response) => {
 }
 
 const createLog = async (req: Request, res: Response) => {
-  const params = req.body;
+  const params: logs_days = req.body;
+  params.log_id = `LOG-${uuidv4()}`
+  params.send_time = new Date("2024-12-17T03:24:00");
   console.log(params)
-  res.status(201).json({ status: 201, value : params });
-  // await prisma.logs_days.create({
-  //   data: params
-  // }).then((result) => {
-  //   res.status(201).json({ status: 201, value : result });
-  // }).catch((err) => {
-  //   res.status(400).json({ error: err });
-  // });
+  //res.status(201).json({ status: 201, value : params });
+  await prisma.logs_days.create({
+    data: params
+  }).then((result) => {
+    res.status(201).json({ status: 201, value : result });
+  }).catch((err) => {
+    res.status(400).json({ error: err });
+  });
 };
 
 const deleteLog = async (req: Request, res: Response) => {
