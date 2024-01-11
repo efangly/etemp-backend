@@ -10,6 +10,13 @@ const getUser = async (req: Request, res: Response) => {
   await prisma.users.findMany({
     where: {
       user_level: user_level
+    },
+    include: {
+      ward: {
+        include: {
+          hospital: true
+        }
+      }
     }
   }).then((result) => {
     res.json({
@@ -26,6 +33,13 @@ const getUserById = async (req: Request, res: Response) => {
   await prisma.users.findUnique({
     where: {
       user_id: user_id
+    },
+    include: {
+      ward: {
+        include: {
+          hospital: true
+        }
+      }
     }
   }).then((result) => {
     if (result) {
