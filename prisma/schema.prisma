@@ -134,7 +134,7 @@ model logs_days {
   temp_avg       Float    @default(0.00)
   humidity_value Float    @default(0.00)
   humidity_avg   Float    @default(0.00)
-  send_time      DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  send_time      DateTime @default(now()) @db.DateTime(0)
   insert_time    DateTime @default(now()) @db.DateTime(0)
   ac             String   @default("0") @db.Char(10)
   door_1         String   @default("0") @db.Char(1)

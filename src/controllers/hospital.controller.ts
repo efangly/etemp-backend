@@ -107,7 +107,11 @@ const deleteHospital = async (req: Request, res: Response) => {
 /////////////////////////////////////////////////////////////////// WARD //////////////////////////////////////////////////////////////////////////////////
 
 const getGroup = async (req: Request, res: Response) => {
-  await prisma.group.findMany().then((result) => {
+  await prisma.group.findMany({
+    include: {
+      hospital: true
+    }
+  }).then((result) => {
     res.json({ status: 200, value: result });
   }).catch((err) => {
     res.status(400).json({ error: err });
@@ -119,6 +123,9 @@ const getGroupById = async (req: Request, res: Response) => {
   await prisma.group.findUnique({
     where: {
       group_id: group_id
+    },
+    include: {
+      hospital: true
     }
   }).then((result) => {
     res.json({ status: 200, value: result });
@@ -132,6 +139,9 @@ const getGroupByHosId = async (req: Request, res: Response) => {
   await prisma.group.findMany({
     where: {
       hos_id: hos_id
+    },
+    include: {
+      hospital: true
     }
   }).then((result) => {
     res.json({ status: 200, value: result });

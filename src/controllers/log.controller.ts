@@ -40,9 +40,7 @@ const getLogById = async (req: Request, res: Response) => {
 const createLog = async (req: Request, res: Response) => {
   const params: logs_days = req.body;
   params.log_id = `LOG-${uuidv4()}`
-  params.send_time = new Date("2024-12-17T03:24:00");
-  console.log(params)
-  //res.status(201).json({ status: 201, value : params });
+  params.send_time = new Date(String(params.send_time).replace(" ", "T"));
   await prisma.logs_days.create({
     data: params
   }).then((result) => {
