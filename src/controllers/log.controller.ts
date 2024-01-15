@@ -38,16 +38,20 @@ const getLogById = async (req: Request, res: Response) => {
 }
 
 const createLog = async (req: Request, res: Response) => {
-  const params: logs_days = req.body;
-  params.log_id = `LOG-${uuidv4()}`
-  params.send_time = new Date(String(params.send_time).replace(" ", "T"));
-  await prisma.logs_days.create({
-    data: params
-  }).then((result) => {
-    res.status(201).json({ status: 201, value : result });
-  }).catch((err) => {
-    res.status(400).json({ error: err });
-  });
+  const params: logs_days | logs_days[] = req.body;
+  if(Array.isArray(params)){
+    res.status(201).json({ status: 201, value : params });
+  }else{
+    params.log_id = `LOG-${uuidv4()}`
+    params.send_time = new Date(String(params.send_time).replace(" ", "T"));
+    await prisma.logs_days.create({
+      data: params
+    }).then((result) => {
+      res.status(201).json({ status: 201, value : result });
+    }).catch((err) => {
+      res.status(400).json({ error: err });
+    });
+  }
 };
 
 const deleteLog = async (req: Request, res: Response) => {
