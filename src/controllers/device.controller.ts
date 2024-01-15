@@ -35,22 +35,18 @@ const getDeviceByid = async (req: Request, res: Response) => {
 };
 
 const createDevice = async (req: Request, res: Response) => {
-  const { dev_sn, dev_name, createby } = req.body;
-  const pathfile: string = `/img/device/${req.file?.filename}`;
-  const value = {
-    dev_id: `DEV-${uuidv4()}`,
-    group_id: 'WID-DEVELOP',
-    dev_sn: dev_sn,
-    dev_name: dev_name,
-    createby: createby,
-    location_pic: req.file === undefined ? null : pathfile,
-  };
+  const params: devices = req.body;
+  const pathfile: string | null = req.file !== undefined ? `/img/device/${req.file.filename}` : null;
+  params.dev_id = `DEV-${uuidv4()}`;
+  params.group_id = !params.group_id ? "WID-DEVELOP" : params.group_id;
+  params.location_pic = pathfile;
+  console.log(params)
   await prisma.devices.create({
-    data: value
+    data: params
   }).then((result) => {
     res.status(201).json({ status: 201, msg: "Create Suscess!!", data : result });
   }).catch((err) => {
-    fs.unlinkSync(path.join('public/images/device', String(req.file?.filename)));
+    if(req.file !== undefined) fs.unlinkSync(path.join('public/images/device', String(req.file?.filename)));
     res.status(400).json({ error: err });
   });
 };

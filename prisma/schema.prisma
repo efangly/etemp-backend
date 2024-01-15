@@ -12,8 +12,8 @@ model devices {
   dev_id           String         @id @db.VarChar(100)
   group_id         String         @db.VarChar(100)
   guarantee_id     String?        @db.VarChar(100)
-  dev_sn           String         @db.VarChar(50)
-  dev_name         String         @db.VarChar(155)
+  dev_sn           String         @unique @db.VarChar(50)
+  dev_name         String?        @db.VarChar(155)
   dev_status       String         @default("0") @db.Char(1)
   temp_min         Float          @default(0.00) @db.Float
   temp_max         Float          @default(0.00) @db.Float
