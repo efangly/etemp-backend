@@ -76,7 +76,7 @@ const updateUser = async (req: Request, res: Response) => {
       },
       data: value
     })
-    if (req.file !== undefined && filename) {
+    if (req.file !== undefined && !!filename) {
       fs.unlinkSync(path.join('public/images/user', String(filename?.split("/")[3])));
     }
     res.json({

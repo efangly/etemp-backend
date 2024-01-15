@@ -82,7 +82,7 @@ const updateHospital = async (req: Request, res: Response) => {
       },
       data: value
     })
-    if (req.file !== undefined && filename) {
+    if (req.file !== undefined && !!filename) {
       fs.unlinkSync(path.join('public/images/hospital', String(filename?.split("/")[3])));
     }
     res.json({ status: 200, msg: 'Update Successful!!', value: result });
