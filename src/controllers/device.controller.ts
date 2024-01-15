@@ -109,7 +109,7 @@ const deleteDevice = async (req: Request, res: Response) => {
   try {
     const filename = await getDeviceImage(dev_id);
     await prisma.devices.delete({ where: { dev_id: dev_id }})
-    fs.unlinkSync(path.join('public/images/device', String(filename?.split("/")[3])));
+    if (req.file !== undefined) fs.unlinkSync(path.join('public/images/device', String(filename?.split("/")[3])));
     res.json({ status: 200, msg: 'Delete Successful!!' });
   } catch (err) {
     res.status(400).json({ error: err });

@@ -57,7 +57,7 @@ const createHospital = async (req: Request, res: Response) => {
   }).then((result) => {
     res.status(201).json({ status: 201, msg: "Create Suscess!!", data : result });
   }).catch((err) => {
-    fs.unlinkSync(path.join('public/images/hospital', String(req.file?.filename)));
+    if (req.file !== undefined) fs.unlinkSync(path.join('public/images/hospital', String(req.file?.filename)));
     res.status(400).json({ error: err });
   });
 };
@@ -97,7 +97,7 @@ const deleteHospital = async (req: Request, res: Response) => {
   try {
     const filename = await getHospitalImage(hos_id);
     await prisma.hospitals.delete({ where: { hos_id: hos_id } })
-    fs.unlinkSync(path.join('public/images/hospital', String(filename?.split("/")[3])));
+    if (req.file !== undefined) fs.unlinkSync(path.join('public/images/hospital', String(filename?.split("/")[3])));
     res.json({ status: 200, msg: 'Delete Successful!!' });
   } catch (err) {
     res.status(400).json({ error: err });
