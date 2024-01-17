@@ -7,7 +7,15 @@ import { getDeviceImage } from "../services/image";
 import { devices } from "@prisma/client";
 
 const getDevice = async (req: Request, res: Response) => {
-  await prisma.devices.findMany().then((result) => {
+  await prisma.devices.findMany({
+    include: {
+      log: {
+        orderBy: {
+          send_time: 'desc'
+        }
+      }
+    }
+  }).then((result) => {
     res.json({ 
       status: 200,
       value : result
@@ -22,6 +30,9 @@ const getDeviceByid = async (req: Request, res: Response) => {
   await prisma.devices.findUnique({
     where: {
       dev_id: dev_id
+    },
+    include: {
+      log: true
     }
   }).then((result) => {
     if(!result){
@@ -57,45 +68,21 @@ const updateDevice = async (req: Request, res: Response) => {
   const file: string | undefined = req.file?.filename;
   try {
     const filename = await getDeviceImage(dev_id);
-    let value = {
-      group_id: params.group_id,
-      guarantee_id: params.guarantee_id,
-      dev_sn: params.dev_sn,
-      dev_name: params.dev_name,
-      dev_status: params.dev_status,
-      temp_min: Number(params.temp_min),
-      temp_max: Number(params.temp_max),
-      hum_min: Number(params.hum_min),
-      hum_max: Number(params.hum_max),
-      adjust_temp: Number(params.adjust_temp),
-      adjust_hum: Number(params.adjust_hum),
-      delay_time: Number(params.delay_time),
-      max_probe: Number(params.max_probe),
-      door: Number(params.door),
-      dev_zone: params.dev_zone,
-      install_location: params.install_location,
-      location_pic: String(req.file === undefined ? filename : `/img/device/${file}`),
-      install_date: params.install_date,
-      dev_ip: params.dev_ip,
-      dev_gatway: params.dev_gatway,
-      dev_subnet: params.dev_subnet,
-      dev_macaddress: params.dev_macaddress,
-      software_version: params.software_version,
-      firmware_version: params.firmware_version,
-      invoice: params.invoice,
-      createby: params.createby,
-      comment: params.comment,
-      backup_status: params.backup_status,
-      move_status: params.move_status
-    };
+    if(params.temp_min) params.temp_min = Number(params.temp_min);
+    if(params.temp_max) params.temp_max = Number(params.temp_max);
+    if(params.hum_min) params.hum_min = Number(params.hum_min);
+    if(params.hum_max) params.hum_max = Number(params.hum_max);
+    if(params.adjust_temp) params.adjust_temp = Number(params.adjust_temp);
+    if(params.adjust_hum) params.adjust_hum = Number(params.adjust_hum);
+    params.location_pic = String(req.file === undefined ? filename : `/img/device/${file}`);
+    console.log(params)
     const result: devices = await prisma.devices.update({
       where: {
         dev_id: dev_id
       },
-      data: value
-    })
+      data: params
+    });
     if (req.file !== undefined && !!filename) {
-      console.log(filename)
       fs.unlinkSync(path.join('public/images/device', String(filename?.split("/")[3])));
     }
     res.json({ status: 200, msg: 'Update Successful!!', value: result });
@@ -109,7 +96,7 @@ const deleteDevice = async (req: Request, res: Response) => {
   const { dev_id } = req.params;
   try {
     const filename = await getDeviceImage(dev_id);
-    await prisma.devices.delete({ where: { dev_id: dev_id }})
+    await prisma.devices.delete({ where: { dev_id: dev_id }});
     if (req.file !== undefined) fs.unlinkSync(path.join('public/images/device', String(filename?.split("/")[3])));
     res.json({ status: 200, msg: 'Delete Successful!!' });
   } catch (err) {

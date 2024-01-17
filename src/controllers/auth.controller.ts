@@ -6,43 +6,21 @@ import fs from "node:fs"
 import path from "node:path";
 import prisma from "../configs/prisma.config";
 import bcrypt from "bcrypt";
-
+import { users } from "@prisma/client";
 
 interface UserLogin {
   username: string,
   password: string
 }
 
-interface UserRegister {
-  user_id: string,
-  user_name: string,
-  user_password: string,
-  display_name?: string,
-  group_id: string,
-  user_picture?: string | null,
-  user_status: string,
-  user_level: string,
-  create_by: string,
-}
-
 const register = async (req: Request, res: Response) => {
-  let pathfile: string = `/img/user/${req.file?.filename}`
-  const { group_id, user_name, user_password, display_name, user_status, user_level, create_by }: UserRegister = req.body;
+  const params: users = req.body;
   const saltRounds = 10;
-  bcrypt.hash(user_password, saltRounds, async (err, hash) => {
-    const values: UserRegister = {
-      user_id: `UID-${uuidv4()}`,
-      user_name: user_name,
-      user_password: hash,
-      display_name: display_name,
-      group_id: group_id,
-      user_picture: req.file === undefined ? null : pathfile,
-      user_status: user_status,
-      user_level: user_level,
-      create_by: create_by,
-    }
+  bcrypt.hash(params.user_password, saltRounds, async (err, hash) => {
+    params.user_id = `UID-${uuidv4()}`,
+    params.user_picture = req.file === undefined ? null : `/img/user/${req.file?.filename}`,
     await prisma.users.create({
-      data: values,
+      data: params,
       include: {
         ward: {
           include: {
@@ -57,7 +35,7 @@ const register = async (req: Request, res: Response) => {
         data: result
       });
     }).catch((err) => {
-      fs.unlinkSync(path.join('public/images/user', String(req.file?.filename)))
+      if (req.file !== undefined) fs.unlinkSync(path.join('public/images/user', String(req.file?.filename)))
       if(err instanceof PrismaClientKnownRequestError){
         res.status(400).json({ status: 400, error: err.code === 'P2002' ? 'ชื่อผู้ใช้ซ้ำ' : err });
       }else{

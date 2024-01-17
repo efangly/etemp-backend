@@ -59,22 +59,17 @@ const getUserById = async (req: Request, res: Response) => {
 }
 
 const updateUser = async (req: Request, res: Response) => {
-  const { user_name, display_name, user_status } = req.body;
+  const params: users = req.body;
   const { user_id } = req.params;
   const file: string | undefined = req.file?.filename;
   try {
     const filename = await getUserImage(user_id);
-    let value = {
-      user_name: user_name,
-      display_name: display_name,
-      user_status: user_status,
-      user_picture: req.file === undefined ? filename : `/img/user/${file}`
-    };
+    params.user_picture = req.file === undefined ? filename || null : `/img/user/${file}`
     const result: users = await prisma.users.update({
       where: {
         user_id: user_id
       },
-      data: value
+      data: params
     })
     if (req.file !== undefined && !!filename) {
       fs.unlinkSync(path.join('public/images/user', String(filename?.split("/")[3])));
@@ -94,8 +89,8 @@ const deleteUser = async (req: Request, res: Response) => {
   const { user_id } = req.params;
   try {
     const filename = await getUserImage(user_id);
-    await prisma.users.delete({ where: { user_id: user_id } })
-    if (req.file !== undefined) fs.unlinkSync(path.join('public/images/user', String(filename?.split("/")[3])));
+    await prisma.users.delete({ where: { user_id: user_id } });
+    if (!!filename) fs.unlinkSync(path.join('public/images/user', String(filename?.split("/")[3])));
     res.json({ status: 200, msg: 'Delete Successful!!' });
   } catch (err) {
     res.status(400).json({ error: err });

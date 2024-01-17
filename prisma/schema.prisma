@@ -21,9 +21,9 @@ model devices {
   hum_max          Float          @default(0.00) @db.Float
   adjust_temp      Float          @default(0.00) @db.Float
   adjust_hum       Float          @default(0.00) @db.Float
-  delay_time       Int?
-  max_probe        Int?           @default(1)
-  door             Int?           @default(1)
+  delay_time       String?        @db.VarChar(11)
+  max_probe        String?        @default("1") @db.VarChar(11)
+  door             String?        @default("1") @db.VarChar(11)
   dev_zone         String?        @db.VarChar(155)
   install_location String?        @db.VarChar(155)
   location_pic     String?        @db.VarChar(200)
