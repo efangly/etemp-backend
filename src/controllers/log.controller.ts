@@ -57,7 +57,7 @@ const createLog = async (req: Request, res: Response) => {
         door_3: log.door_3,
         internet: log.internet,
         probe: log.probe,
-        bettery: log.bettery,
+        battery: log.battery,
         ambient: log.ambient,
         insert_time: toDate(format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'")),
         sd_card: log.sd_card || null,

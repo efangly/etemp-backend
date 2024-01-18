@@ -7,6 +7,7 @@ import path from "node:path";
 import prisma from "../configs/prisma.config";
 import bcrypt from "bcrypt";
 import { users } from "@prisma/client";
+import { format, toDate } from "date-fns";
 
 interface UserLogin {
   username: string,
@@ -18,6 +19,8 @@ const register = async (req: Request, res: Response) => {
   const saltRounds = 10;
   bcrypt.hash(params.user_password, saltRounds, async (err, hash) => {
     params.user_id = `UID-${uuidv4()}`,
+    params.create_date = toDate(format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'"));
+    params.lastmodified = toDate(format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'"));
     params.user_picture = req.file === undefined ? null : `/img/user/${req.file?.filename}`,
     await prisma.users.create({
       data: params,

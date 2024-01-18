@@ -5,11 +5,13 @@ import path from "node:path";
 import { v4 as uuidv4 } from 'uuid';
 import { getDeviceImage } from "../services/image";
 import { devices } from "@prisma/client";
+import { format, toDate } from "date-fns";
 
 const getDevice = async (req: Request, res: Response) => {
   await prisma.devices.findMany({
     include: {
       log: {
+        take: 1,
         orderBy: {
           send_time: 'desc'
         }
@@ -51,7 +53,7 @@ const createDevice = async (req: Request, res: Response) => {
   params.dev_id = `DEV-${uuidv4()}`;
   params.group_id = !params.group_id ? "WID-DEVELOP" : params.group_id;
   params.location_pic = pathfile;
-  console.log(params)
+  params.lastmodified = toDate(format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'"));
   await prisma.devices.create({
     data: params
   }).then((result) => {
@@ -74,8 +76,9 @@ const updateDevice = async (req: Request, res: Response) => {
     if(params.hum_max) params.hum_max = Number(params.hum_max);
     if(params.adjust_temp) params.adjust_temp = Number(params.adjust_temp);
     if(params.adjust_hum) params.adjust_hum = Number(params.adjust_hum);
+    if(params.install_date) params.install_date = toDate(format(params.install_date, "yyyy-MM-dd'T'HH:mm:ss'Z'"));
+    params.lastmodified = toDate(format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'"));
     params.location_pic = String(req.file === undefined ? filename : `/img/device/${file}`);
-    console.log(params)
     const result: devices = await prisma.devices.update({
       where: {
         dev_id: dev_id
