@@ -95,6 +95,22 @@ const updateDevice = async (req: Request, res: Response) => {
   }
 };
 
+const adjustDevice = async (req: Request, res: Response) => {
+  const params: devices = req.body;
+  const { dev_id } = req.params;
+  await prisma.devices.update({
+    where: {
+      dev_id: dev_id
+    },
+    data: params
+  }).then((result) => {
+    res.status(200).json({ status: 200, msg: "Adjust Suscess!!", data : result });
+  }).catch((err) => {
+    res.status(400).json({ error: err });
+  })
+    
+};
+
 const deleteDevice = async (req: Request, res: Response) => {
   const { dev_id } = req.params;
   try {
@@ -112,5 +128,6 @@ export default {
   getDeviceByid,
   createDevice,
   updateDevice,
+  adjustDevice,
   deleteDevice
 };

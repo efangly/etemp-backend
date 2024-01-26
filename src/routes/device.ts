@@ -9,6 +9,7 @@ DeviceRouter.get('/', ...requireLogin(), device.getDevice);
 DeviceRouter.get('/:dev_id', ...requireLogin(), device.getDeviceByid);
 DeviceRouter.post('/', ...requireLogin(), upload.single('fileupload'), device.createDevice);
 DeviceRouter.put('/:dev_id', ...requireLogin(), upload.single('fileupload'), device.updateDevice);
+DeviceRouter.patch('/:dev_id', ...requireLogin(), device.adjustDevice);
 DeviceRouter.delete('/:dev_id', ...requireLogin(), device.deleteDevice);
 
 DeviceRouter.get('/repair', ...requireLogin(), repair.getRepair);
