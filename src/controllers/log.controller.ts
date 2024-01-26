@@ -72,11 +72,29 @@ const createLog = async (req: Request, res: Response) => {
       res.status(400).json({ error: err });
     });
   }else{
-    params.log_id = `LOG-${uuidv4()}`;
-    params.send_time = toDate(format(params.send_time, "yyyy-MM-dd'T'HH:mm:ss'Z'"));
-    params.insert_time = toDate(format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'"));
+    const value: logs_days = {
+      log_id: `LOG-${uuidv4()}`,
+      dev_id: params.dev_id,
+      temp_value: params.temp_value,
+      temp_avg: params.temp_avg,
+      humidity_value: params.humidity_value,
+      humidity_avg: params.humidity_avg,
+      send_time: toDate(format(params.send_time, "yyyy-MM-dd'T'HH:mm:ss'Z'")),
+      ac: params.ac,
+      door_1: params.door_1,
+      door_2: params.door_2,
+      door_3: params.door_3,
+      internet: params.internet,
+      probe: params.probe,
+      battery: params.battery,
+      ambient: params.ambient,
+      insert_time: toDate(format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'")),
+      sd_card: params.sd_card || null,
+      event_counts: params.event_counts || null
+    }
+    console.log(value)
     await prisma.logs_days.create({
-      data: params
+      data: value
     }).then((result) => {
       res.status(201).json({ status: 201, msg : 'Create Success!!' });
     }).catch((err) => {

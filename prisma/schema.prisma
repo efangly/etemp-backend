@@ -142,7 +142,7 @@ model logs_days {
   door_3         String   @default("0") @db.Char(1)
   internet       String?  @default("0") @db.Char(10)
   probe          String   @default("0") @db.VarChar(10)
-  battery        String?  @default("0") @db.Char(10)
+  battery        String?  @default("0") @db.VarChar(10)
   ambient        Float?   @default(0.00)
   sd_card        String?  @default("0") @db.Char(1)
   event_counts   String?  @default("C000000000000000") @db.VarChar(20)

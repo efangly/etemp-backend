@@ -76,7 +76,7 @@ const checkLogin = async (req: Request, res: Response) => {
         const hos_name: string | null = result.ward.hospital.hos_name;
         const group_id: string | null = result.group_id;
         const user_status: string | null = result.user_status;
-        const token: string = sign({ userid, user_level }, String(process.env.JWT_SECRET));
+        const token: string = sign({ userid, user_level, hos_id }, String(process.env.JWT_SECRET));
         return res.status(200).json({ token, userid, hos_id, username, display, user_pic, user_level, hos_picture, hos_name, group_id, user_status });
       } else {
         return res.status(400).json({ error: "รหัสผ่านไม่ถูกต้อง" })
