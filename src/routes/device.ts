@@ -7,6 +7,7 @@ const DeviceRouter: Router = Router();
 
 DeviceRouter.get('/', ...requireLogin(), device.getDevice);
 DeviceRouter.get('/:dev_id', ...requireLogin(), device.getDeviceByid);
+DeviceRouter.get('/adjust/:dev_id', device.getDeviceByid);
 DeviceRouter.post('/', ...requireLogin(), upload.single('fileupload'), device.createDevice);
 DeviceRouter.put('/:dev_id', ...requireLogin(), upload.single('fileupload'), device.updateDevice);
 DeviceRouter.patch('/:dev_id', device.adjustDevice);

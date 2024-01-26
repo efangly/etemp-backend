@@ -29,14 +29,36 @@ const getDevice = async (req: Request, res: Response) => {
 
 const getDeviceByid = async (req: Request, res: Response) => {
   const { dev_id } = req.params;
-  await prisma.devices.findUnique({
-    where: {
-      dev_id: dev_id
-    },
-    include: {
-      log: true
+  let whereCondition: any = {};
+  if(req.originalUrl.split("/")[3] === 'adjust'){
+    whereCondition = {
+      where: {
+        dev_id: dev_id
+      },
+      select: {
+        dev_id: true,
+        temp_min: true,
+        temp_max: true,
+        hum_min: true,
+        hum_max: true,
+        adjust_hum: true,
+        adjust_temp: true,
+        delay_time: true,
+        max_probe: true,
+        door: true
+      }
     }
-  }).then((result) => {
+  }else{
+    whereCondition = {
+      where: {
+        dev_id: dev_id
+      },
+      include: {
+        log: true
+      }
+    }
+  }
+  await prisma.devices.findUnique(whereCondition).then((result) => {
     if(!result){
       res.status(404).json({ status: 404, value : 'ไม่พบข้อมูล' });
     }else{
