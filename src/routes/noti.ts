@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { setPushNotification } from "../controllers/notification.controller"; 
+import noti from "../controllers/notification.controller"; 
 import { requireLogin } from "../middlewares/auth";
 const NotiRouter: Router = Router();
 
-NotiRouter.post('/', ...requireLogin(), setPushNotification);
+NotiRouter.get('/', ...requireLogin(), noti.getNotification);
+NotiRouter.post('/', ...requireLogin(), noti.setPushNotification);
 
 export default NotiRouter;

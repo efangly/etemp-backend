@@ -34,10 +34,8 @@ const connectMqtt = () => {
     });
 
     client.on('message', (topic, message) => {
-      console.log(topic);
       let value: ReceiveMsg = JSON.parse(message.toString());
       createNotification(value);
-      console.log(value);
     });
   });
 }

@@ -1,21 +1,14 @@
 import { getMessaging, Message } from "firebase-admin/messaging";
 import prisma from "../configs/prisma.config";
 import { v4 as uuidv4 } from 'uuid';
-import { ReceiveMsg } from "../interfaces/notification.interface";
+import { ReceiveMsg, Notification } from "../interfaces/notification.interface";
 
-interface Notification {
-  noti_id: string,
-  dev_id: string,
-  noti_detail: string,
-  noti_status: string,
-}
-
-const sendToPushNoti = async (topic: string, temp: number, hum: number): Promise<boolean> => {
+const sendToPushNoti = async (topic: string, msg: string, temp: number, hum: number): Promise<boolean> => {
   let res: boolean = false;
   const message: Message = {
     notification: {
       title: "แจ้งเตือน",
-      body: 'อุณหภูมิสูงเกินกำหนด',
+      body: msg === 'greater' ? 'อุณหภูมิสูงกว่าที่กำหนด' : 'อุณหภูมิต่ำกว่าที่กำหนด',
     },
     data: {
       temp: String(temp),
@@ -37,22 +30,23 @@ const sendToPushNoti = async (topic: string, temp: number, hum: number): Promise
     }).catch((err) => {
       throw err;
     })
-
   return res ? true : false;
 };
 
-const createNotification = async (param: ReceiveMsg) => {
+const createNotification = async (param: ReceiveMsg): Promise<boolean> => {
   const value: Notification = {
     noti_id: `noti-${uuidv4()}`,
     dev_id: param.device,
-    noti_detail: '',
+    noti_detail: param.msg === 'greater' ? 'อุณหภูมิสูงกว่าที่กำหนด' : 'อุณหภูมิต่ำกว่าที่กำหนด',
     noti_status: '0',
-  }
+  } // greater = อุณหภูมิสูง ,less = อุณหภูมิต่ำ
   try{
     await prisma.notification.create({ data: value });
-    await sendToPushNoti('test', param.temp, param.hum);
+    await sendToPushNoti('test', param.msg, param.temp, param.hum);
+    return true;
   }catch(err){
-    console.log(err);
+    console.log({ msg: 'Create Notofocation Fail' });
+    return false;
   };
 };
 
