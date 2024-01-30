@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getDeviceImage } from "../services/image";
 import { devices } from "@prisma/client";
 import { format, toDate } from "date-fns";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 const getDevice = async (req: Request, res: Response) => {
   await prisma.devices.findMany({
@@ -84,7 +85,11 @@ const createDevice = async (req: Request, res: Response) => {
     res.status(201).json({ status: 201, msg: "Create Suscess!!", data : result });
   }).catch((err) => {
     if(req.file !== undefined) fs.unlinkSync(path.join('public/images/device', String(req.file?.filename)));
-    res.status(400).json({ error: err });
+    if(err instanceof PrismaClientKnownRequestError){
+      res.status(400).json({ status: 400, error: err.code === 'P2002' ? 'Serial Number ซ้ำ' : err });
+    }else{
+      res.status(400).json({ status: 400, error: err });
+    }
   });
 };
 

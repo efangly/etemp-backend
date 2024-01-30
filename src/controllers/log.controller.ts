@@ -11,7 +11,7 @@ const getLog = async (req: Request, res: Response) => {
   await prisma.logs_days.findMany({
     where: condition,
     orderBy: {
-      send_time: 'asc'
+      send_time: 'desc'
     }
   }).then((result) => {
     res.json({ 
@@ -149,12 +149,12 @@ const filterLog = (query: any) => {
           };
           break;
         default:
-          const startDate: Date = new Date(query.filter.split(",")[0]);
-          const endDate: Date = new Date(query.filter.split(",")[1]);
+          const startDate: Date = toDate(format(new Date(query.filter.split(",")[0]), "yyyy-MM-dd'T'HH:mm:ss'Z'"));
+          const endDate: Date = toDate(format(new Date(query.filter.split(",")[1]), "yyyy-MM-dd'T'HH:mm:ss'Z'"));
           condition = {
             send_time: {
               gte: startDate,
-              lt: new Date(endDate.setDate(endDate.getDate() + 1))
+              lte: endDate
             }
           };
       }
