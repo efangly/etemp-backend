@@ -54,7 +54,9 @@ const getDeviceByid = async (req: Request, res: Response) => {
         dev_id: dev_id
       },
       include: {
-        log: true
+        log: {
+          orderBy: { send_time: 'desc' }
+        }
       }
     }
   }

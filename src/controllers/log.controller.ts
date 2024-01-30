@@ -5,7 +5,15 @@ import { logs_days } from "@prisma/client";
 import { format, toDate } from "date-fns";
 
 const getLog = async (req: Request, res: Response) => {
-  await prisma.logs_days.findMany().then((result) => {
+  const { query } = req;
+  let condition = filterLog(query);
+  console.log(condition)
+  await prisma.logs_days.findMany({
+    where: condition,
+    orderBy: {
+      send_time: 'asc'
+    }
+  }).then((result) => {
     res.json({ 
       status: 200,
       value : result
@@ -118,6 +126,43 @@ const deleteLog = async (req: Request, res: Response) => {
   }).catch((err) => {
     res.status(400).json({ error: err });
   });
+}
+
+const filterLog = (query: any) => {
+  let condition = {};
+  const date: Date = new Date();
+  if(query.dev_id){
+    if(query.filter){
+      switch(query.filter){
+        case 'week':
+          condition = {
+            send_time: {
+              gt: new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000)
+            }
+          };
+          break;
+        case 'month':
+          condition = {
+            send_time: {
+              gt: new Date(date.getFullYear(),date.getMonth() - 1,date.getDate())
+            }
+          };
+          break;
+        default:
+          const startDate: Date = new Date(query.filter.split(",")[0]);
+          const endDate: Date = new Date(query.filter.split(",")[1]);
+          condition = {
+            send_time: {
+              gte: startDate,
+              lt: new Date(endDate.setDate(endDate.getDate() + 1))
+            }
+          };
+      }
+    }else{
+      condition = { dev_id: query.dev_id };
+    }
+  }
+  return condition;
 }
 
 export default {
