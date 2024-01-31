@@ -5,11 +5,7 @@ import prisma from "../configs/prisma.config";
 dotenv.config();
 
 const getNotification = async (req: Request, res: Response) => {
-  await prisma.notification.findMany({
-    include: {
-      device: true
-    }
-  }).then((result) => {
+  await prisma.notification.findMany().then((result) => {
     res.json({
       status: 200,
       value: result
