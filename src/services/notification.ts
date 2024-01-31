@@ -25,7 +25,6 @@ const sendToPushNoti = async (topic: string, msg: string, temp: number, hum: num
   };
   await getMessaging().send(message)
     .then((response) => {
-      console.log(response);
       res = true;
     }).catch((err) => {
       throw err;

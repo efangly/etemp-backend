@@ -5,7 +5,7 @@ import path from "node:path";
 import { v4 as uuidv4 } from 'uuid';
 import { getHospitalImage } from "../services/image";
 import { group, hospitals } from "@prisma/client";
-import { format, toDate } from "date-fns";
+import { getDateFormat } from "../services/formatdate";
 
 const getHospital = async (req: Request, res: Response) => {
   await prisma.hospitals.findMany({}).then((result) => {
@@ -36,8 +36,8 @@ const createHospital = async (req: Request, res: Response) => {
   const params: hospitals = req.body;
   params.hos_id = `HOS-${uuidv4()}`;
   params.hos_picture = req.file === undefined ? null : `/img/hospital/${req.file?.filename}`;
-  params.create_date = toDate(format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'"));
-  params.lastmodified = toDate(format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'"));
+  params.create_date = getDateFormat(new Date());
+  params.lastmodified = getDateFormat(new Date());
   await prisma.hospitals.create({
     data: params
   }).then((result) => {
@@ -55,7 +55,7 @@ const updateHospital = async (req: Request, res: Response) => {
   try {
     const filename = await getHospitalImage(hos_id);
     params.hos_picture = req.file === undefined ? filename || null : `/img/hospital/${file}`;
-    params.lastmodified = toDate(format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'"));
+    params.lastmodified = getDateFormat(new Date());
     const result: hospitals = await prisma.hospitals.update({
       where: {
         hos_id: hos_id

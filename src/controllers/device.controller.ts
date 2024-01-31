@@ -5,8 +5,8 @@ import path from "node:path";
 import { v4 as uuidv4 } from 'uuid';
 import { getDeviceImage } from "../services/image";
 import { devices } from "@prisma/client";
-import { format, toDate } from "date-fns";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { getDateFormat } from "../services/formatdate";
 
 const getDevice = async (req: Request, res: Response) => {
   await prisma.devices.findMany({
@@ -78,7 +78,7 @@ const createDevice = async (req: Request, res: Response) => {
   params.dev_id = `DEV-${uuidv4()}`;
   params.group_id = !params.group_id ? "WID-DEVELOP" : params.group_id;
   params.location_pic = pathfile;
-  params.lastmodified = toDate(format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'"));
+  params.lastmodified = getDateFormat(new Date());
   await prisma.devices.create({
     data: params
   }).then((result) => {
@@ -105,8 +105,8 @@ const updateDevice = async (req: Request, res: Response) => {
     if(params.hum_max) params.hum_max = Number(params.hum_max);
     if(params.adjust_temp) params.adjust_temp = Number(params.adjust_temp);
     if(params.adjust_hum) params.adjust_hum = Number(params.adjust_hum);
-    if(params.install_date) params.install_date = toDate(format(params.install_date, "yyyy-MM-dd'T'HH:mm:ss'Z'"));
-    params.lastmodified = toDate(format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'"));
+    if(params.install_date) params.install_date = getDateFormat(params.install_date);
+    params.lastmodified = getDateFormat(new Date());
     params.location_pic = String(req.file === undefined ? filename : `/img/device/${file}`);
     const result: devices = await prisma.devices.update({
       where: {

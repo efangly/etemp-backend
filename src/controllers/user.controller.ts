@@ -4,7 +4,7 @@ import fs from "node:fs"
 import path from "node:path";
 import { getUserImage } from "../services/image";
 import { users } from "@prisma/client";
-import { format, toDate } from "date-fns";
+import { getDateFormat } from "../services/formatdate";
 
 const getUser = async (req: Request, res: Response) => {
   const { user_level } = res.locals.token;
@@ -66,7 +66,7 @@ const updateUser = async (req: Request, res: Response) => {
   try {
     const filename = await getUserImage(user_id);
     params.user_picture = req.file === undefined ? filename || null : `/img/user/${file}`;
-    params.lastmodified = toDate(format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'"));
+    params.lastmodified = getDateFormat(new Date());
     const result: users = await prisma.users.update({
       where: {
         user_id: user_id

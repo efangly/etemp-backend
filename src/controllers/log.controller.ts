@@ -2,12 +2,11 @@ import { Request, Response } from "express";
 import prisma from "../configs/prisma.config";
 import { v4 as uuidv4 } from 'uuid';
 import { logs_days } from "@prisma/client";
-import { format, toDate } from "date-fns";
+import { getDateFormat, getDistanceTime } from "../services/formatdate";
 
 const getLog = async (req: Request, res: Response) => {
   const { query } = req;
   let condition = filterLog(query);
-  console.log(condition)
   await prisma.logs_days.findMany({
     where: condition,
     orderBy: {
@@ -58,7 +57,7 @@ const createLog = async (req: Request, res: Response) => {
         temp_avg: log.temp_avg,
         humidity_value: log.humidity_value,
         humidity_avg: log.humidity_avg,
-        send_time: toDate(format(log.send_time, "yyyy-MM-dd'T'HH:mm:ss'Z'")),
+        send_time: getDateFormat(log.send_time),
         ac: log.ac,
         door_1: log.door_1,
         door_2: log.door_2,
@@ -67,7 +66,7 @@ const createLog = async (req: Request, res: Response) => {
         probe: log.probe,
         battery: log.battery,
         ambient: log.ambient,
-        insert_time: toDate(format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'")),
+        insert_time: getDateFormat(new Date()),
         sd_card: log.sd_card || null,
         event_counts: log.event_counts || null
       });
@@ -87,7 +86,7 @@ const createLog = async (req: Request, res: Response) => {
       temp_avg: params.temp_avg,
       humidity_value: params.humidity_value,
       humidity_avg: params.humidity_avg,
-      send_time: toDate(format(params.send_time, "yyyy-MM-dd'T'HH:mm:ss'Z'")),
+      send_time: getDateFormat(params.send_time),
       ac: params.ac,
       door_1: params.door_1,
       door_2: params.door_2,
@@ -96,7 +95,7 @@ const createLog = async (req: Request, res: Response) => {
       probe: params.probe,
       battery: params.battery,
       ambient: params.ambient,
-      insert_time: toDate(format(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'")),
+      insert_time: getDateFormat(new Date()),
       sd_card: params.sd_card || null,
       event_counts: params.event_counts || null
     }
@@ -130,38 +129,35 @@ const deleteLog = async (req: Request, res: Response) => {
 
 const filterLog = (query: any) => {
   let condition = {};
-  const date: Date = new Date();
   if(query.dev_id){
     if(query.filter){
       switch(query.filter){
         case 'day':
           condition = {
             send_time: {
-              gte: new Date(date.getFullYear(), date.getMonth(), date.getDate())
+              gte: getDistanceTime('day')
             }
           };
           break;
         case 'week':
           condition = {
             send_time: {
-              gt: new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000)
+              gt: getDistanceTime('week')
             }
           };
           break;
         case 'month':
           condition = {
             send_time: {
-              gt: new Date(date.getFullYear(),date.getMonth() - 1,date.getDate())
+              gt: getDistanceTime('month')
             }
           };
           break;
         default:
-          const startDate: Date = toDate(format(new Date(query.filter.split(",")[0]), "yyyy-MM-dd'T'HH:mm:ss'Z'"));
-          const endDate: Date = toDate(format(new Date(query.filter.split(",")[1]), "yyyy-MM-dd'T'HH:mm:ss'Z'"));
           condition = {
             send_time: {
-              gte: startDate,
-              lte: endDate
+              gte: getDateFormat(new Date(query.filter.split(",")[0])),
+              lte: getDateFormat(new Date(query.filter.split(",")[1])),
             }
           };
       }
