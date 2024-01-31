@@ -134,6 +134,13 @@ const filterLog = (query: any) => {
   if(query.dev_id){
     if(query.filter){
       switch(query.filter){
+        case 'day':
+          condition = {
+            send_time: {
+              gte: new Date(date.getFullYear(), date.getMonth(), date.getDate())
+            }
+          };
+          break;
         case 'week':
           condition = {
             send_time: {
