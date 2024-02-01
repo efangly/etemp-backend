@@ -44,6 +44,7 @@ App.use('/api/hospital', HospitalRouter);
 App.use('/api/group', GroupRouter);
 App.use('/api', AuthRouter);
 App.use('/img', express.static('public/images'));
+App.use('/font', express.static('public/fonts'));
 App.listen(port, 'localhost', async () => {
   console.log(`Start server in port ${port}`);
   await initRedis();
