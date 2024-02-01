@@ -22,6 +22,7 @@ const register = async (req: Request, res: Response) => {
     params.create_date = getDateFormat(new Date());
     params.lastmodified = getDateFormat(new Date());
     params.user_picture = req.file === undefined ? null : `/img/user/${req.file?.filename}`,
+    params.user_password = hash;
     await prisma.users.create({
       data: params,
       include: {
