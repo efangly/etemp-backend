@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { sign } from "jsonwebtoken";
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import fs from "node:fs"
+import fs from "node:fs";
 import path from "node:path";
 import prisma from "../configs/prisma.config";
 import bcrypt from "bcrypt";

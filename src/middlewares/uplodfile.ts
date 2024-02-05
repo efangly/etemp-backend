@@ -1,4 +1,5 @@
 import path from "node:path";
+import fs from "node:fs"
 import { Request } from 'express'
 import { v4 as uuidv4 } from 'uuid';
 import multer, { diskStorage, FileFilterCallback, Multer, StorageEngine  } from "multer";
@@ -9,6 +10,7 @@ type FileNameCallback = (error: Error | null, filename: string) => void
 const storage: StorageEngine = diskStorage({
   destination: (req: Request, file: Express.Multer.File, callback: DestinationCallback): void => {
     let pathname: string = selectPath(req.originalUrl.split("/")[2]);
+    if (!fs.existsSync(pathname)) fs.mkdirSync(pathname, { recursive: true });
     callback(null, path.join(pathname));
   },
   filename: (req: Request, file: Express.Multer.File, callback: FileNameCallback): void => {

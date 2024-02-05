@@ -15,25 +15,17 @@ import LogRouter from "./routes/log";
 import HospitalRouter from "./routes/hospital";
 import GroupRouter from "./routes/group";
 import { initRedis } from "./configs/redis.config";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 const App: Application = express();
 
 dotenv.config();
-const port: number = parseInt(process.env.PORT as string, 10);
+const port: number = parseInt(process.env.PORT as string, 10) || 8080;
 
 //middleware
 App.use(express.json());
 App.use(cors({ origin: '*' }));
 App.use(morgan("dev"));
-//firebase
-initializeApp({
-  credential: credential.cert(require('../temp-alarm-firebase-adminsdk-8vqko-fe5609cb68.json')),
-  projectId: 'temp-alarm',
-});
-//mqtt
-connectMqtt();
-//backup
-backupScheduleJob();
 
 //route
 App.use('/api/user', UserRouter);
@@ -45,7 +37,24 @@ App.use('/api/group', GroupRouter);
 App.use('/api', AuthRouter);
 App.use('/img', express.static('public/images'));
 App.use('/font', express.static('public/fonts'));
-App.listen(port, 'localhost', async () => {
+App.listen(port, async () => {
   console.log(`Start server in port ${port}`);
   await initRedis();
+  //firebase
+  initializeApp({
+    credential: credential.cert(require('../temp-alarm-firebase-adminsdk-8vqko-fe5609cb68.json')),
+    projectId: 'temp-alarm',
+  });
+  connectMqtt();
+  backupScheduleJob();
+  try {
+    await prisma.$connect();
+  } catch (error) {
+    if(error instanceof PrismaClientKnownRequestError){
+      console.log(error);
+      console.log('keys: ', Object.keys(error));
+      console.log('error.code: ', error.code);
+      console.error(JSON.stringify(error, null, 2));
+    }  
+  }
 });
