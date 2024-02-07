@@ -12,7 +12,7 @@ RUN rm -fR ./src tsconfig.json
 
 RUN mkdir /usr/src/app/public
 
-VOLUME ./public:/usr/src/app/public
+VOLUME /usr/src/app/public
 
 EXPOSE 8080
 

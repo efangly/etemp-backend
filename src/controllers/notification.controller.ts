@@ -5,7 +5,25 @@ import prisma from "../configs/prisma.config";
 dotenv.config();
 
 const getNotification = async (req: Request, res: Response) => {
-  await prisma.notification.findMany().then((result) => {
+  await prisma.notification.findMany({
+    select:{
+      noti_id: true,
+      noti_detail: true,
+      noti_status: true,
+      createAt: true,
+      device: {
+        select: {
+          dev_id: true,
+          dev_name: true,
+          dev_sn: true
+        }
+      }
+    },
+    orderBy: [
+      { noti_status: 'asc' },
+      { createAt: 'desc' }
+    ]
+  }).then((result) => {
     res.json({
       status: 200,
       value: result

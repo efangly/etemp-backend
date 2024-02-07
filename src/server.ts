@@ -39,6 +39,7 @@ App.use('/img', express.static('public/images'));
 App.use('/font', express.static('public/fonts'));
 App.listen(port, async () => {
   console.log(`Start server in port ${port}`);
+  console.log(process.env.NODE_ENV === 'production' ? 'Production Mode' : 'Developer Mode');
   await initRedis();
   //firebase
   initializeApp({
@@ -47,14 +48,4 @@ App.listen(port, async () => {
   });
   connectMqtt();
   backupScheduleJob();
-  try {
-    await prisma.$connect();
-  } catch (error) {
-    if(error instanceof PrismaClientKnownRequestError){
-      console.log(error);
-      console.log('keys: ', Object.keys(error));
-      console.log('error.code: ', error.code);
-      console.error(JSON.stringify(error, null, 2));
-    }  
-  }
 });
