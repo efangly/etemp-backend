@@ -6,7 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import prisma from "../configs/prisma.config";
 import bcrypt from "bcrypt";
-import { users } from "@prisma/client";
+import { Users } from "@prisma/client";
 import { getDateFormat } from "../services/formatdate";
 
 interface UserLogin {
@@ -15,7 +15,7 @@ interface UserLogin {
 }
 
 const register = async (req: Request, res: Response) => {
-  const params: users = req.body;
+  const params: Users = req.body;
   const saltRounds = 10;
   bcrypt.hash(params.user_password, saltRounds, async (err, hash) => {
     params.user_id = `UID-${uuidv4()}`,

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../configs/prisma.config";
-import { repairs } from "@prisma/client";
+import { Repairs } from "@prisma/client";
 
 const getRepair = async (req: Request, res: Response) => {
   await prisma.repairs.findMany().then((result) => {
@@ -37,7 +37,7 @@ const getRepairById = async (req: Request, res: Response) => {
 }
 
 const updateRepair = async (req: Request, res: Response) => {
-  const value: repairs = req.body;
+  const value: Repairs = req.body;
   const { repairid } = req.params;
   await prisma.repairs.update({
     where: { 

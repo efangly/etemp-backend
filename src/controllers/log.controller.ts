@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../configs/prisma.config";
 import { v4 as uuidv4 } from 'uuid';
-import { logs_days } from "@prisma/client";
+import { Logs_days } from "@prisma/client";
 import { getDateFormat, getDistanceTime } from "../services/formatdate";
 
 const getLog = async (req: Request, res: Response) => {
@@ -46,9 +46,9 @@ const getLogById = async (req: Request, res: Response) => {
 }
 
 const createLog = async (req: Request, res: Response) => {
-  const params: logs_days | logs_days[] = req.body;
+  const params: Logs_days | Logs_days[] = req.body;
   if(Array.isArray(params)){
-    let logArr: logs_days[] = [];
+    let logArr: Logs_days[] = [];
     params.forEach((log) => {
       logArr.push({
         log_id: `LOG-${uuidv4()}`,
@@ -79,7 +79,7 @@ const createLog = async (req: Request, res: Response) => {
       res.status(400).json({ error: err });
     });
   }else{
-    const value: logs_days = {
+    const value: Logs_days = {
       log_id: `LOG-${uuidv4()}`,
       dev_id: params.dev_id,
       temp_value: params.temp_value,
@@ -99,7 +99,6 @@ const createLog = async (req: Request, res: Response) => {
       sd_card: params.sd_card || null,
       event_counts: params.event_counts || null
     }
-    console.log(value)
     await prisma.logs_days.create({
       data: value
     }).then((result) => {

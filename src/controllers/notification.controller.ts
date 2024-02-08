@@ -33,6 +33,24 @@ const getNotification = async (req: Request, res: Response) => {
   });
 };
 
+const setToReadNoti = async (req: Request, res: Response) => {
+  const { noti_id } = req.params;
+  const { noti_status } = req.body;
+  await prisma.notification.update({
+    where: {
+      noti_id: noti_id
+    },
+    data: { noti_status: noti_status }
+  }).then((result) => {
+    res.json({
+      status: 200,
+      value: result
+    });
+  }).catch((err) => {
+    res.status(400).json({ error: err });
+  });
+};
+
 const setPushNotification = async (req: Request, res: Response) => {
   const params: { topic: string, msg: string } = req.body;
   try {
@@ -45,5 +63,6 @@ const setPushNotification = async (req: Request, res: Response) => {
 
 export default {
   getNotification,
+  setToReadNoti,
   setPushNotification
 };

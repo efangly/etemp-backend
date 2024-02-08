@@ -8,7 +8,7 @@ datasource db {
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model devices {
+model Devices {
   dev_id           String         @id @db.VarChar(100)
   group_id         String         @db.VarChar(100)
   guarantee_id     String?        @db.VarChar(100)
@@ -40,23 +40,23 @@ model devices {
   lastmodified     DateTime?      @updatedAt @db.DateTime(0)
   backup_status    String?        @default("0") @db.Char(1)
   move_status      String?        @db.VarChar(100)
-  ward             group?         @relation(fields: [group_id], references: [group_id])
-  noti             notification[]
-  log              logs_days[]
-  repair           repairs[]
+  ward             Group?         @relation(fields: [group_id], references: [group_id])
+  noti             Notification[]
+  log              Logs_days[]
+  repair           Repairs[]
 }
 
-model group {
+model Group {
   group_id   String    @id @db.VarChar(100)
   group_name String    @db.VarChar(155)
   hos_id     String    @db.VarChar(100)
-  hospital   hospitals @relation(fields: [hos_id], references: [hos_id])
-  user       users[]
-  device     devices[]
+  hospital   Hospitals @relation(fields: [hos_id], references: [hos_id])
+  user       Users[]
+  device     Devices[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model guarantees {
+model Guarantees {
   guarantee_id     String    @id @db.VarChar(100)
   guarantee_name   String    @db.VarChar(155)
   guarantee_day    Int
@@ -65,7 +65,7 @@ model guarantees {
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model hospitals {
+model Hospitals {
   hos_id         String   @id @db.VarChar(100)
   hos_name       String   @db.VarChar(155)
   hos_address    String?  @db.VarChar(155)
@@ -77,10 +77,10 @@ model hospitals {
   hos_latitude   String?  @db.VarChar(155)
   hos_longitude  String?  @db.VarChar(155)
   hos_picture    String?  @db.VarChar(255)
-  groups         group[]
+  groups         Group[]
 }
 
-model repairs {
+model Repairs {
   repair_id       String    @id @db.VarChar(100)
   dev_id          String    @db.VarChar(100)
   date_time       DateTime? @db.DateTime(0)
@@ -94,11 +94,11 @@ model repairs {
   comment         String?   @db.VarChar(155)
   lastmodified    DateTime? @updatedAt @db.DateTime(0)
   bastatus        String?   @default("0") @db.Char(1)
-  device          devices   @relation(fields: [dev_id], references: [dev_id])
+  device          Devices   @relation(fields: [dev_id], references: [dev_id])
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model users {
+model Users {
   user_id       String    @id @db.VarChar(100)
   group_id      String    @db.VarChar(100)
   user_name     String    @unique @db.VarChar(155)
@@ -112,22 +112,22 @@ model users {
   lastmodified  DateTime? @updatedAt @db.DateTime(0)
   bastatus      String?   @db.Char(1)
   comment       String?   @db.VarChar(255)
-  ward          group     @relation(fields: [group_id], references: [group_id])
+  ward          Group     @relation(fields: [group_id], references: [group_id])
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model notification {
+model Notification {
   noti_id     String   @id @db.VarChar(100)
   dev_id      String   @db.VarChar(100)
   noti_detail String   @db.VarChar(255)
   noti_status String   @default("0") @db.Char(1)
   createAt    DateTime @default(now()) @db.DateTime(0)
   updateAt    DateTime @default(now()) @updatedAt @db.DateTime(0)
-  device      devices  @relation(fields: [dev_id], references: [dev_id])
+  device      Devices  @relation(fields: [dev_id], references: [dev_id])
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model logs_days {
+model Logs_days {
   log_id         String   @id @db.VarChar(100)
   dev_id         String   @db.VarChar(100)
   temp_value     Float    @default(0.00)
@@ -146,11 +146,11 @@ model logs_days {
   ambient        Float?   @default(0.00)
   sd_card        String?  @default("0") @db.Char(1)
   event_counts   String?  @default("C000000000000000") @db.VarChar(20)
-  device         devices  @relation(fields: [dev_id], references: [dev_id])
+  device         Devices  @relation(fields: [dev_id], references: [dev_id])
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model logs_days_backup {
+model Logs_days_backup {
   log_id         String   @id @db.VarChar(100)
   dev_id         String   @db.VarChar(100)
   temp_value     Float    @default(0.00)

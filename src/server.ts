@@ -15,7 +15,6 @@ import LogRouter from "./routes/log";
 import HospitalRouter from "./routes/hospital";
 import GroupRouter from "./routes/group";
 import { initRedis } from "./configs/redis.config";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 const App: Application = express();
 

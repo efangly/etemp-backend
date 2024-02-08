@@ -1,5 +1,5 @@
 import { connect, IClientOptions, MqttClient } from "mqtt";
-import { ReceiveMsg } from "../interfaces/notification.interface";
+import { ReceiveMsg } from "../services/notification";
 import { createNotification } from "../services/notification";
 import dotenv from "dotenv";
 

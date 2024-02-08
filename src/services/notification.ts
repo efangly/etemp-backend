@@ -1,7 +1,16 @@
 import { getMessaging, Message } from "firebase-admin/messaging";
 import prisma from "../configs/prisma.config";
 import { v4 as uuidv4 } from 'uuid';
-import { ReceiveMsg, Notification } from "../interfaces/notification.interface";
+import { Notification } from "@prisma/client";
+import { getDateFormat } from "./formatdate";
+
+interface ReceiveMsg {
+  device: string, 
+  msg: string,
+  temp: number, 
+  hum: number
+};
+
 
 const sendToPushNoti = async (topic: string, msg: string, temp: number, hum: number): Promise<boolean> => {
   let res: boolean = false;
@@ -38,6 +47,8 @@ const createNotification = async (param: ReceiveMsg): Promise<boolean> => {
     dev_id: param.device,
     noti_detail: param.msg === 'greater' ? 'อุณหภูมิสูงกว่าที่กำหนด' : 'อุณหภูมิต่ำกว่าที่กำหนด',
     noti_status: '0',
+    createAt: getDateFormat(new Date()),
+    updateAt: getDateFormat(new Date())
   } // greater = อุณหภูมิสูง ,less = อุณหภูมิต่ำ
   try{
     await prisma.notification.create({ data: value });
@@ -49,4 +60,4 @@ const createNotification = async (param: ReceiveMsg): Promise<boolean> => {
   };
 };
 
-export { sendToPushNoti, createNotification };
+export { sendToPushNoti, createNotification, ReceiveMsg };

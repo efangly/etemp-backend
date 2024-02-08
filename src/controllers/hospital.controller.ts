@@ -4,7 +4,7 @@ import fs from "node:fs"
 import path from "node:path";
 import { v4 as uuidv4 } from 'uuid';
 import { getHospitalImage } from "../services/image";
-import { group, hospitals } from "@prisma/client";
+import { Group, Hospitals } from "@prisma/client";
 import { getDateFormat } from "../services/formatdate";
 
 const getHospital = async (req: Request, res: Response) => {
@@ -33,7 +33,7 @@ const getHospitalById = async (req: Request, res: Response) => {
 }
 
 const createHospital = async (req: Request, res: Response) => {
-  const params: hospitals = req.body;
+  const params: Hospitals = req.body;
   params.hos_id = `HOS-${uuidv4()}`;
   params.hos_picture = req.file === undefined ? null : `/img/hospital/${req.file?.filename}`;
   params.create_date = getDateFormat(new Date());
@@ -49,14 +49,14 @@ const createHospital = async (req: Request, res: Response) => {
 };
 
 const updateHospital = async (req: Request, res: Response) => {
-  const params: hospitals = req.body;
+  const params: Hospitals = req.body;
   const { hos_id } = req.params;
   const file: string | undefined = req.file?.filename;
   try {
     const filename = await getHospitalImage(hos_id);
     params.hos_picture = req.file === undefined ? filename || null : `/img/hospital/${file}`;
     params.lastmodified = getDateFormat(new Date());
-    const result: hospitals = await prisma.hospitals.update({
+    const result: Hospitals = await prisma.hospitals.update({
       where: {
         hos_id: hos_id
       },
@@ -131,8 +131,8 @@ const getGroupByHosId = async (req: Request, res: Response) => {
 }
 
 const createGroup = async (req: Request, res: Response) => {
-  const param: group = req.body;
-  const value: group = {
+  const param: Group = req.body;
+  const value: Group = {
     group_id: `WID-${uuidv4()}`,
     group_name: param.group_name,
     hos_id: param.hos_id
@@ -151,7 +151,7 @@ const createGroup = async (req: Request, res: Response) => {
 
 const updateGroup = async (req: Request, res: Response) => {
   const { group_id } = req.params;
-  const param: group = req.body;
+  const param: Group = req.body;
   await prisma.group.update({
     where: {
       group_id: group_id

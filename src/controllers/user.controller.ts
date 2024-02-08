@@ -3,7 +3,7 @@ import prisma from "../configs/prisma.config";
 import fs from "node:fs"
 import path from "node:path";
 import { getUserImage } from "../services/image";
-import { users } from "@prisma/client";
+import { Users } from "@prisma/client";
 import { getDateFormat } from "../services/formatdate";
 
 const getUser = async (req: Request, res: Response) => {
@@ -60,14 +60,14 @@ const getUserById = async (req: Request, res: Response) => {
 }
 
 const updateUser = async (req: Request, res: Response) => {
-  const params: users = req.body;
+  const params: Users = req.body;
   const { user_id } = req.params;
   const file: string | undefined = req.file?.filename;
   try {
     const filename = await getUserImage(user_id);
     params.user_picture = req.file === undefined ? filename || null : `/img/user/${file}`;
     params.lastmodified = getDateFormat(new Date());
-    const result: users = await prisma.users.update({
+    const result: Users = await prisma.users.update({
       where: {
         user_id: user_id
       },

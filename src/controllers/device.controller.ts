@@ -4,7 +4,7 @@ import fs from "node:fs"
 import path from "node:path";
 import { v4 as uuidv4 } from 'uuid';
 import { getDeviceImage } from "../services/image";
-import { devices } from "@prisma/client";
+import { Devices } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { getDateFormat } from "../services/formatdate";
 
@@ -81,7 +81,7 @@ const getDeviceByid = async (req: Request, res: Response) => {
 };
 
 const createDevice = async (req: Request, res: Response) => {
-  const params: devices = req.body;
+  const params: Devices = req.body;
   const pathfile: string | null = req.file !== undefined ? `/img/device/${req.file.filename}` : null;
   params.dev_id = `DEV-${uuidv4()}`;
   params.group_id = !params.group_id ? "WID-DEVELOP" : params.group_id;
@@ -102,7 +102,7 @@ const createDevice = async (req: Request, res: Response) => {
 };
 
 const updateDevice = async (req: Request, res: Response) => {
-  const params: devices = req.body;
+  const params: Devices = req.body;
   const { dev_id } = req.params;
   const file: string | undefined = req.file?.filename;
   try {
@@ -116,7 +116,7 @@ const updateDevice = async (req: Request, res: Response) => {
     if(params.install_date) params.install_date = getDateFormat(params.install_date);
     params.lastmodified = getDateFormat(new Date());
     params.location_pic = String(req.file === undefined ? filename : `/img/device/${file}`);
-    const result: devices = await prisma.devices.update({
+    const result: Devices = await prisma.devices.update({
       where: {
         dev_id: dev_id
       },
@@ -133,7 +133,7 @@ const updateDevice = async (req: Request, res: Response) => {
 };
 
 const adjustDevice = async (req: Request, res: Response) => {
-  const params: devices = req.body;
+  const params: Devices = req.body;
   const { dev_id } = req.params;
   await prisma.devices.update({
     where: {
