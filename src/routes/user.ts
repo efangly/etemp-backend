@@ -7,7 +7,7 @@ const UserRouter: Router = Router();
 
 //user 
 UserRouter.get('/', ...requireLogin(), verifyToken, user.getUser);
-UserRouter.get('/:user_id', ...requireLogin(), user.getUserById);
+UserRouter.get('/:user_id', ...requireLogin(), verifyToken, user.getUserById);
 UserRouter.put('/:user_id', ...requireLogin(), upload.single('fileupload'), user.updateUser);
 UserRouter.delete('/:user_id', ...requireLogin(), user.deleteUser);
 

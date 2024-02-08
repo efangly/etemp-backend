@@ -1,12 +1,21 @@
-import { Request, Response } from "express";
+import e, { Request, Response } from "express";
 import prisma from "../configs/prisma.config";
 import { v4 as uuidv4 } from 'uuid';
 import { Logs_days } from "@prisma/client";
 import { getDateFormat, getDistanceTime } from "../services/formatdate";
 
+interface Filter {
+  dev_id: string,
+  send_time?: {
+    gte: Date,
+    lte?: Date
+  }
+}
+
 const getLog = async (req: Request, res: Response) => {
   const { query } = req;
-  let condition = filterLog(query);
+  let condition: Filter | undefined = filterLog(query);
+  console.log(condition)
   await prisma.logs_days.findMany({
     where: condition,
     orderBy: {
@@ -127,44 +136,38 @@ const deleteLog = async (req: Request, res: Response) => {
 }
 
 const filterLog = (query: any) => {
-  let condition = {};
   if(query.dev_id){
+    let condition: Filter = { dev_id: query.dev_id };
     if(query.filter){
       switch(query.filter){
         case 'day':
-          condition = {
-            send_time: {
-              gte: getDistanceTime('day')
-            }
+          condition.send_time = {
+            gte: getDistanceTime('day')
           };
           break;
         case 'week':
-          condition = {
-            send_time: {
-              gt: getDistanceTime('week')
-            }
+          condition.send_time = {
+            gte: getDistanceTime('week')
           };
           break;
         case 'month':
-          condition = {
-            send_time: {
-              gt: getDistanceTime('month')
-            }
+          condition.send_time = {
+            gte: getDistanceTime('month')
           };
           break;
         default:
-          condition = {
-            send_time: {
-              gte: getDateFormat(new Date(query.filter.split(",")[0])),
-              lte: getDateFormat(new Date(query.filter.split(",")[1])),
-            }
+          condition.send_time = {
+            gte: getDateFormat(new Date(query.filter.split(",")[0])),
+            lte: getDateFormat(new Date(query.filter.split(",")[1])),
           };
       }
+      return condition;
     }else{
-      condition = { dev_id: query.dev_id };
+      return condition;
     }
+  }else{
+    return undefined;
   }
-  return condition;
 }
 
 export default {

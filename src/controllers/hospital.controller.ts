@@ -114,22 +114,6 @@ const getGroupById = async (req: Request, res: Response) => {
   });
 }
 
-const getGroupByHosId = async (req: Request, res: Response) => {
-  const { hos_id } = req.params;
-  await prisma.group.findMany({
-    where: {
-      hos_id: hos_id
-    },
-    include: {
-      hospital: true
-    }
-  }).then((result) => {
-    res.json({ status: 200, value: result });
-  }).catch((err) => {
-    res.status(400).json({ error: err });
-  });
-}
-
 const createGroup = async (req: Request, res: Response) => {
   const param: Group = req.body;
   const value: Group = {
@@ -185,7 +169,6 @@ export default {
   deleteHospital,
   getGroup,
   getGroupById,
-  getGroupByHosId,
   createGroup,
   updateGroup,
   deleteGroup
