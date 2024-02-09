@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../configs/prisma.config";
+import { v4 as uuidv4 } from 'uuid';
 import { Repairs } from "@prisma/client";
 import { getDateFormat } from "../services/formatdate";
 
@@ -101,7 +102,3 @@ export default {
   updateRepair,
   deleteRepair
 };
-
-function uuidv4() {
-  throw new Error("Function not implemented.");
-}
