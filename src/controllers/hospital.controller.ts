@@ -87,7 +87,9 @@ const deleteHospital = async (req: Request, res: Response) => {
 /////////////////////////////////////////////////////////////////// WARD //////////////////////////////////////////////////////////////////////////////////
 
 const getGroup = async (req: Request, res: Response) => {
+  const { hos_id } = req.query;
   await prisma.group.findMany({
+    where: hos_id ? { hos_id: String(hos_id) } : {},
     include: {
       hospital: true
     }
