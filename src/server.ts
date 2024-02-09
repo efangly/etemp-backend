@@ -15,6 +15,7 @@ import LogRouter from "./routes/log";
 import HospitalRouter from "./routes/hospital";
 import GroupRouter from "./routes/group";
 import { initRedis } from "./configs/redis.config";
+import RepairRouter from "./routes/repair";
 
 const App: Application = express();
 
@@ -33,6 +34,7 @@ App.use('/api/device', DeviceRouter);
 App.use('/api/log', LogRouter);
 App.use('/api/hospital', HospitalRouter);
 App.use('/api/group', GroupRouter);
+App.use('/api/repair', RepairRouter);
 App.use('/api', AuthRouter);
 App.use('/img', express.static('public/images'));
 App.use('/font', express.static('public/fonts'));

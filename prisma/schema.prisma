@@ -83,7 +83,7 @@ model Hospitals {
 model Repairs {
   repair_id       String    @id @db.VarChar(100)
   dev_id          String    @db.VarChar(100)
-  date_time       DateTime? @db.DateTime(0)
+  create_time     DateTime  @db.DateTime(0)
   repair_info     String?   @db.VarChar(155)
   repair_location String?   @db.VarChar(155)
   ward            String?   @db.VarChar(155)
@@ -92,7 +92,7 @@ model Repairs {
   repair_status   String?   @db.VarChar(155)
   warranty_status String?   @db.Char(1)
   comment         String?   @db.VarChar(155)
-  lastmodified    DateTime? @updatedAt @db.DateTime(0)
+  lastmodified    DateTime  @updatedAt @db.DateTime(0)
   bastatus        String?   @default("0") @db.Char(1)
   device          Devices   @relation(fields: [dev_id], references: [dev_id])
 }

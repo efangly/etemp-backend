@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../configs/prisma.config";
 import { Repairs } from "@prisma/client";
+import { getDateFormat } from "../services/formatdate";
 
 const getRepair = async (req: Request, res: Response) => {
   await prisma.repairs.findMany().then((result) => {
@@ -33,6 +34,27 @@ const getRepairById = async (req: Request, res: Response) => {
     }
   }).catch((err) => {
     res.status(err.status).json({ error: err });
+  });
+}
+
+const createRepair = async (req: Request, res: Response) => {
+  const params: Repairs = req.body;
+  params.repair_id = `REP-${uuidv4()}`;
+  params.create_time = getDateFormat(new Date());
+  params.lastmodified = getDateFormat(new Date());
+  await prisma.repairs.create({
+    data: params,
+    include: {
+      device: true
+    }
+  }).then((result) => {
+    res.json({ 
+      status: 200,
+      msg: 'Create Successful!!',
+      value : result
+    });
+  }).catch((err) => {
+    res.status(400).json({ error: err });
   });
 }
 
@@ -75,6 +97,11 @@ const deleteRepair = async (req: Request, res: Response) => {
 export default {
   getRepair,
   getRepairById,
+  createRepair,
   updateRepair,
   deleteRepair
 };
+
+function uuidv4() {
+  throw new Error("Function not implemented.");
+}
