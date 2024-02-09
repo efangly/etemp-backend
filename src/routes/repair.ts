@@ -6,6 +6,7 @@ const RepairRouter: Router = Router();
 //user 
 RepairRouter.get('/', ...requireLogin(), verifyToken, repair.getRepair);
 RepairRouter.get('/:repairid', ...requireLogin(), verifyToken, repair.getRepairById);
+RepairRouter.post('/', ...requireLogin(), repair.createRepair);
 RepairRouter.put('/:repairid', ...requireLogin(), repair.updateRepair);
 RepairRouter.delete('/:repairid', ...requireLogin(), repair.deleteRepair);
 
