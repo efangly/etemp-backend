@@ -3,15 +3,15 @@ import prisma from "../configs/prisma.config";
 import fs from "node:fs"
 import path from "node:path";
 import { getUserImage } from "../services/image";
-import { Users } from "@prisma/client";
+import { Prisma, Users } from "@prisma/client";
 import { getDateFormat } from "../services/formatdate";
 
 const getUser = async (req: Request, res: Response) => {
-  const { user_level } = res.locals.token;
+  const { user_level, hos_id } = res.locals.token;
+  const condition: Prisma.UsersWhereInput = getCondition(user_level,hos_id);
+  if (user_level === '4') return res.status(403).json({ status: 403, error: 'Permission Denied!!!' });
   await prisma.users.findMany({
-    where: {
-      user_level: user_level
-    },
+    where: condition,
     include: {
       ward: {
         include: {
@@ -31,9 +31,15 @@ const getUser = async (req: Request, res: Response) => {
 
 const getUserById = async (req: Request, res: Response) => {
   const { user_id } = req.params;
-  await prisma.users.findUnique({
+  const { user_level, hos_id } = res.locals.token;
+  const condition: Prisma.UsersWhereInput = getCondition(user_level,hos_id);
+  if (user_level === '4') return res.status(403).json({ status: 403, error: 'Permission Denied!!!' });
+  await prisma.users.findMany({
     where: {
-      user_id: user_id
+      AND: [
+        { user_id: user_id },
+        condition
+      ]
     },
     include: {
       ward: {
@@ -43,10 +49,10 @@ const getUserById = async (req: Request, res: Response) => {
       }
     }
   }).then((result) => {
-    if (result) {
+    if (result && result.length !== 0) {
       res.status(200).json({
         status: 200,
-        value: result
+        value: result[0]
       });
     } else {
       res.status(404).json({
@@ -97,6 +103,22 @@ const deleteUser = async (req: Request, res: Response) => {
   } catch (err) {
     res.status(400).json({ error: err });
   }
+}
+
+const getCondition = (level: string, hos_id: string): Prisma.UsersWhereInput => {
+  let whereCondition: Prisma.UsersWhereInput = {}
+  switch(level){
+    case "1":
+      whereCondition = { user_level: { in: ['4', '3', '2', '1'] } }
+      break;
+    case "2":
+      whereCondition = { user_level: { in: ['4', '3'] } }
+      break;
+    case "3":
+      whereCondition = { user_level: '4', ward: { hos_id: hos_id } }
+      break;
+  }
+  return whereCondition;
 }
 
 export default {

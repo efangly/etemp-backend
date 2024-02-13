@@ -16,10 +16,10 @@ const getRepair = async (req: Request, res: Response) => {
 }
 
 const getRepairById = async (req: Request, res: Response) => {
-  const { repairid } = req.params;
+  const { repair_id } = req.params;
   await prisma.repairs.findUnique({
     where: { 
-      repair_id: repairid 
+      repair_id: repair_id 
     }
   }).then((result) => {
     if(result){
@@ -50,7 +50,7 @@ const createRepair = async (req: Request, res: Response) => {
     }
   }).then((result) => {
     res.json({ 
-      status: 200,
+      status: 201,
       msg: 'Create Successful!!',
       value : result
     });
@@ -61,10 +61,10 @@ const createRepair = async (req: Request, res: Response) => {
 
 const updateRepair = async (req: Request, res: Response) => {
   const value: Repairs = req.body;
-  const { repairid } = req.params;
+  const { repair_id } = req.params;
   await prisma.repairs.update({
     where: { 
-      repair_id : repairid 
+      repair_id : repair_id 
     },
     data: value
   }).then((result) => {
@@ -79,10 +79,10 @@ const updateRepair = async (req: Request, res: Response) => {
 }
 
 const deleteRepair = async (req: Request, res: Response) => {
-  const { repairid } = req.params;
+  const { repair_id } = req.params;
   await prisma.repairs.delete({
     where: { 
-      repair_id: repairid 
+      repair_id: repair_id 
     }
   }).then((result) => {
     res.json({ 

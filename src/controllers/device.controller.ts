@@ -9,6 +9,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { getDateFormat } from "../services/formatdate";
 
 const getDevice = async (req: Request, res: Response) => {
+  const { user_level, hos_id } = res.locals.token;
   await prisma.devices.findMany({
     include: {
       log: {

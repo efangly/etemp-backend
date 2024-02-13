@@ -3,19 +3,11 @@ import morgan from "morgan";
 import cors from "cors";
 import dotenv from "dotenv";
 import prisma from "./configs/prisma.config";
-import UserRouter from "./routes/user";
-import NotiRouter from "./routes/noti";
-import AuthRouter from "./routes/auth";
-import DeviceRouter from "./routes/device";
-import { credential } from "firebase-admin";
-import { initializeApp } from 'firebase-admin/app';
+import Router from "./routes";
+import { initRedis } from "./configs/redis.config";
 import { connectMqtt } from "./configs/mqtt.config";
 import { backupScheduleJob } from "./services/schedule";
-import LogRouter from "./routes/log";
-import HospitalRouter from "./routes/hospital";
-import GroupRouter from "./routes/group";
-import { initRedis } from "./configs/redis.config";
-import RepairRouter from "./routes/repair";
+import connectFireBase from "./configs/firebase.config";
 
 const App: Application = express();
 
@@ -28,25 +20,22 @@ App.use(cors({ origin: '*' }));
 App.use(morgan("dev"));
 
 //route
-App.use('/api/user', UserRouter);
-App.use('/api/noti', NotiRouter);
-App.use('/api/device', DeviceRouter);
-App.use('/api/log', LogRouter);
-App.use('/api/hospital', HospitalRouter);
-App.use('/api/group', GroupRouter);
-App.use('/api/repair', RepairRouter);
-App.use('/api', AuthRouter);
+App.use('/api/user', Router.UserRouter);
+App.use('/api/noti', Router.NotiRouter);
+App.use('/api/device', Router.DeviceRouter);
+App.use('/api/log', Router.LogRouter);
+App.use('/api/hospital', Router.HospitalRouter);
+App.use('/api/group', Router.GroupRouter);
+App.use('/api/repair', Router.RepairRouter);
+App.use('/api', Router.AuthRouter);
 App.use('/img', express.static('public/images'));
 App.use('/font', express.static('public/fonts'));
+
 App.listen(port, async () => {
   console.log(`Start server in port ${port}`);
   console.log(process.env.NODE_ENV === 'production' ? 'Production Mode' : 'Developer Mode');
   await initRedis();
-  //firebase
-  initializeApp({
-    credential: credential.cert(require('../temp-alarm-firebase-adminsdk-8vqko-fe5609cb68.json')),
-    projectId: 'temp-alarm',
-  });
+  connectFireBase();
   connectMqtt();
   backupScheduleJob();
 });

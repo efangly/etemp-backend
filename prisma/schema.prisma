@@ -56,15 +56,6 @@ model Group {
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model Guarantees {
-  guarantee_id     String    @id @db.VarChar(100)
-  guarantee_name   String    @db.VarChar(155)
-  guarantee_day    Int
-  guarantee_detail String?   @db.VarChar(255)
-  create_date      DateTime? @db.DateTime(0)
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Hospitals {
   hos_id         String   @id @db.VarChar(100)
   hos_name       String   @db.VarChar(155)

@@ -15,7 +15,6 @@ interface Filter {
 const getLog = async (req: Request, res: Response) => {
   const { query } = req;
   let condition: Filter | undefined = filterLog(query);
-  console.log(condition)
   await prisma.logs_days.findMany({
     where: condition,
     orderBy: {
