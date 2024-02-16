@@ -17,6 +17,9 @@ const getLog = async (req: Request, res: Response) => {
   let condition: Filter | undefined = filterLog(query);
   await prisma.logs_days.findMany({
     where: condition,
+    include: {
+      device: true
+    },
     orderBy: {
       send_time: 'desc'
     }
