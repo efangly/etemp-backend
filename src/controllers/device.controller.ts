@@ -62,15 +62,7 @@ const getDeviceByid = async (req: Request, res: Response) => {
       }
     }
   }
-  await prisma.devices.findUnique({
-    where: {
-      dev_id: dev_id
-    },
-    include: {
-      ward: { include: { hospital: true } },
-      log: { orderBy: { send_time: 'desc' } }
-    }
-  }).then((result) => {
+  await prisma.devices.findUnique(whereCondition).then((result) => {
     if(!result){
       res.status(404).json({ status: 404, value : 'ไม่พบข้อมูล' });
     }else{
