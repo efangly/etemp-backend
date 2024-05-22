@@ -1,22 +1,20 @@
 import { NextFunction, Request, Response } from "express";
-import fs from "node:fs"
-import path from "node:path";
-import { Devices } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { addDevice, deviceById, deviceList, editDevice, removeDevice } from "../services";
-import { HttpError, ValidationError } from "../error";
+import { Probes } from "@prisma/client";
 import { BaseResponse } from "../utils/interface";
-import { ZDevice, ZDeviceParam } from "../models";
+import { HttpError, ValidationError } from "../error";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { addProbe, editProbe, findProbe, probeList, removeProbe } from "../services";
 import { fromZodError } from "zod-validation-error";
 import { z } from "zod";
+import { ZProbe, ZProbeParam } from "../models";
 
-const getDevice = async (req: Request, res: Response<BaseResponse<Devices[]>>, next: NextFunction) => {
-  //const { user_level, hos_id } = res.locals.token;
+
+const getProbe = async (req: Request, res: Response<BaseResponse<Probes[]>>, next: NextFunction) => {
   try {
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await deviceList()
+      data: await probeList()
     });
   } catch (error) {
     if (error instanceof PrismaClientKnownRequestError) {
@@ -25,15 +23,15 @@ const getDevice = async (req: Request, res: Response<BaseResponse<Devices[]>>, n
       next(error);
     }
   }
-};
- 
-const getDeviceByid = async (req: Request, res: Response<BaseResponse<Devices | null>>, next: NextFunction) => {
+}
+
+const getProbeById = async (req: Request, res: Response<BaseResponse<Probes | null>>, next: NextFunction) => {
   try {
-    const params = ZDeviceParam.parse(req.params);
+    const params = ZProbeParam.parse(req.params);
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await deviceById(params.devId, req.originalUrl.split("/")[3])
+      data: await findProbe(params.probeId)
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -44,18 +42,17 @@ const getDeviceByid = async (req: Request, res: Response<BaseResponse<Devices | 
       next(error);
     }
   }
-};
+}
 
-const createDevice = async (req: Request, res: Response<BaseResponse<Devices>>, next: NextFunction) => {
+const createProbe = async (req: Request, res: Response<BaseResponse<Probes>>, next: NextFunction) => {
   try {
-    const body = ZDevice.parse(req.body);
+    const body = ZProbe.parse(req.body);
     res.status(201).json({
       message: 'Successful',
       success: true,
-      data: await addDevice(body as unknown as Devices, req.file)
+      data: await addProbe(body as Probes)
     });
   } catch (error) {
-    if (req.file) fs.unlinkSync(path.join('public/images/device', req.file.filename));
     if (error instanceof z.ZodError) {
       next(new ValidationError(fromZodError(error).toString()));
     } else if (error instanceof PrismaClientKnownRequestError) {
@@ -64,19 +61,18 @@ const createDevice = async (req: Request, res: Response<BaseResponse<Devices>>, 
       next(error);
     }
   }
-};
+}
 
-const updateDevice = async (req: Request, res: Response<BaseResponse<Devices>>, next: NextFunction) => {
+const updateProbe = async (req: Request, res: Response<BaseResponse<Probes>>, next: NextFunction) => {
   try {
-    const params = ZDeviceParam.parse(req.params);
-    const body = ZDevice.parse(req.body);
+    const params = ZProbeParam.parse(req.params);
+    const body = ZProbe.parse(req.body);
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await editDevice(params.devId, body as unknown as Devices, req.file)
+      data: await editProbe(params.probeId, body as Probes)
     });
   } catch (error) {
-    if (req.file) fs.unlinkSync(path.join('public/images/device', req.file.filename));
     if (error instanceof z.ZodError) {
       next(new ValidationError(fromZodError(error).toString()));
     } else if (error instanceof PrismaClientKnownRequestError) {
@@ -85,15 +81,15 @@ const updateDevice = async (req: Request, res: Response<BaseResponse<Devices>>, 
       next(error);
     }
   }
-};
-
-const deleteDevice = async (req: Request, res: Response<BaseResponse<Devices>>, next: NextFunction) => {
+}
+ 
+const deleteProbe = async (req: Request, res: Response<BaseResponse<Probes>>, next: NextFunction) => {
   try {
-    const params = ZDeviceParam.parse(req.params);
+    const params = ZProbeParam.parse(req.params);
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await removeDevice(params.devId)
+      data: await removeProbe(params.probeId)
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -104,12 +100,12 @@ const deleteDevice = async (req: Request, res: Response<BaseResponse<Devices>>, 
       next(error);
     }
   }
-};
+}
 
 export default {
-  getDevice,
-  getDeviceByid,
-  createDevice,
-  updateDevice,
-  deleteDevice
+  getProbe,
+  getProbeById,
+  createProbe,
+  updateProbe,
+  deleteProbe
 };

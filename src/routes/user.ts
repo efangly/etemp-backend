@@ -1,14 +1,14 @@
 import { Router } from "express";
-import user from "../controllers/user.controller";
-import { requireLogin,verifyToken } from "../middlewares/auth";
+import { deleteUser, getUser, getUserById, updateUser} from "../controllers";
+import { verifyToken } from "../middlewares";
 import upload from "../middlewares/uplodfile";
 
-const UserRouter: Router = Router();
+const userRouter: Router = Router();
 
 //user 
-UserRouter.get('/', ...requireLogin(), verifyToken, user.getUser);
-UserRouter.get('/:user_id', ...requireLogin(), verifyToken, user.getUserById);
-UserRouter.put('/:user_id', ...requireLogin(), upload.single('fileupload'), user.updateUser);
-UserRouter.delete('/:user_id', ...requireLogin(), user.deleteUser);
+userRouter.get('/', verifyToken, getUser);
+userRouter.get('/:userId', verifyToken, getUserById);
+userRouter.put('/:userId', verifyToken, upload.single('fileupload'), updateUser);
+userRouter.delete('/:userId', verifyToken, deleteUser);
 
-export default UserRouter;
+export default userRouter;

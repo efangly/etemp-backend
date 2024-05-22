@@ -1,34 +1,26 @@
 import { Request, Response, NextFunction } from "express"
-import { expressjwt, UnauthorizedError } from "express-jwt";
-import { verify } from "jsonwebtoken";
+import { JsonWebTokenError, verify } from "jsonwebtoken";
+import { HttpError } from "../error";
 
 const verifyToken = (req: Request, res: Response, next: NextFunction) => {
-  try{
-    const token: string | undefined = req.headers.authorization!.split(" ")[1];
-    const decoded = verify(String(token), String(process.env.JWT_SECRET));
-    res.locals.token = decoded;
-    next();
-  }catch(error){
-    res.status(401).json({ status: 401, message: "Invalid token" });
+  try {
+    if (req.headers.authorization) {
+      const token: string = req.headers.authorization.split(" ")[1];
+      const decoded = verify(String(token), String(process.env.JWT_SECRET));
+      res.locals.token = decoded;
+      next();
+    } else {
+      next(new HttpError(401, "Invalid token!!"));
+    }
+  } catch (error) {
+    if (error instanceof JsonWebTokenError) {
+      next(new HttpError(401, `${error.name} : ${error.message}`));
+    } else {
+      next(error);
+    }
   }
 }
 
-const requireLogin = () => {
-  return [
-    expressjwt({
-      secret: String(process.env.JWT_SECRET),
-      algorithms: ["HS256"]
-    }),(err: UnauthorizedError, req: Request, res: Response, next: NextFunction) => {
-      res.status(err.status).json({
-        status: err.status,
-        msg: err.name,
-        error: err.message,
-      });
-    }
-  ]
-}
-
 export {
-  verifyToken,
-  requireLogin
+  verifyToken
 };

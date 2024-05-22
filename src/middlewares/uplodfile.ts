@@ -43,7 +43,7 @@ const selectPath = (path: string): string => {
     case 'user':
       pathname = 'public/images/user';
       break;
-    case 'register':
+    case 'auth':
       pathname = 'public/images/user';
       break;
     default:

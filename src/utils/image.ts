@@ -4,10 +4,10 @@ const getUserImage = async (id: string): Promise<string | null | undefined> => {
   try{
     const image = await prisma.users.findUnique({
       where: { 
-        user_id: id 
+        userId: id 
       }
     });
-    return image?.user_picture;
+    return image?.userPic;
   }catch(err){
     throw new Error(`ERROR: ${err}`);
   }
@@ -17,10 +17,10 @@ const getHospitalImage = async (id: string): Promise<string | null | undefined> 
   try{
     const image = await prisma.hospitals.findUnique({
       where: { 
-        hos_id: id 
+        hosId: id 
       }
     });
-    return image?.hos_picture;
+    return image?.hosPic;
   }catch(err){
     throw new Error(`ERROR: ${err}`);
   }
@@ -30,10 +30,10 @@ const getDeviceImage = async (id: string): Promise<string | null | undefined> =>
   try{
     const image = await prisma.devices.findUnique({
       where: { 
-        dev_id: id 
+        devId: id 
       }
     });
-    return image?.location_pic;
+    return image?.locationPic;
   }catch(err){
     throw new Error(`ERROR: ${err}`);
   }

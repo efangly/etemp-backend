@@ -1,98 +1,104 @@
-import { Request, Response } from "express";
-import prisma from "../configs/prisma.config";
-import { v4 as uuidv4 } from 'uuid';
+import { NextFunction, Request, Response } from "express";
 import { Repairs } from "@prisma/client";
-import { getDateFormat } from "../services/formatdate";
+import { BaseResponse } from "../utils/interface";
+import { addRepair, editRepair, findRepair, removeRepair, repairList } from "../services/repair.service";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { HttpError, ValidationError } from "../error";
+import { ZRepair, ZRepairParam } from "../models";
+import { fromZodError } from "zod-validation-error";
+import { z } from "zod";
 
-const getRepair = async (req: Request, res: Response) => {
-  await prisma.repairs.findMany().then((result) => {
-    res.json({ 
-      status: 200,
-      value : result
+const getRepair = async (req: Request, res: Response<BaseResponse<Repairs[]>>, next: NextFunction) => {
+  try {
+    res.status(200).json({
+      message: 'Successful',
+      success: true,
+      data: await repairList()
     });
-  }).catch((err) => {
-    res.status(400).json({ error: err });
-  });
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      next(new HttpError(400, `${error.name} : ${error.code}`));
+    } else {
+      next(error);
+    }
+  }
 }
 
-const getRepairById = async (req: Request, res: Response) => {
-  const { repair_id } = req.params;
-  await prisma.repairs.findUnique({
-    where: { 
-      repair_id: repair_id 
+const getRepairById = async (req: Request, res: Response<BaseResponse<Repairs | null>>, next: NextFunction) => {
+  try {
+    const params = ZRepairParam.parse(req.params);
+    res.status(200).json({
+      message: 'Successful',
+      success: true,
+      data: await findRepair(params.repairId)
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      next(new ValidationError(fromZodError(error).toString()));
+    } else if (error instanceof PrismaClientKnownRequestError) {
+      next(new HttpError(400, `${error.name} : ${error.code}`));
+    } else {
+      next(error);
     }
-  }).then((result) => {
-    if(result){
-      res.status(200).json({ 
-        status: 200,
-        value : result
-      });
-    }else{
-      res.status(404).json({ 
-        status: 404,
-        value : 'ไม่พบข้อมูล'
-      });
-    }
-  }).catch((err) => {
-    res.status(400).json({ error: err });
-  });
+  }
 }
 
-const createRepair = async (req: Request, res: Response) => {
-  const params: Repairs = req.body;
-  params.repair_id = `REP-${uuidv4()}`;
-  params.create_time = getDateFormat(new Date());
-  params.lastmodified = getDateFormat(new Date());
-  await prisma.repairs.create({
-    data: params,
-    include: {
-      device: true
-    }
-  }).then((result) => {
-    res.json({ 
-      status: 201,
-      msg: 'Create Successful!!',
-      value : result
+const createRepair = async (req: Request, res: Response<BaseResponse<Repairs>>, next: NextFunction) => {
+  try {
+    const body = ZRepair.parse(req.body);
+    res.status(201).json({
+      message: 'Successful',
+      success: true,
+      data: await addRepair(body as Repairs)
     });
-  }).catch((err) => {
-    res.status(400).json({ error: err });
-  });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      next(new ValidationError(fromZodError(error).toString()));
+    } else if (error instanceof PrismaClientKnownRequestError) {
+      next(new HttpError(400, `${error.name} : ${error.code}`));
+    } else {
+      next(error);
+    }
+  }
 }
 
-const updateRepair = async (req: Request, res: Response) => {
-  const value: Repairs = req.body;
-  const { repair_id } = req.params;
-  await prisma.repairs.update({
-    where: { 
-      repair_id : repair_id 
-    },
-    data: value
-  }).then((result) => {
-    res.json({ 
-      status: 200,
-      msg: 'Update Successful!!',
-      value : result
+const updateRepair = async (req: Request, res: Response<BaseResponse<Repairs>>, next: NextFunction) => {
+  try {
+    const params = ZRepairParam.parse(req.params);
+    const body = ZRepair.parse(req.body);
+    res.status(200).json({
+      message: 'Successful',
+      success: true,
+      data: await editRepair(params.repairId, body as Repairs)
     });
-  }).catch((err) => {
-    res.status(400).json({ error: err });
-  });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      next(new ValidationError(fromZodError(error).toString()));
+    } else if (error instanceof PrismaClientKnownRequestError) {
+      next(new HttpError(400, `${error.name} : ${error.code}`));
+    } else {
+      next(error);
+    }
+  }
 }
 
-const deleteRepair = async (req: Request, res: Response) => {
-  const { repair_id } = req.params;
-  await prisma.repairs.delete({
-    where: { 
-      repair_id: repair_id 
-    }
-  }).then((result) => {
-    res.json({ 
-      status: 200,
-      msg: 'Delete Successful!!',
-      value : result
+const deleteRepair = async (req: Request, res: Response<BaseResponse<Repairs>>, next: NextFunction) => {
+  try {
+    const params = ZRepairParam.parse(req.params);
+    res.status(200).json({
+      message: 'Successful',
+      success: true,
+      data: await removeRepair(params.repairId)
     });
-  }).catch((err) => {
-    res.status(400).json({ error: err });
-  });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      next(new ValidationError(fromZodError(error).toString()));
+    } else if (error instanceof PrismaClientKnownRequestError) {
+      next(new HttpError(400, `${error.name} : ${error.code}`));
+    } else {
+      next(error);
+    }
+  }
 }
 
 export default {

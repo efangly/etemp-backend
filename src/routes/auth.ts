@@ -1,9 +1,9 @@
 import { Router } from "express";
-import auth from "../controllers/auth.controller";
+import { register, checkLogin } from "../controllers";
 import upload from "../middlewares/uplodfile";
-const AuthRouter: Router = Router();
+const authRouter = Router();
 
-AuthRouter.post('/login', auth.checkLogin);
-AuthRouter.post('/register', upload.single('fileupload'), auth.register);
+authRouter.post('/login', checkLogin);
+authRouter.post('/register', upload.single('fileupload'), register);
 
-export default AuthRouter;
+export default authRouter;

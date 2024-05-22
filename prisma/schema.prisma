@@ -7,157 +7,198 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Devices {
-  dev_id           String         @id @db.VarChar(100)
-  group_id         String         @db.VarChar(100)
-  guarantee_id     String?        @db.VarChar(100)
-  dev_sn           String         @unique @db.VarChar(50)
-  dev_name         String?        @db.VarChar(155)
-  dev_status       String         @default("0") @db.Char(1)
-  temp_min         Float          @default(0.00) @db.Float
-  temp_max         Float          @default(0.00) @db.Float
-  hum_min          Float          @default(0.00) @db.Float
-  hum_max          Float          @default(0.00) @db.Float
-  adjust_temp      Float          @default(0.00) @db.Float
-  adjust_hum       Float          @default(0.00) @db.Float
-  delay_time       String?        @db.VarChar(11)
-  max_probe        String?        @default("1") @db.VarChar(11)
-  door             String?        @default("1") @db.VarChar(11)
-  dev_zone         String?        @db.VarChar(155)
-  install_location String?        @db.VarChar(155)
-  location_pic     String?        @db.VarChar(200)
-  install_date     DateTime?      @default(now()) @db.DateTime(0)
-  dev_ip           String?        @db.VarChar(16)
-  dev_gatway       String?        @db.VarChar(16)
-  dev_subnet       String?        @db.VarChar(16)
-  dev_macaddress   String?        @db.VarChar(12)
-  software_version String?        @db.VarChar(55)
-  firmware_version String?        @db.VarChar(55)
-  invoice          String?        @default("0") @db.VarChar(50)
-  createby         String?        @db.VarChar(100)
-  comment          String?        @db.VarChar(155)
-  lastmodified     DateTime?      @updatedAt @db.DateTime(0)
-  backup_status    String?        @default("0") @db.Char(1)
-  move_status      String?        @db.VarChar(100)
-  ward             Group?         @relation(fields: [group_id], references: [group_id])
-  noti             Notification[]
-  log              Logs_days[]
-  repair           Repairs[]
+  devId           String          @id @db.VarChar(100)
+  wardId          String          @db.VarChar(100)
+  devSerial       String          @unique @db.VarChar(100)
+  devName         String          @unique @db.VarChar(500)
+  devDetail       String?         @db.VarChar(500)
+  devStatus       Boolean         @default(false)
+  devSeq          Int             @unique @db.Int
+  devZone         String?         @db.VarChar(155)
+  installLocation String?         @db.VarChar(250)
+  locationPic     String?         @db.VarChar(200)
+  installDate     DateTime?       @default(now())
+  devIp           String?         @db.VarChar(16)
+  devMacAddEth    String?         @db.VarChar(12)
+  devMacAddWiFi   String?         @db.VarChar(12)
+  devSubNet       String?         @db.VarChar(12)
+  devGetway       String?         @db.VarChar(12)
+  devDns          String?         @db.VarChar(12)
+  firmwareVersion String?         @db.VarChar(55)
+  invoice         String?         @db.VarChar(50)
+  createBy        String?         @db.VarChar(100)
+  comment         String?         @db.VarChar(155)
+  backupStatus    String?         @default("0") @db.Char(1)
+  moveStatus      String?         @db.VarChar(100)
+  alarn           Boolean         @default(false)
+  duration        Int?            @db.Int
+  sim             String?         @db.VarChar(100)
+  backToNormal    Boolean?        @default(false)
+  repeat          Int             @default(0) @db.Int
+  notification    Boolean         @default(true)
+  sendEmail       String?         @db.VarChar(100)
+  topic           String?         @db.VarChar(100)
+  createAt        DateTime        @default(now())
+  updateAt        DateTime        @default(now()) @updatedAt
+  ward            Wards           @relation(fields: [wardId], references: [wardId])
+  noti            Notifications[]
+  log             LogDays[]
+  repair          Repairs[]
+  warranty        Warranties[]
+  probe           Probes[]
 }
 
-model Group {
-  group_id   String    @id @db.VarChar(100)
-  group_name String    @db.VarChar(155)
-  hos_id     String    @db.VarChar(100)
-  hospital   Hospitals @relation(fields: [hos_id], references: [hos_id])
-  user       Users[]
-  device     Devices[]
+model Probes {
+  probeId    String   @id @db.VarChar(100)
+  probeName  String   @db.VarChar(255)
+  probeType  String   @db.VarChar(20)
+  probCh     String   @db.Char(1)
+  tempMin    Float    @default(0.00) @db.Float
+  tempMax    Float    @default(0.00) @db.Float
+  humMin     Float    @default(0.00) @db.Float
+  humMax     Float    @default(0.00) @db.Float
+  adjustTemp Float    @default(0.00) @db.Float
+  adjustHum  Float    @default(0.00) @db.Float
+  delayTime  String?  @db.VarChar(11)
+  door       String?  @default("1") @db.VarChar(11)
+  devId      String   @db.VarChar(100)
+  createAt   DateTime @default(now())
+  updateAt   DateTime @default(now()) @updatedAt
+  device     Devices  @relation(fields: [devId], references: [devId])
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model Hospitals {
-  hos_id         String   @id @db.VarChar(100)
-  hos_name       String   @db.VarChar(155)
-  hos_address    String?  @db.VarChar(155)
-  hos_telephone  String?  @db.VarChar(15)
-  user_contact   String?  @db.VarChar(155)
-  user_telephone String?  @db.VarChar(15)
-  lastmodified   DateTime @default(now()) @updatedAt @db.DateTime(0)
-  create_date    DateTime @default(now()) @db.DateTime(0)
-  hos_latitude   String?  @db.VarChar(155)
-  hos_longitude  String?  @db.VarChar(155)
-  hos_picture    String?  @db.VarChar(255)
-  groups         Group[]
+  hosId         String   @id @db.VarChar(100)
+  hosName       String   @db.VarChar(155)
+  hosAddress    String?  @db.VarChar(155)
+  hosTelephone  String?  @db.VarChar(100)
+  userContact   String?  @db.VarChar(155)
+  userTelePhone String?  @db.VarChar(100)
+  hosLatitude   String?  @db.VarChar(155)
+  hosLongitude  String?  @db.VarChar(155)
+  hosPic        String?  @db.VarChar(255)
+  createAt      DateTime @default(now())
+  updateAt      DateTime @default(now()) @updatedAt
+  ward          Wards[]
+}
+
+model Wards {
+  wardId   String    @id @db.VarChar(100)
+  wardName String    @db.VarChar(250)
+  wardSeq  Int       @unique @db.Int
+  hosId    String    @db.VarChar(100)
+  createAt DateTime  @default(now())
+  updateAt DateTime  @default(now()) @updatedAt
+  hospital Hospitals @relation(fields: [hosId], references: [hosId])
+  user     Users[]
+  device   Devices[]
+}
+
+model Users {
+  userId       String   @id @db.VarChar(100)
+  wardId       String   @db.VarChar(100)
+  userName     String   @unique @db.VarChar(155)
+  userPassword String   @db.VarChar(155)
+  userStatus   Boolean  @default(true)
+  userLevel    String   @default("4") @db.Char(1)
+  displayName  String?  @db.VarChar(150)
+  userPic      String?  @db.VarChar(255)
+  comment      String?  @db.VarChar(255)
+  createBy     String?  @db.VarChar(155)
+  createAt     DateTime @default(now())
+  updateAt     DateTime @default(now()) @updatedAt
+  ward         Wards    @relation(fields: [wardId], references: [wardId])
+  role         Roles    @relation(fields: [userLevel], references: [roleId])
+}
+
+model Roles {
+  roleId       String   @id @db.Char(1)
+  roleName     String   @db.VarChar(500)
+  rolePriority String   @default("4") @db.Char(1)
+  createAt     DateTime @default(now())
+  updateAt     DateTime @default(now()) @updatedAt
+  user         Users[]
+}
+
+model Notifications {
+  notiId     String   @id @db.VarChar(100)
+  devId      String   @db.VarChar(100)
+  notiDetail String   @db.VarChar(255)
+  notiStatus Boolean  @default(false)
+  createAt   DateTime @default(now())
+  updateAt   DateTime @default(now()) @updatedAt
+  device     Devices  @relation(fields: [devId], references: [devId])
 }
 
 model Repairs {
-  repair_id       String    @id @db.VarChar(100)
-  dev_id          String    @db.VarChar(100)
-  create_time     DateTime  @db.DateTime(0)
-  repair_info     String?   @db.VarChar(155)
-  repair_location String?   @db.VarChar(155)
-  ward            String?   @db.VarChar(155)
-  repair_details  String?   @db.VarChar(155)
-  tel_number      String?   @db.VarChar(11)
-  repair_status   String?   @db.VarChar(155)
-  warranty_status String?   @db.Char(1)
-  comment         String?   @db.VarChar(155)
-  lastmodified    DateTime  @updatedAt @db.DateTime(0)
-  bastatus        String?   @default("0") @db.Char(1)
-  device          Devices   @relation(fields: [dev_id], references: [dev_id])
+  repairId       String   @id @db.VarChar(100)
+  devId          String   @db.VarChar(100)
+  repairInfo     String?  @db.VarChar(155)
+  repairLocation String?  @db.VarChar(155)
+  ward           String?  @db.VarChar(155)
+  repairDetails  String?  @db.VarChar(155)
+  telePhone      String?  @db.VarChar(11)
+  repairStatus   String?  @db.VarChar(155)
+  warrantyStatus String?  @db.Char(1)
+  comment        String?  @db.VarChar(155)
+  baseStatus     String?  @default("0") @db.Char(1)
+  createAt       DateTime @default(now())
+  updateAt       DateTime @default(now()) @updatedAt
+  device         Devices  @relation(fields: [devId], references: [devId])
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model Users {
-  user_id       String    @id @db.VarChar(100)
-  group_id      String    @db.VarChar(100)
-  user_name     String    @unique @db.VarChar(155)
-  user_password String    @db.VarChar(155)
-  display_name  String?   @db.VarChar(150)
-  user_picture  String?   @db.VarChar(255)
-  create_date   DateTime  @default(now()) @db.DateTime(0)
-  user_status   String    @default("0") @db.Char(1)
-  user_level    String    @default("0") @db.Char(1)
-  create_by     String?   @db.VarChar(155)
-  lastmodified  DateTime? @updatedAt @db.DateTime(0)
-  bastatus      String?   @db.Char(1)
-  comment       String?   @db.VarChar(255)
-  ward          Group     @relation(fields: [group_id], references: [group_id])
+model Warranties {
+  warrId     String   @id @db.VarChar(100)
+  devName    String   @db.VarChar(100)
+  expire     DateTime @default(now())
+  warrStatus Boolean  @default(false)
+  createAt   DateTime @default(now())
+  updateAt   DateTime @default(now()) @updatedAt
+  device     Devices  @relation(fields: [devName], references: [devName])
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model Notification {
-  noti_id     String   @id @db.VarChar(100)
-  dev_id      String   @db.VarChar(100)
-  noti_detail String   @db.VarChar(255)
-  noti_status String   @default("0") @db.Char(1)
-  createAt    DateTime @default(now()) @db.DateTime(0)
-  updateAt    DateTime @default(now()) @updatedAt @db.DateTime(0)
-  device      Devices  @relation(fields: [dev_id], references: [dev_id])
+model LogDays {
+  logId         String   @id @db.VarChar(100)
+  devId         String   @db.VarChar(100)
+  tempValue     Float    @default(0.00)
+  tempAvg       Float    @default(0.00)
+  humidityValue Float    @default(0.00)
+  humidityAvg   Float    @default(0.00)
+  sendTime      DateTime @default(now())
+  ac            String   @default("0") @db.Char(10)
+  door1         Boolean  @default(false)
+  door2         Boolean  @default(false)
+  door3         Boolean  @default(false)
+  internet      Boolean  @default(false)
+  probe         String   @default("0") @db.VarChar(10)
+  battery       Int      @default(0)
+  ambient       Float?   @default(0.00)
+  sdCard        Boolean  @default(false)
+  eventCounts   String?  @default("C000000000000000") @db.VarChar(20)
+  createAt      DateTime @default(now())
+  updateAt      DateTime @default(now()) @updatedAt
+  device        Devices  @relation(fields: [devId], references: [devId])
 }
 
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model Logs_days {
-  log_id         String   @id @db.VarChar(100)
-  dev_id         String   @db.VarChar(100)
-  temp_value     Float    @default(0.00)
-  temp_avg       Float    @default(0.00)
-  humidity_value Float    @default(0.00)
-  humidity_avg   Float    @default(0.00)
-  send_time      DateTime @default(now()) @db.DateTime(0)
-  insert_time    DateTime @default(now()) @db.DateTime(0)
-  ac             String   @default("0") @db.Char(10)
-  door_1         String   @default("0") @db.Char(1)
-  door_2         String   @default("0") @db.Char(1)
-  door_3         String   @default("0") @db.Char(1)
-  internet       String?  @default("0") @db.Char(10)
-  probe          String   @default("0") @db.VarChar(10)
-  battery        String?  @default("0") @db.VarChar(10)
-  ambient        Float?   @default(0.00)
-  sd_card        String?  @default("0") @db.Char(1)
-  event_counts   String?  @default("C000000000000000") @db.VarChar(20)
-  device         Devices  @relation(fields: [dev_id], references: [dev_id])
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model Logs_days_backup {
-  log_id         String   @id @db.VarChar(100)
-  dev_id         String   @db.VarChar(100)
-  temp_value     Float    @default(0.00)
-  temp_avg       Float    @default(0.00)
-  humidity_value Float    @default(0.00)
-  humidity_avg   Float    @default(0.00)
-  send_time      DateTime @default(now()) @db.DateTime(0)
-  insert_time    DateTime @default(now()) @db.DateTime(0)
-  ac             String   @default("0") @db.Char(10)
-  door_1         String   @default("0") @db.Char(1)
-  door_2         String   @default("0") @db.Char(1)
-  door_3         String   @default("0") @db.Char(1)
-  internet       String?  @default("0") @db.Char(10)
-  probe          String   @default("0") @db.VarChar(10)
-  bettery        String?  @default("0") @db.Char(10)
-  ambient        Float?   @default(0.00)
-  sd_card        String?  @default("0") @db.Char(1)
-  event_counts   String?  @default("C000000000000000") @db.VarChar(20)
+model LogDaysBackup {
+  logId         String   @id @db.VarChar(100)
+  devId         String   @db.VarChar(100)
+  tempValue     Float    @default(0.00)
+  tempAvg       Float    @default(0.00)
+  humidityValue Float    @default(0.00)
+  humidityAvg   Float    @default(0.00)
+  sendTime      DateTime @default(now())
+  ac            String   @default("0") @db.Char(10)
+  door1         Boolean  @default(false)
+  door2         Boolean  @default(false)
+  door3         Boolean  @default(false)
+  internet      Boolean  @default(false)
+  probe         String   @default("0") @db.VarChar(10)
+  battery       Int      @default(0)
+  ambient       Float?   @default(0.00)
+  sdCard        Boolean  @default(false)
+  eventCounts   String?  @default("C000000000000000") @db.VarChar(20)
+  createAt      DateTime @default(now())
+  updateAt      DateTime @default(now()) @updatedAt
 }

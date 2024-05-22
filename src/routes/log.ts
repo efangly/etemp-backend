@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { requireLogin, verifyToken } from "../middlewares/auth";
+import { verifyToken } from "../middlewares/auth";
 import log from "../controllers/log.controller";
-const LogRouter: Router = Router();
+const logRouter: Router = Router();
 
-LogRouter.get('/', ...requireLogin(), verifyToken, log.getLog);
-LogRouter.get('/:log_id', ...requireLogin(), verifyToken, log.getLogById);
-LogRouter.post('/', log.createLog);
-LogRouter.delete('/:log_id', ...requireLogin(), log.deleteLog);
+logRouter.get('/', verifyToken, log.getLog);
+logRouter.get('/:logId', verifyToken, log.getLogById);
+logRouter.post('/', log.createLog);
+logRouter.delete('/:logId', verifyToken, log.deleteLog);
 
-export default LogRouter; 
+export default logRouter;
