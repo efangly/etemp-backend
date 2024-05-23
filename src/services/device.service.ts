@@ -51,7 +51,8 @@ const deviceById = async (deviceId: string, type: string): Promise<Devices | nul
       whereCondition = {
         where: { devId: deviceId },
         include: {
-          log: { orderBy: { sendTime: 'desc' } }
+          log: { orderBy: { sendTime: 'desc' } },
+          probe: { orderBy: { probCh: 'asc' } }
         }
       }
     }
