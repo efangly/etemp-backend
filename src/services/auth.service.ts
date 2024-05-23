@@ -52,10 +52,10 @@ const userLogin = async (login: TLogin): Promise<ResLogin> => {
         const token: string = sign({ userId, userLevel, hosId }, String(process.env.JWT_SECRET));
         return { token, userId, hosId, wardId, userLevel, hosPic, hosName, userStatus, userName, displayName, userPic };
       } else {
-        throw new HttpError(400, "Wrong password!!");
+        throw new HttpError(400, "Wrong user or password!!");
       }
     } else {
-      throw new HttpError(404, "User not found!!");
+      throw new HttpError(400, "Wrong user or password!!!!");
     }
   } catch (error) {
     throw error;

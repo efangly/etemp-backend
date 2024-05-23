@@ -31,6 +31,7 @@ model Devices {
   comment         String?         @db.VarChar(155)
   backupStatus    String?         @default("0") @db.Char(1)
   moveStatus      String?         @db.VarChar(100)
+  door            String?         @default("1") @db.VarChar(11)
   alarn           Boolean         @default(false)
   duration        Int?            @db.Int
   sim             String?         @db.VarChar(100)
@@ -61,7 +62,6 @@ model Probes {
   adjustTemp Float    @default(0.00) @db.Float
   adjustHum  Float    @default(0.00) @db.Float
   delayTime  String?  @db.VarChar(11)
-  door       String?  @default("1") @db.VarChar(11)
   devId      String   @db.VarChar(100)
   createAt   DateTime @default(now())
   updateAt   DateTime @default(now()) @updatedAt

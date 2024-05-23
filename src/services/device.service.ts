@@ -15,7 +15,8 @@ const deviceList = async (): Promise<Devices[]> => {
         log: {
           take: 1,
           orderBy: { sendTime: 'desc' }
-        }
+        },
+        probe: true
       },
       orderBy: { devSeq: "asc" }
     });
@@ -41,8 +42,7 @@ const deviceById = async (deviceId: string, type: string): Promise<Devices | nul
               humMax: true,
               adjustHum: true,
               adjustTemp: true,
-              delayTime: true,
-              door: true
+              delayTime: true
             }
           }
         }
