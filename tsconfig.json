@@ -1,18 +1,13 @@
 {
   "compilerOptions": {
     /* Language and Environment */
-    "target": "ES2020",
+    "target": "es2016", 
     /* Modules */
-    "module": "CommonJS",
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    /* Dir */
+    "module": "commonjs",
     "rootDir": "./src",
     "outDir": "./dist",
     /* JavaScript Support */
-    // "allowJs": true,
+    "allowJs": true,
     /* Emit */
     "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
     // "preserveSymlinks": true,                         /* Disable resolving symlinks to their realpath. This correlates to the same flag in node. */
