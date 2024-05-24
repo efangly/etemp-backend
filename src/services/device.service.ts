@@ -68,6 +68,7 @@ const addDevice = async (body: Devices, pic?: Express.Multer.File): Promise<Devi
   try {
     const seq: Devices[] = await deviceList();
     body.devId = `DEV-${uuidv4()}`;
+    body.devName = `DEVICE-${uuidv4()}`;
     body.wardId = !body.wardId ? "WID-DEVELOPMENT" : body.wardId;
     body.locationPic = pic ? `/img/device/${pic.filename}` : null;
     body.devSeq = seq.length === 0 ? 1 : seq[seq.length - 1].devSeq + 1;
