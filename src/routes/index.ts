@@ -10,12 +10,14 @@ import repairRouter from './repair';
 import warrantyRouter from './warranty';
 import notiRouter from './noti';
 import logRouter from './log';
+import configRouter from './config';
 
 const router = Router();
 
 router.use('/auth', authRouter);
 router.use('/user', userRouter);
 router.use('/device', deviceRouter);
+router.use('/config', configRouter);
 router.use('/hospital', hospitalRouter);
 router.use('/ward', wardRouter);
 router.use('/probe', probeRouter);

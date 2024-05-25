@@ -12,8 +12,6 @@ RUN rm -fR ./src tsconfig.json
 
 RUN mkdir /usr/src/app/public
 
-COPY default-pic.png /public/images/
-
 VOLUME /usr/src/app/public
 
 EXPOSE 8080

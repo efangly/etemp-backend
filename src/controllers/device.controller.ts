@@ -3,10 +3,10 @@ import fs from "node:fs"
 import path from "node:path";
 import { Configs, Devices } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { addDevice, deviceById, deviceList, editConfig, editDevice, removeDevice } from "../services";
+import { addDevice, deviceById, deviceList, editConfig, editDevice, findConfig, removeDevice } from "../services";
 import { HttpError, ValidationError } from "../error";
 import { BaseResponse } from "../utils/interface";
-import { ZConfig, ZConfigParam, ZDevice, ZDeviceParam } from "../models";
+import { ZConfig, ZDevice, ZDeviceParam } from "../models";
 import { fromZodError } from "zod-validation-error";
 import { z } from "zod";
 
@@ -106,14 +106,33 @@ const deleteDevice = async (req: Request, res: Response<BaseResponse<Devices>>, 
   }
 };
 
+const getConfig = async (req: Request, res: Response<BaseResponse<Configs | null>>, next: NextFunction) => {
+  try {
+    const params = ZDeviceParam.parse(req.params);
+    res.status(200).json({
+      message: 'Successful',
+      success: true,
+      data: await findConfig(params.devId)
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      next(new ValidationError(fromZodError(error).toString()));
+    } else if (error instanceof PrismaClientKnownRequestError) {
+      next(new HttpError(400, `${error.name} : ${error.code}`));
+    } else {
+      next(error);
+    }
+  }
+};
+
 const updateConfig = async (req: Request, res: Response<BaseResponse<Configs>>, next: NextFunction) => {
   try {
-    const params = ZConfigParam.parse(req.params);
+    const params = ZDeviceParam.parse(req.params);
     const body = ZConfig.parse(req.body);
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await editConfig(params.confId, body as unknown as Configs)
+      data: await editConfig(params.devId, body as unknown as Configs)
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -132,5 +151,6 @@ export default {
   createDevice,
   updateDevice,
   deleteDevice,
+  getConfig,
   updateConfig
 };

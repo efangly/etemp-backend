@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const ZDeviceParam = z.object({ devId: z.string() });
-export const ZConfigParam = z.object({ confId: z.string() });
 
 export const ZDevice = z.object({
   devId: z.string().optional(),

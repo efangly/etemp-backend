@@ -47,13 +47,6 @@ const deviceById = async (deviceId: string): Promise<Devices | null> => {
 const addDevice = async (body: Devices, pic?: Express.Multer.File): Promise<Devices> => {
   try {
     const seq: Devices[] = await deviceList();
-    // body.devId = `DEV-${uuidv4()}`;
-    // body.devName = `DEVICE-${uuidv4()}`;
-    // body.wardId = !body.wardId ? "WID-DEVELOPMENT" : body.wardId;
-    // body.locationPic = pic ? `/img/device/${pic.filename}` : null;
-    // body.devSeq = seq.length === 0 ? 1 : seq[seq.length - 1].devSeq + 1;
-    // body.createAt = getDateFormat(new Date());
-    // body.updateAt = getDateFormat(new Date());
     const result = await prisma.devices.create({
       data: {
         devId: `DEV-${uuidv4()}`,
@@ -107,11 +100,22 @@ const removeDevice = async (deviceId: string): Promise<Devices> => {
   }
 };
 
-const editConfig = async (confId: string, body: Configs): Promise<Configs> => {
+const findConfig = async (deviceId: string): Promise<Configs | null> => {
+  try {
+    const result = await prisma.configs.findUnique({
+      where: { devId: deviceId }
+    });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const editConfig = async (deviceId: string, body: Configs): Promise<Configs> => {
   try {
     body.updateAt = getDateFormat(new Date());
     const result = await prisma.configs.update({
-      where: { confId: confId },
+      where: { devId: deviceId },
       data: body
     });
     return result;
@@ -126,5 +130,6 @@ export {
   addDevice,
   editDevice,
   removeDevice,
+  findConfig,
   editConfig
 };
