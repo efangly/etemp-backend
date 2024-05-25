@@ -22,9 +22,7 @@ app.use(cors({ origin: '*' }));
 app.use(morgan("dev"));
 
 //route 
-app.use('/api', routes);
-app.use('/img', express.static('public/images'));
-app.use('/font', express.static('public/fonts'));
+app.use('/etemp', routes);
 app.use(globalErrorHanlder);
 
 app.listen(port, async () => {
