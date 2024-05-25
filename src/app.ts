@@ -4,8 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import prisma from "./configs/prisma.config";
 import routes from "./routes";
-import path from "node:path";
-// import { initRedis } from "./configs/redis.config";
+import { initRedis } from "./configs/redis.config";
 import { connectMqtt } from "./configs/mqtt.config";
 import { backupScheduleJob } from "./utils/schedule";
 import connectFireBase from "./configs/firebase.config";
@@ -28,7 +27,7 @@ app.use(globalErrorHanlder);
 app.listen(port, async () => {
   console.log(`Start server in port ${port}`);
   console.log(process.env.NODE_ENV === 'production' ? 'Production Mode' : 'Developer Mode');
-  // await initRedis();
+  await initRedis();
   connectFireBase();
   connectMqtt();
   backupScheduleJob();

@@ -4,7 +4,7 @@ let redisConn: RedisClientType;
 
 const initRedis = async (): Promise<RedisClientType> => {
   redisConn = createClient({
-    url: 'redis://fanglycons.com:6379'
+    url: 'redis://thanespgm.com:6378'
   });
   redisConn.on('error', err => console.log('Redis Client Error', err));
   await redisConn.connect();
