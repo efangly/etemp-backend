@@ -11,12 +11,6 @@ CREATE TABLE `Devices` (
     `installLocation` VARCHAR(250) NULL,
     `locationPic` VARCHAR(200) NULL,
     `installDate` DATETIME(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `devIp` VARCHAR(16) NULL,
-    `devMacAddEth` VARCHAR(12) NULL,
-    `devMacAddWiFi` VARCHAR(12) NULL,
-    `devSubNet` VARCHAR(12) NULL,
-    `devGetway` VARCHAR(12) NULL,
-    `devDns` VARCHAR(12) NULL,
     `firmwareVersion` VARCHAR(55) NULL,
     `invoice` VARCHAR(50) NULL,
     `createBy` VARCHAR(100) NULL,
@@ -25,12 +19,6 @@ CREATE TABLE `Devices` (
     `moveStatus` VARCHAR(100) NULL,
     `alarn` BOOLEAN NOT NULL DEFAULT false,
     `duration` INTEGER NULL,
-    `sim` VARCHAR(100) NULL,
-    `backToNormal` BOOLEAN NULL DEFAULT false,
-    `repeat` INTEGER NOT NULL DEFAULT 0,
-    `notification` BOOLEAN NOT NULL DEFAULT true,
-    `sendEmail` VARCHAR(100) NULL,
-    `topic` VARCHAR(100) NULL,
     `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updateAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
@@ -45,7 +33,7 @@ CREATE TABLE `Probes` (
     `probeId` VARCHAR(100) NOT NULL,
     `probeName` VARCHAR(255) NOT NULL,
     `probeType` VARCHAR(20) NOT NULL,
-    `probCh` CHAR(1) NOT NULL,
+    `probeCh` CHAR(1) NOT NULL,
     `tempMin` FLOAT NOT NULL DEFAULT 0.00,
     `tempMax` FLOAT NOT NULL DEFAULT 0.00,
     `humMin` FLOAT NOT NULL DEFAULT 0.00,
@@ -53,12 +41,39 @@ CREATE TABLE `Probes` (
     `adjustTemp` FLOAT NOT NULL DEFAULT 0.00,
     `adjustHum` FLOAT NOT NULL DEFAULT 0.00,
     `delayTime` VARCHAR(11) NULL,
-    `door` VARCHAR(11) NULL DEFAULT '1',
+    `door` INTEGER NULL DEFAULT 0,
     `devId` VARCHAR(100) NOT NULL,
     `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updateAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`probeId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Configs` (
+    `confId` VARCHAR(100) NOT NULL,
+    `ip` VARCHAR(50) NULL,
+    `macAddEth` VARCHAR(50) NULL,
+    `macAddWiFi` VARCHAR(50) NULL,
+    `subNet` VARCHAR(50) NULL,
+    `getway` VARCHAR(50) NULL,
+    `dns` VARCHAR(50) NULL,
+    `ssid` VARCHAR(200) NULL,
+    `ssidPass` VARCHAR(200) NULL,
+    `sim` VARCHAR(100) NULL,
+    `email1` VARCHAR(100) NULL,
+    `email2` VARCHAR(100) NULL,
+    `email3` VARCHAR(100) NULL,
+    `notiTime` INTEGER NOT NULL DEFAULT 0,
+    `backToNormal` BOOLEAN NOT NULL DEFAULT false,
+    `mobileNoti` BOOLEAN NOT NULL DEFAULT true,
+    `repeat` INTEGER NOT NULL DEFAULT 1,
+    `devId` VARCHAR(100) NOT NULL,
+    `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updateAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    UNIQUE INDEX `Configs_devId_key`(`devId`),
+    PRIMARY KEY (`confId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -161,7 +176,6 @@ CREATE TABLE `Warranties` (
     `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updateAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
-    UNIQUE INDEX `Warranties_devName_key`(`devName`),
     PRIMARY KEY (`warrId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -179,11 +193,10 @@ CREATE TABLE `LogDays` (
     `door2` BOOLEAN NOT NULL DEFAULT false,
     `door3` BOOLEAN NOT NULL DEFAULT false,
     `internet` BOOLEAN NOT NULL DEFAULT false,
-    `probe` VARCHAR(10) NOT NULL DEFAULT '0',
+    `probe` VARCHAR(10) NOT NULL DEFAULT '1',
     `battery` INTEGER NOT NULL DEFAULT 0,
     `ambient` DOUBLE NULL DEFAULT 0.00,
-    `sdCard` BOOLEAN NOT NULL DEFAULT false,
-    `eventCounts` VARCHAR(20) NULL DEFAULT 'C000000000000000',
+    `sdCard` CHAR(10) NOT NULL DEFAULT '0',
     `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updateAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
@@ -204,11 +217,10 @@ CREATE TABLE `LogDaysBackup` (
     `door2` BOOLEAN NOT NULL DEFAULT false,
     `door3` BOOLEAN NOT NULL DEFAULT false,
     `internet` BOOLEAN NOT NULL DEFAULT false,
-    `probe` VARCHAR(10) NOT NULL DEFAULT '0',
+    `probe` VARCHAR(10) NOT NULL DEFAULT '1',
     `battery` INTEGER NOT NULL DEFAULT 0,
     `ambient` DOUBLE NULL DEFAULT 0.00,
-    `sdCard` BOOLEAN NOT NULL DEFAULT false,
-    `eventCounts` VARCHAR(20) NULL DEFAULT 'C000000000000000',
+    `sdCard` CHAR(10) NOT NULL DEFAULT '0',
     `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updateAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
@@ -220,6 +232,9 @@ ALTER TABLE `Devices` ADD CONSTRAINT `Devices_wardId_fkey` FOREIGN KEY (`wardId`
 
 -- AddForeignKey
 ALTER TABLE `Probes` ADD CONSTRAINT `Probes_devId_fkey` FOREIGN KEY (`devId`) REFERENCES `Devices`(`devId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Configs` ADD CONSTRAINT `Configs_devId_fkey` FOREIGN KEY (`devId`) REFERENCES `Devices`(`devId`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Wards` ADD CONSTRAINT `Wards_hosId_fkey` FOREIGN KEY (`hosId`) REFERENCES `Hospitals`(`hosId`) ON DELETE RESTRICT ON UPDATE CASCADE;

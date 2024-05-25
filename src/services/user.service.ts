@@ -4,7 +4,7 @@ import { getUserImage } from "../utils/image";
 import fs from "node:fs";
 import path from "node:path";
 import { getDateFormat } from "../utils/format-date";
-import { HttpError } from "../error";
+import { HttpError, NotFoundError } from "../error";
 
 const getAllUser = async (): Promise<Users[]> => {
   try {
@@ -31,7 +31,7 @@ const getUserByUserId = async (userId: string): Promise<Users | null> => {
         }
       }
     });
-    if(!!result) throw new HttpError(404, "Not Found!!");
+    if (!result) throw new NotFoundError("Not Found!!");
     return result;
   } catch (error) {
     throw error;
@@ -47,7 +47,7 @@ const editUser = async (userId: string, data: Users, pic?: Express.Multer.File):
       where: { userId: userId },
       data: data
     });
-    if (pic && !!filename) fs.unlinkSync(path.join('public/images/user', String(filename.split("/")[3])));
+    if (pic && !!filename) fs.unlinkSync(path.join('public/images/user', filename.split("/")[3]));
     return result;
   } catch (error) {
     throw error;

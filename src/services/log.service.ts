@@ -64,7 +64,6 @@ const addLog = async (body: LogDays | LogDays[]) => {
           battery: log.battery,
           ambient: log.ambient,
           sdCard: log.sdCard,
-          eventCounts: log.eventCounts || null,
           createAt: getDateFormat(new Date()),
           updateAt: getDateFormat(new Date()),
         });

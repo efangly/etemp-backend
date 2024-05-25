@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import fs from "node:fs"
 import path from "node:path";
-import { Devices } from "@prisma/client";
+import { Configs, Devices } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { addDevice, deviceById, deviceList, editDevice, removeDevice } from "../services";
+import { addDevice, deviceById, deviceList, editConfig, editDevice, removeDevice } from "../services";
 import { HttpError, ValidationError } from "../error";
 import { BaseResponse } from "../utils/interface";
-import { ZDevice, ZDeviceParam } from "../models";
+import { ZConfig, ZConfigParam, ZDevice, ZDeviceParam } from "../models";
 import { fromZodError } from "zod-validation-error";
 import { z } from "zod";
 
@@ -33,7 +33,7 @@ const getDeviceByid = async (req: Request, res: Response<BaseResponse<Devices | 
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await deviceById(params.devId, req.originalUrl.split("/")[3])
+      data: await deviceById(params.devId)
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -106,10 +106,31 @@ const deleteDevice = async (req: Request, res: Response<BaseResponse<Devices>>, 
   }
 };
 
+const updateConfig = async (req: Request, res: Response<BaseResponse<Configs>>, next: NextFunction) => {
+  try {
+    const params = ZConfigParam.parse(req.params);
+    const body = ZConfig.parse(req.body);
+    res.status(200).json({
+      message: 'Successful',
+      success: true,
+      data: await editConfig(params.confId, body as unknown as Configs)
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      next(new ValidationError(fromZodError(error).toString()));
+    } else if (error instanceof PrismaClientKnownRequestError) {
+      next(new HttpError(400, `${error.name} : ${error.code}`));
+    } else {
+      next(error);
+    }
+  }
+};
+
 export default {
   getDevice,
   getDeviceByid,
   createDevice,
   updateDevice,
-  deleteDevice
+  deleteDevice,
+  updateConfig
 };

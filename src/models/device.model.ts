@@ -1,6 +1,8 @@
 import { z } from "zod";
 
 export const ZDeviceParam = z.object({ devId: z.string() });
+export const ZConfigParam = z.object({ confId: z.string() });
+
 export const ZDevice = z.object({
   devId: z.string().optional(),
   wardId: z.string().optional(),
@@ -13,12 +15,6 @@ export const ZDevice = z.object({
   installLocation: z.string().optional(),
   locationPic: z.string().optional(),
   installDate: z.date().optional(),
-  devIp: z.string().optional(),
-  devMacAddEth: z.string().optional(),
-  devMacAddWiFi: z.string().optional(),
-  devSubNet: z.string().optional(),
-  devGetway: z.string().optional(),
-  devDns: z.string().optional(),
   firmwareVersion: z.string().optional(),
   invoice: z.string().optional(),
   createBy: z.string().optional(),
@@ -26,11 +22,26 @@ export const ZDevice = z.object({
   backupStatus: z.string().optional(),
   moveStatus: z.string().optional(),
   alarn: z.string().optional(),
-  duration: z.number().optional(),
+  duration: z.number().optional()
+});
+
+export const ZConfig = z.object({
+  confId: z.string().optional(),
+  ip: z.string().optional(),
+  macAddEth: z.string().optional(),
+  macAddWiFi: z.string().optional(),
+  subNet: z.string().optional(),
+  getway: z.string().optional(),
+  dns: z.string().optional(),
+  ssid: z.string().optional(),
+  ssidPass: z.string().optional(),
   sim: z.string().optional(),
+  email1: z.string().optional(),
+  email2: z.string().optional(),
+  email3: z.string().optional(),
+  notiTime: z.number().optional(),
   backToNormal: z.boolean().optional(),
+  mobileNoti: z.boolean().optional(),
   repeat: z.number().optional(),
-  notification: z.boolean().optional(),
-  sendEmail: z.string().optional(),
-  topic: z.string().optional()
+  devId: z.string().optional(),
 });

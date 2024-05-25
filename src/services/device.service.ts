@@ -3,7 +3,7 @@ import fs from "node:fs"
 import path from "node:path";
 import { v4 as uuidv4 } from 'uuid';
 import { getDeviceImage } from "../utils/image";
-import { Devices, Prisma } from "@prisma/client";
+import { Configs, Devices, Prisma } from "@prisma/client";
 import { getDateFormat } from "../utils/format-date";
 import { NotFoundError } from "../error";
 
@@ -16,7 +16,8 @@ const deviceList = async (): Promise<Devices[]> => {
           take: 1,
           orderBy: { sendTime: 'desc' }
         },
-        probe: true
+        probe: true,
+        config: true
       },
       orderBy: { devSeq: "asc" }
     });
@@ -26,37 +27,16 @@ const deviceList = async (): Promise<Devices[]> => {
   }
 };
 
-const deviceById = async (deviceId: string, type: string): Promise<Devices | null> => {
+const deviceById = async (deviceId: string): Promise<Devices | null> => {
   try {
-    let whereCondition: Prisma.DevicesFindUniqueArgs;
-    if (type === 'adjust') {
-      whereCondition = {
-        where: { devId: deviceId },
-        select: { devId: true },
-        include: {
-          probe: {
-            select: {
-              tempMin: true,
-              tempMax: true,
-              humMin: true,
-              humMax: true,
-              adjustHum: true,
-              adjustTemp: true,
-              delayTime: true
-            }
-          }
-        }
+    const result = await prisma.devices.findUnique({
+      where: { devId: deviceId },
+      include: {
+        log: { orderBy: { sendTime: 'desc' } },
+        probe: { orderBy: { probeCh: 'asc' } },
+        config: true
       }
-    } else {
-      whereCondition = {
-        where: { devId: deviceId },
-        include: {
-          log: { orderBy: { sendTime: 'desc' } },
-          probe: { orderBy: { probCh: 'asc' } }
-        }
-      }
-    }
-    const result = await prisma.devices.findUnique(whereCondition);
+    });
     if (!result) throw new NotFoundError(`Device not found for : ${deviceId}`);
     return result
   } catch (error) {
@@ -67,21 +47,39 @@ const deviceById = async (deviceId: string, type: string): Promise<Devices | nul
 const addDevice = async (body: Devices, pic?: Express.Multer.File): Promise<Devices> => {
   try {
     const seq: Devices[] = await deviceList();
-    body.devId = `DEV-${uuidv4()}`;
-    body.devName = `DEVICE-${uuidv4()}`;
-    body.wardId = !body.wardId ? "WID-DEVELOPMENT" : body.wardId;
-    body.locationPic = pic ? `/img/device/${pic.filename}` : null;
-    body.devSeq = seq.length === 0 ? 1 : seq[seq.length - 1].devSeq + 1;
-    body.createAt = getDateFormat(new Date());
-    body.updateAt = getDateFormat(new Date());
-    const result = await prisma.devices.create({ data: body });
+    // body.devId = `DEV-${uuidv4()}`;
+    // body.devName = `DEVICE-${uuidv4()}`;
+    // body.wardId = !body.wardId ? "WID-DEVELOPMENT" : body.wardId;
+    // body.locationPic = pic ? `/img/device/${pic.filename}` : null;
+    // body.devSeq = seq.length === 0 ? 1 : seq[seq.length - 1].devSeq + 1;
+    // body.createAt = getDateFormat(new Date());
+    // body.updateAt = getDateFormat(new Date());
+    const result = await prisma.devices.create({
+      data: {
+        devId: `DEV-${uuidv4()}`,
+        devName: `DEVICE-${uuidv4()}`,
+        devSerial: body.devSerial,
+        wardId: !body.wardId ? "WID-DEVELOPMENT" : body.wardId,
+        locationPic: pic ? `/img/device/${pic.filename}` : null,
+        devSeq: seq.length === 0 ? 1 : seq[seq.length - 1].devSeq + 1,
+        createAt: getDateFormat(new Date()),
+        updateAt: getDateFormat(new Date()),
+        config: {
+          create: {
+            confId: `CONF-${uuidv4()}`,
+            createAt: getDateFormat(new Date()),
+            updateAt: getDateFormat(new Date())
+          }
+        }
+      }
+    });
     return result;
   } catch (error) {
     throw error;
   }
 };
 
-const editDevice = async (deviceId: string, body: Devices, pic?: Express.Multer.File) => {
+const editDevice = async (deviceId: string, body: Devices, pic?: Express.Multer.File): Promise<Devices> => {
   try {
     const filename = await getDeviceImage(deviceId);
     if (body.installDate) body.installDate = getDateFormat(body.installDate);
@@ -98,11 +96,24 @@ const editDevice = async (deviceId: string, body: Devices, pic?: Express.Multer.
   }
 };
 
-const removeDevice = async (deviceId: string) => {
+const removeDevice = async (deviceId: string): Promise<Devices> => {
   try {
     const filename = await getDeviceImage(deviceId);
     const result = await prisma.devices.delete({ where: { devId: deviceId } });
     if (!!filename) fs.unlinkSync(path.join('public/images/device', filename.split("/")[3]));
+    return result;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const editConfig = async (confId: string, body: Configs): Promise<Configs> => {
+  try {
+    body.updateAt = getDateFormat(new Date());
+    const result = await prisma.configs.update({
+      where: { confId: confId },
+      data: body
+    });
     return result;
   } catch (error) {
     throw error;
@@ -114,5 +125,6 @@ export {
   deviceById,
   addDevice,
   editDevice,
-  removeDevice
+  removeDevice,
+  editConfig
 };

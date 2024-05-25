@@ -50,7 +50,7 @@ const createProbe = async (req: Request, res: Response<BaseResponse<Probes>>, ne
     res.status(201).json({
       message: 'Successful',
       success: true,
-      data: await addProbe(body as Probes)
+      data: await addProbe(body as unknown as Probes)
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -70,7 +70,7 @@ const updateProbe = async (req: Request, res: Response<BaseResponse<Probes>>, ne
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await editProbe(params.probeId, body as Probes)
+      data: await editProbe(params.probeId, body as unknown as Probes)
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

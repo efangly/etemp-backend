@@ -5,7 +5,7 @@ export const ZProbe = z.object({
   probeId: z.string().optional(),
   probeName: z.string().optional(),
   probeType: z.string().optional(),
-  probCh: z.string().optional(),
+  probeCh: z.string().optional(),
   tempMin: z.number().optional(),
   tempMax: z.number().optional(),
   humMin: z.number().optional(),
