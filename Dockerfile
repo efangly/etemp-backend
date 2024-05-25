@@ -12,7 +12,7 @@ RUN rm -fR ./src tsconfig.json
 
 RUN mkdir /usr/src/app/public
 
-COPY ./public/default-pic.png ./public
+COPY default-pic.png ./public
 
 VOLUME /usr/src/app/public
 
