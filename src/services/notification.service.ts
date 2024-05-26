@@ -1,8 +1,9 @@
 import dotenv from "dotenv";
-import { sendToPushNoti } from "../utils/notification";
+import { getMessaging, Message } from "firebase-admin/messaging";
 import prisma from "../configs/prisma.config";
 import { Notifications } from "@prisma/client";
-import { TTopic } from "../models";
+import { getDateFormat } from "../utils/format-date";
+import { v4 as uuidv4 } from 'uuid';
 dotenv.config();
 
 const notificationList = async (): Promise<Notifications[]> => {
@@ -27,8 +28,22 @@ const notificationList = async (): Promise<Notifications[]> => {
   }
 };
 
-const editNoti = async (notiId: string, body: Notifications): Promise<Notifications> => {
+const addNotification = async (body: Notifications): Promise<Notifications> => {
   try {
+    body.notiId = `NID-${uuidv4()}`;
+    body.createAt = getDateFormat(new Date());
+    body.updateAt = getDateFormat(new Date());
+    const result = await prisma.notifications.create({ data: body });
+    pushNotification('test', body.notiDetail);
+    return result;
+  } catch (error) {
+    throw error;
+  };
+};
+
+const editNotification = async (notiId: string, body: Notifications): Promise<Notifications> => {
+  try {
+    body.updateAt = getDateFormat(new Date());
     return await prisma.notifications.update({
       where: { notiId: notiId },
       data: body
@@ -38,16 +53,31 @@ const editNoti = async (notiId: string, body: Notifications): Promise<Notificati
   }
 };
 
-const pushNotification = async (params: TTopic): Promise<boolean> => {
+const pushNotification = async (topic: string, detail: string) => {
   try {
-    return await sendToPushNoti(params.topic, params.msg, 60, 40);
-  } catch(error) {
+    const message: Message = {
+      notification: {
+        title: "แจ้งเตือน",
+        body: detail,
+      },
+      android: {
+        notification: {
+          sound: 'default',
+          priority: 'max'
+        },
+        priority: 'high'
+      },
+      topic: topic
+    };
+    await getMessaging().send(message)
+  } catch (error) {
     throw error;
   }
 };
 
 export {
   notificationList,
-  editNoti,
+  addNotification,
+  editNotification,
   pushNotification
 };

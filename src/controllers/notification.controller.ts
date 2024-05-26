@@ -1,7 +1,7 @@
 import { Notifications } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
 import { BaseResponse } from "../utils/interface";
-import { editNoti, notificationList, pushNotification } from "../services";
+import { addNotification, editNotification, notificationList, pushNotification } from "../services";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { HttpError, ValidationError } from "../error";
 import { ZNoti, ZNotiParam, ZTopic } from "../models";
@@ -31,7 +31,7 @@ const setToReadNoti = async (req: Request, res: Response<BaseResponse<Notificati
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await editNoti(params.notiId, body as Notifications)
+      data: await editNotification(params.notiId, body as Notifications)
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -44,14 +44,13 @@ const setToReadNoti = async (req: Request, res: Response<BaseResponse<Notificati
   }
 };
 
-const setPushNotification = async (req: Request, res: Response<BaseResponse<string>>, next: NextFunction) => {
+const setPushNotification = async (req: Request, res: Response<BaseResponse<Notifications>>, next: NextFunction) => {
   try {
-    const params = ZTopic.parse(req.params);
-    const result = await pushNotification(params);
+    const body = ZNoti.parse(req.body);
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: result ? "Push successful" : "Push fail"
+      data: await addNotification(body as Notifications)
     });
   } catch(error) {
     if (error instanceof z.ZodError) {

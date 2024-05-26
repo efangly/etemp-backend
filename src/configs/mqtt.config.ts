@@ -1,6 +1,6 @@
 import { connect, IClientOptions, MqttClient } from "mqtt";
-import { ReceiveMsg } from "../utils/notification";
-import { createNotification } from "../utils/notification";
+// import { ReceiveMsg } from "../utils/notification";
+// import { createNotification } from "../utils/notification";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -34,8 +34,8 @@ const connectMqtt = () => {
     });
 
     client.on('message', (topic, message) => {
-      let value: ReceiveMsg = JSON.parse(message.toString());
-      createNotification(value);
+      //let value: ReceiveMsg = JSON.parse(message.toString());
+      // createNotification(value);
     });
   });
 }
