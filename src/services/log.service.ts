@@ -16,6 +16,7 @@ type filter = {
 const logList = async (query: TQueryLog): Promise<LogDays[]> => {
   try {
     let condition: filter | undefined = filterLog(query);
+    console.log(condition)
     return await prisma.logDays.findMany({
       where: condition,
       include: {
