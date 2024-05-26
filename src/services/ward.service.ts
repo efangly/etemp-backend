@@ -7,7 +7,8 @@ import { NotFoundError } from "../error";
 const wardList = async (): Promise<Wards[]> => {
   try {
     const result = await prisma.wards.findMany({
-      include: { hospital: true }
+      include: { hospital: true },
+      orderBy: { wardSeq: 'asc' }
     });
     return result;
   } catch (error) {
