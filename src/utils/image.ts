@@ -33,7 +33,7 @@ const getDeviceImage = async (id: string): Promise<string | null | undefined> =>
         devId: id 
       }
     });
-    return image?.locationPic;
+    return image?.locPic;
   }catch(err){
     throw new Error(`ERROR: ${err}`);
   }
