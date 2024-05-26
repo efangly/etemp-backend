@@ -28,6 +28,29 @@ const notificationList = async (): Promise<Notifications[]> => {
   }
 };
 
+const findNotification = async (deviceId: string): Promise<Notifications[]> => {
+  try {
+    return await prisma.notifications.findMany({
+      where: { devId: deviceId },
+      include: {
+        device: {
+          select: {
+            devId: true,
+            devName: true,
+            devSerial: true
+          }
+        }
+      },
+      orderBy: [
+        { notiStatus: 'asc' },
+        { createAt: 'desc' }
+      ]
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
 const addNotification = async (body: Notifications): Promise<Notifications> => {
   try {
     body.notiId = `NID-${uuidv4()}`;
@@ -77,6 +100,7 @@ const pushNotification = async (topic: string, detail: string) => {
 
 export {
   notificationList,
+  findNotification,
   addNotification,
   editNotification,
   pushNotification

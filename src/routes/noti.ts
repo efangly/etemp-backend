@@ -4,6 +4,7 @@ import { verifyToken } from "../middlewares/auth";
 const notiRouter: Router = Router();
 
 notiRouter.get('/', verifyToken, noti.getNotification);
+notiRouter.get('/:devId', verifyToken, noti.getNotificationByDevice);
 notiRouter.patch('/:notiId', verifyToken, noti.setToReadNoti);
 notiRouter.post('/', verifyToken, noti.setPushNotification);
 

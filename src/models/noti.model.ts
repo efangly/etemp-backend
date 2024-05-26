@@ -7,9 +7,3 @@ export const ZNoti = z.object({
   notiDetail: z.string().optional(),
   notiStatus: z.boolean().optional(),
 });
-export const ZTopic = z.object({
-  topic: z.string(),
-  msg: z.string()
-});
-
-export type TTopic = z.infer<typeof ZTopic>;
