@@ -16,9 +16,9 @@ model Devices {
   devStatus       Boolean         @default(false)
   devSeq          Int             @unique @db.Int
   devZone         String?         @db.VarChar(155)
-  installLocation String?         @db.VarChar(250)
-  locationPic     String?         @db.VarChar(200)
-  installDate     DateTime?       @default(now())
+  locInstall      String?         @db.VarChar(250)
+  locPic          String?         @db.VarChar(200)
+  dateInstall     DateTime?       @default(now())
   firmwareVersion String?         @db.VarChar(55)
   invoice         String?         @db.VarChar(50)
   createBy        String?         @db.VarChar(100)
@@ -51,6 +51,7 @@ model Probes {
   adjustHum  Float    @default(0.00) @db.Float
   delayTime  String?  @db.VarChar(11)
   door       Int?     @default(0) @db.Int
+  location   String?  @db.VarChar(250)
   devId      String   @db.VarChar(100)
   createAt   DateTime @default(now())
   updateAt   DateTime @default(now()) @updatedAt
