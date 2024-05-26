@@ -62,7 +62,7 @@ const getUserByUserId = async (userId: string): Promise<Users | null> => {
 const editUser = async (userId: string, body: Users, pic?: Express.Multer.File): Promise<Users> => {
   try {
     const filename = await getUserImage(userId);
-    body.userStatus = String(body.userStatus) == "1" ? true : false;
+    if (body.userStatus) body.userStatus = String(body.userStatus) == "1" ? true : false;
     body.userPic = !pic ? filename || null : `/img/user/${pic.filename}`;
     body.updateAt = getDateFormat(new Date());
     const result = await prisma.users.update({
