@@ -53,7 +53,7 @@ const addDevice = async (body: Devices, pic?: Express.Multer.File): Promise<Devi
         devName: `DEVICE-${uuidv4()}`,
         devSerial: body.devSerial,
         wardId: !body.wardId ? "WID-DEVELOPMENT" : body.wardId,
-        locationPic: pic ? `/img/device/${pic.filename}` : null,
+        locPic: pic ? `/img/device/${pic.filename}` : null,
         devSeq: seq.length === 0 ? 1 : seq[seq.length - 1].devSeq + 1,
         createAt: getDateFormat(new Date()),
         updateAt: getDateFormat(new Date()),
@@ -75,9 +75,9 @@ const addDevice = async (body: Devices, pic?: Express.Multer.File): Promise<Devi
 const editDevice = async (deviceId: string, body: Devices, pic?: Express.Multer.File): Promise<Devices> => {
   try {
     const filename = await getDeviceImage(deviceId);
-    if (body.installDate) body.installDate = getDateFormat(body.installDate);
+    if (body.dateInstall) body.dateInstall = getDateFormat(body.dateInstall);
     body.updateAt = getDateFormat(new Date());
-    body.locationPic = pic ? `/img/device/${pic.filename}` : filename || null;
+    body.locPic = pic ? `/img/device/${pic.filename}` : filename || null;
     const result: Devices = await prisma.devices.update({
       where: { devId: deviceId },
       data: body

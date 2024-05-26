@@ -20,7 +20,6 @@ model Devices {
   locPic          String?         @db.VarChar(200)
   dateInstall     DateTime?       @default(now())
   firmwareVersion String?         @db.VarChar(55)
-  invoice         String?         @db.VarChar(50)
   createBy        String?         @db.VarChar(100)
   comment         String?         @db.VarChar(155)
   backupStatus    String?         @default("0") @db.Char(1)
@@ -165,6 +164,7 @@ model Repairs {
 model Warranties {
   warrId     String   @id @db.VarChar(100)
   devName    String   @db.VarChar(100)
+  invoice    String?  @db.VarChar(50)
   expire     DateTime @default(now())
   warrStatus Boolean  @default(false)
   createAt   DateTime @default(now())

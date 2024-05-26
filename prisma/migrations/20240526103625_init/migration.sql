@@ -12,7 +12,6 @@ CREATE TABLE `Devices` (
     `locPic` VARCHAR(200) NULL,
     `dateInstall` DATETIME(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
     `firmwareVersion` VARCHAR(55) NULL,
-    `invoice` VARCHAR(50) NULL,
     `createBy` VARCHAR(100) NULL,
     `comment` VARCHAR(155) NULL,
     `backupStatus` CHAR(1) NULL DEFAULT '0',
@@ -172,6 +171,7 @@ CREATE TABLE `Repairs` (
 CREATE TABLE `Warranties` (
     `warrId` VARCHAR(100) NOT NULL,
     `devName` VARCHAR(100) NOT NULL,
+    `invoice` VARCHAR(50) NULL,
     `expire` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `warrStatus` BOOLEAN NOT NULL DEFAULT false,
     `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),

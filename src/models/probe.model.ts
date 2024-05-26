@@ -14,5 +14,6 @@ export const ZProbe = z.object({
   adjustHum: z.number().optional(),
   delayTime: z.string().optional(),
   door: z.string().optional(),
+  location: z.string().optional(),
   devId: z.string().optional()
 });
