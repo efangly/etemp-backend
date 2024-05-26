@@ -42,7 +42,13 @@ const getUserByUserId = async (userId: string): Promise<Users | null> => {
         displayName: true,
         userPic: true,
         ward: {
-          select: { wardName: true, hosId: true }
+          select: { 
+            wardName: true, 
+            hosId: true, 
+            hospital: {
+              select: { hosName: true, hosPic: true }
+            }
+          },
         }
       }
     });
@@ -53,15 +59,15 @@ const getUserByUserId = async (userId: string): Promise<Users | null> => {
   }
 }
 
-const editUser = async (userId: string, data: Users, pic?: Express.Multer.File): Promise<Users> => {
+const editUser = async (userId: string, body: Users, pic?: Express.Multer.File): Promise<Users> => {
   try {
     const filename = await getUserImage(userId);
-    data.userStatus = String(data.userStatus) == "1" ? true : false;
-    data.userPic = !pic ? filename || null : `/img/user/${pic.filename}`;
-    data.updateAt = getDateFormat(new Date());
+    body.userStatus = String(body.userStatus) == "1" ? true : false;
+    body.userPic = !pic ? filename || null : `/img/user/${pic.filename}`;
+    body.updateAt = getDateFormat(new Date());
     const result = await prisma.users.update({
       where: { userId: userId },
-      data: data
+      data: body
     });
     if (pic && !!filename) fs.unlinkSync(path.join('public/images/user', filename.split("/")[3]));
     return result;

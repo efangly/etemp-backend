@@ -8,7 +8,7 @@ export const ZDevice = z.object({
   devSerial: z.string().optional(),
   devName: z.string().optional(),
   devDetail: z.string().optional(),
-  devStatus: z.boolean().optional(),
+  devStatus: z.string().optional(),
   devSeq: z.number().optional(),
   devZone: z.string().optional(),
   locInstall: z.string().optional(),
