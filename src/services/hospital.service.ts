@@ -10,7 +10,9 @@ import { HttpError, NotFoundError } from "../error";
 
 const hospitalList = async (): Promise<Hospitals[]> => {
   try {
-    const result = await prisma.hospitals.findMany();
+    const result = await prisma.hospitals.findMany({ 
+      include: { ward: true } 
+    });
     return result;
   } catch (error) {
     throw error;
@@ -19,7 +21,10 @@ const hospitalList = async (): Promise<Hospitals[]> => {
 
 const findHospital = async (hosId: string): Promise<Hospitals | null> => {
   try {
-    const result = await prisma.hospitals.findUnique({ where: { hosId: hosId } });
+    const result = await prisma.hospitals.findUnique({ 
+      where: { hosId: hosId },
+      include: { ward: true }  
+    });
     if (!result) throw new NotFoundError(`Hospital not found for : ${hosId}`);
     return result;
   } catch (error) {
