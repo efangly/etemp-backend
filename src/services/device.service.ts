@@ -77,6 +77,7 @@ const editDevice = async (deviceId: string, body: Devices, pic?: Express.Multer.
     const filename = await getDeviceImage(deviceId);
     if (body.dateInstall) body.dateInstall = getDateFormat(body.dateInstall);
     body.updateAt = getDateFormat(new Date());
+    body.devSeq = Number(body.devSeq);
     body.devStatus = String(body.devStatus) == "1" ? true : false;
     body.locPic = pic ? `/img/device/${pic.filename}` : filename || null;
     const result: Devices = await prisma.devices.update({
