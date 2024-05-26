@@ -52,7 +52,7 @@ const updateUser = async (req: Request, res: Response<BaseResponse<Users>>, next
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await editUser(params.userId, body as Users, req.file)
+      data: await editUser(params.userId, body as unknown as Users, req.file)
     });
   } catch (error) {
     if (req.file) fs.unlinkSync(path.join('public/images/user', String(req.file.filename)));
