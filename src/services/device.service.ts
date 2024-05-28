@@ -6,6 +6,7 @@ import { getDeviceImage } from "../utils/image";
 import { Configs, Devices, Prisma } from "@prisma/client";
 import { getDateFormat } from "../utils/format-date";
 import { NotFoundError } from "../error";
+import { format } from "date-fns";
 
 const deviceList = async (): Promise<Devices[]> => {
   // const { user_level, hos_id } = res.locals.token;
@@ -63,6 +64,16 @@ const addDevice = async (body: Devices, pic?: Express.Multer.File): Promise<Devi
             createAt: getDateFormat(new Date()),
             updateAt: getDateFormat(new Date())
           }
+        },
+        probe: {
+          create: {
+            probeId: `PID-${uuidv4()}`,
+            probeName: "",
+            probeType: "",
+            probeCh: "1",
+            createAt: getDateFormat(new Date()),
+            updateAt: getDateFormat(new Date())
+          }
         }
       }
     });
@@ -102,12 +113,17 @@ const removeDevice = async (deviceId: string): Promise<Devices> => {
   }
 };
 
-const findConfig = async (deviceId: string): Promise<Configs | null> => {
+const findConfig = async (deviceId: string): Promise<Devices | null> => {
   try {
-    const result = await prisma.configs.findUnique({
-      where: { devId: deviceId }
+    const result = await prisma.devices.findUnique({
+      where: { devId: deviceId },
+      select:{
+        devId: true,
+        config: true,
+        probe: true
+      }
     });
-    return result;
+    return result as unknown as Devices;
   } catch (error) {
     throw error;
   }

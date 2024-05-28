@@ -14,6 +14,8 @@ RUN mkdir /usr/src/app/public
 
 VOLUME /usr/src/app/public
 
+ENV TZ=Asia/Bangkok
+
 EXPOSE 8080
 
 CMD ["node", "./dist/app.js"]

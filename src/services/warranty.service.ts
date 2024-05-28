@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import prisma from "../configs/prisma.config";
 import { getDateFormat } from "../utils/format-date";
 import { NotFoundError } from "../error";
+import { format, toDate } from "date-fns";
 
 const warrantyList = async (): Promise<Warranties[]> => {
   try {
@@ -31,7 +32,11 @@ const findWarranty = async (warrId: string): Promise<Warranties | null> => {
 const addWarranty = async (body: Warranties) => {
   try {
     body.warrId = `CID-${uuidv4()}`;
-    body.expire = getDateFormat(body.expire);
+    if (body.expire) {
+      body.expire = getDateFormat(body.expire);
+    } else {
+      body.expire = toDate(format(new Date(new Date().getFullYear(), new Date().getMonth() + 12, new Date().getDate()), "yyyy-MM-dd'T'HH:mm:ss'Z'"));
+    }
     body.createAt = getDateFormat(new Date());
     body.updateAt = getDateFormat(new Date());
     const result = prisma.warranties.create({

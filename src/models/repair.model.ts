@@ -6,6 +6,8 @@ export const ZRepair = z.object({
   repairId: z.string().optional(),
   devId: z.string().optional(),
   repairInfo: z.string().optional(),
+  repairInfo1: z.string().optional(),
+  repairInfo2: z.string().optional(),
   repairLocation: z.string().optional(),
   ward: z.string().optional(),
   repairDetails: z.string().optional(),

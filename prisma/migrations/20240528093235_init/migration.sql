@@ -52,6 +52,7 @@ CREATE TABLE `Probes` (
 -- CreateTable
 CREATE TABLE `Configs` (
     `confId` VARCHAR(100) NOT NULL,
+    `mode` VARCHAR(50) NULL DEFAULT '0',
     `ip` VARCHAR(50) NULL,
     `macAddEth` VARCHAR(50) NULL,
     `macAddWiFi` VARCHAR(50) NULL,
@@ -61,9 +62,9 @@ CREATE TABLE `Configs` (
     `ssid` VARCHAR(200) NULL,
     `ssidPass` VARCHAR(200) NULL,
     `sim` VARCHAR(100) NULL,
-    `email1` VARCHAR(100) NULL,
-    `email2` VARCHAR(100) NULL,
-    `email3` VARCHAR(100) NULL,
+    `email1` VARCHAR(200) NULL,
+    `email2` VARCHAR(200) NULL,
+    `email3` VARCHAR(200) NULL,
     `notiTime` INTEGER NOT NULL DEFAULT 0,
     `backToNormal` BOOLEAN NOT NULL DEFAULT false,
     `mobileNoti` BOOLEAN NOT NULL DEFAULT true,
@@ -151,8 +152,11 @@ CREATE TABLE `Notifications` (
 -- CreateTable
 CREATE TABLE `Repairs` (
     `repairId` VARCHAR(100) NOT NULL,
+    `repairNo` INTEGER NOT NULL AUTO_INCREMENT,
     `devId` VARCHAR(100) NOT NULL,
     `repairInfo` VARCHAR(155) NULL,
+    `repairInfo1` VARCHAR(155) NULL,
+    `repairInfo2` VARCHAR(155) NULL,
     `repairLocation` VARCHAR(155) NULL,
     `ward` VARCHAR(155) NULL,
     `repairDetails` VARCHAR(155) NULL,
@@ -164,6 +168,7 @@ CREATE TABLE `Repairs` (
     `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updateAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
+    UNIQUE INDEX `Repairs_repairNo_key`(`repairNo`),
     PRIMARY KEY (`repairId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

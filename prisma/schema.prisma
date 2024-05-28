@@ -59,6 +59,7 @@ model Probes {
 
 model Configs {
   confId       String   @id @default(uuid()) @db.VarChar(100)
+  mode         String?  @default("0") @db.VarChar(50)
   ip           String?  @db.VarChar(50)
   macAddEth    String?  @db.VarChar(50)
   macAddWiFi   String?  @db.VarChar(50)
@@ -68,9 +69,9 @@ model Configs {
   ssid         String?  @db.VarChar(200)
   ssidPass     String?  @db.VarChar(200)
   sim          String?  @db.VarChar(100)
-  email1       String?  @db.VarChar(100)
-  email2       String?  @db.VarChar(100)
-  email3       String?  @db.VarChar(100)
+  email1       String?  @db.VarChar(200)
+  email2       String?  @db.VarChar(200)
+  email3       String?  @db.VarChar(200)
   notiTime     Int      @default(0) @db.Int //ดีเลการส่งแจ้งเตือน 0 คือส่งทันที
   backToNormal Boolean  @default(false) //ส่งแจ้งเตือนหลังอุณหภูมิกลับมาปกติ
   mobileNoti   Boolean  @default(true) //เปิดปิดการแจ้งเตือนไปยังมือถือ
@@ -146,8 +147,11 @@ model Notifications {
 
 model Repairs {
   repairId       String   @id @db.VarChar(100)
+  repairNo       Int      @unique @default(autoincrement()) @db.Int
   devId          String   @db.VarChar(100)
   repairInfo     String?  @db.VarChar(155)
+  repairInfo1    String?  @db.VarChar(155)
+  repairInfo2    String?  @db.VarChar(155)
   repairLocation String?  @db.VarChar(155)
   ward           String?  @db.VarChar(155)
   repairDetails  String?  @db.VarChar(155)

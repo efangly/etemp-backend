@@ -11,6 +11,7 @@ import warrantyRouter from './warranty';
 import notiRouter from './noti';
 import logRouter from './log';
 import configRouter from './config';
+import { BaseResponse } from '../utils/interface';
 
 const router = Router();
 
@@ -29,8 +30,12 @@ router.use('/log', logRouter);
 router.use('/img', express.static('public/images'));
 router.use('/font', express.static('public/fonts'));
 
-router.use('/', (req: Request, res: Response) => {
-  res.json({ message: 'Home'});
+router.use('/', (req: Request, res: Response<BaseResponse>) => {
+  res.status(404).json({ 
+    message: 'Not Found',
+    success: false, 
+    data: null
+  });
 });
 
 export default router;

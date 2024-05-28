@@ -10,6 +10,14 @@ import { HttpError } from "../error";
 const regisUser = async (params: TRegisUser, pic?: Express.Multer.File): Promise<Users> => {
   try {
     const result = await prisma.users.create({
+      select: {
+        userId: true,
+        ward: {
+          include: {
+            hospital: true
+          }
+        }
+      },
       data: {
         userId: `UID-${params.userId || uuidv4()}`,
         wardId: params.wardId,
@@ -21,10 +29,9 @@ const regisUser = async (params: TRegisUser, pic?: Express.Multer.File): Promise
         createBy: params.createBy || null,
         createAt: getDateFormat(new Date()),
         updateAt: getDateFormat(new Date())
-      },
-      include: { ward: { include: { hospital: true } } }
+      }
     });
-    return result;
+    return result as unknown as Users;
   } catch (error) {
     throw error;
   }

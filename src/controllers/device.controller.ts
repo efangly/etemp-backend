@@ -106,7 +106,7 @@ const deleteDevice = async (req: Request, res: Response<BaseResponse<Devices>>, 
   }
 };
 
-const getConfig = async (req: Request, res: Response<BaseResponse<Configs | null>>, next: NextFunction) => {
+const getConfig = async (req: Request, res: Response<BaseResponse<Devices | null>>, next: NextFunction) => {
   try {
     const params = ZDeviceParam.parse(req.params);
     res.status(200).json({

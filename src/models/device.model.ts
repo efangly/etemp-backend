@@ -25,6 +25,7 @@ export const ZDevice = z.object({
 
 export const ZConfig = z.object({
   confId: z.string().optional(),
+  mode: z.string().optional(),
   ip: z.string().optional(),
   macAddEth: z.string().optional(),
   macAddWiFi: z.string().optional(),
