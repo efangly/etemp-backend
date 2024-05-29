@@ -13,7 +13,6 @@ const deviceList = async (): Promise<Devices[]> => {
     const result = await prisma.devices.findMany({
       include: {
         log: {
-          take: 1,
           orderBy: { sendTime: 'desc' }
         },
         probe: true,

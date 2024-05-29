@@ -59,7 +59,7 @@ model Probes {
 
 model Configs {
   confId       String   @id @default(uuid()) @db.VarChar(100)
-  mode         String?  @default("0") @db.VarChar(50)
+  mode         String?  @default("0") @db.Char(1)
   ip           String?  @db.VarChar(50)
   macAddEth    String?  @db.VarChar(50)
   macAddWiFi   String?  @db.VarChar(50)
@@ -73,9 +73,9 @@ model Configs {
   email2       String?  @db.VarChar(200)
   email3       String?  @db.VarChar(200)
   notiTime     Int      @default(0) @db.Int //ดีเลการส่งแจ้งเตือน 0 คือส่งทันที
-  backToNormal Boolean  @default(false) //ส่งแจ้งเตือนหลังอุณหภูมิกลับมาปกติ
-  mobileNoti   Boolean  @default(true) //เปิดปิดการแจ้งเตือนไปยังมือถือ
-  repeat       Int      @default(1) @db.Int //ตั้งค่าการส่งซ้ำ ค่าเริ่มต้นคือ 1
+  backToNormal String   @default("0") @db.Char(1) //ส่งแจ้งเตือนหลังอุณหภูมิกลับมาปกติ
+  mobileNoti   String?  @default("1") @db.Char(1) //เปิดปิดการแจ้งเตือนไปยังมือถือ
+  repeat       String?  @default("1") @db.Char(1) //ตั้งค่าการส่งซ้ำ ค่าเริ่มต้นคือ 1
   devId        String   @unique @db.VarChar(100)
   createAt     DateTime @default(now())
   updateAt     DateTime @default(now()) @updatedAt
@@ -184,15 +184,15 @@ model LogDays {
   humidityValue Float    @default(0.00)
   humidityAvg   Float    @default(0.00)
   sendTime      DateTime @default(now())
-  ac            String   @default("0") @db.Char(10)
-  door1         Boolean  @default(false)
-  door2         Boolean  @default(false)
-  door3         Boolean  @default(false)
-  internet      Boolean  @default(false)
+  ac            String   @default("0") @db.Char(1)
+  door1         String   @default("0") @db.Char(1)
+  door2         String   @default("0") @db.Char(1)
+  door3         String   @default("0") @db.Char(1)
+  internet      String   @default("0") @db.Char(1)
   probe         String   @default("1") @db.VarChar(10)
   battery       Int      @default(0)
   ambient       Float?   @default(0.00)
-  sdCard        String   @default("0") @db.Char(10)
+  sdCard        String   @default("0") @db.Char(1)
   createAt      DateTime @default(now())
   updateAt      DateTime @default(now()) @updatedAt
   device        Devices  @relation(fields: [devId], references: [devId])
@@ -206,15 +206,15 @@ model LogDaysBackup {
   humidityValue Float    @default(0.00)
   humidityAvg   Float    @default(0.00)
   sendTime      DateTime @default(now())
-  ac            String   @default("0") @db.Char(10)
-  door1         Boolean  @default(false)
-  door2         Boolean  @default(false)
-  door3         Boolean  @default(false)
-  internet      Boolean  @default(false)
+  ac            String   @default("0") @db.Char(1)
+  door1         String   @default("0") @db.Char(1)
+  door2         String   @default("0") @db.Char(1)
+  door3         String   @default("0") @db.Char(1)
+  internet      String   @default("0") @db.Char(1)
   probe         String   @default("1") @db.VarChar(10)
   battery       Int      @default(0)
   ambient       Float?   @default(0.00)
-  sdCard        String   @default("0") @db.Char(10)
+  sdCard        String   @default("0") @db.Char(1)
   createAt      DateTime @default(now())
   updateAt      DateTime @default(now()) @updatedAt
 }

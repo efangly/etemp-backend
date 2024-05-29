@@ -54,9 +54,7 @@ const createLog = async (req: Request, res: Response<BaseResponse>, next: NextFu
       data: await addLog(req.body)
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
+    if (error instanceof PrismaClientKnownRequestError) {
       next(new HttpError(400, `${error.name} : ${error.code}`));
     } else {
       next(error);
