@@ -3,10 +3,9 @@ import fs from "node:fs"
 import path from "node:path";
 import { v4 as uuidv4 } from 'uuid';
 import { getDeviceImage } from "../utils/image";
-import { Configs, Devices, Prisma } from "@prisma/client";
+import { Configs, Devices } from "@prisma/client";
 import { getDateFormat } from "../utils/format-date";
 import { NotFoundError } from "../error";
-import { format } from "date-fns";
 
 const deviceList = async (): Promise<Devices[]> => {
   // const { user_level, hos_id } = res.locals.token;

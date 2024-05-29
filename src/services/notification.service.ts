@@ -92,7 +92,7 @@ const pushNotification = async (topic: string, detail: string) => {
       },
       topic: topic
     };
-    await getMessaging().send(message)
+    await getMessaging().send(message);
   } catch (error) {
     throw error;
   }

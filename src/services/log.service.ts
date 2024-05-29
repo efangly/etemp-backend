@@ -73,6 +73,10 @@ const addLog = async (body: LogDays | LogDays[]) => {
     } else {
       body.logId = `LOG-${uuidv4()}`;
       body.sendTime = getDateFormat(body.sendTime);
+      if (body.door1) body.door1 = String(body.door1) == "1" ? true : false;
+      if (body.door2) body.door2 = String(body.door2) == "1" ? true : false;
+      if (body.door3) body.door3 = String(body.door3) == "1" ? true : false;
+      if (body.internet) body.internet = String(body.internet) == "1" ? true : false;
       body.createAt = getDateFormat(new Date());
       body.updateAt = getDateFormat(new Date());
       return await prisma.logDays.create({ data: body });
