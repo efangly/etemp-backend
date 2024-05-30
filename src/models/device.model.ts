@@ -38,7 +38,7 @@ export const ZConfig = z.object({
   email1: z.string().optional(),
   email2: z.string().optional(),
   email3: z.string().optional(),
-  notiTime: z.number().optional(),
+  notiTime: z.string().optional(),
   backToNormal: z.string().optional(),
   mobileNoti: z.string().optional(),
   repeat: z.string().optional(),
