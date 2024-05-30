@@ -14,7 +14,7 @@ model Devices {
   devName         String          @unique @db.VarChar(500)
   devDetail       String?         @db.VarChar(500)
   devStatus       Boolean         @default(false)
-  devSeq          Int             @unique @db.Int
+  devSeq          Int             @unique @db.SmallInt
   devZone         String?         @db.VarChar(155)
   locInstall      String?         @db.VarChar(250)
   locPic          String?         @db.VarChar(200)
@@ -25,7 +25,7 @@ model Devices {
   backupStatus    String?         @default("0") @db.Char(1)
   moveStatus      String?         @db.VarChar(100)
   alarn           Boolean         @default(false)
-  duration        Int?            @db.Int
+  duration        Int?            @db.SmallInt
   createAt        DateTime        @default(now())
   updateAt        DateTime        @default(now()) @updatedAt
   ward            Wards           @relation(fields: [wardId], references: [wardId])
@@ -49,7 +49,7 @@ model Probes {
   adjustTemp Float    @default(0.00) @db.Float
   adjustHum  Float    @default(0.00) @db.Float
   delayTime  String?  @db.VarChar(11)
-  door       Int?     @default(0) @db.Int
+  door       Int?     @default(0) @db.SmallInt
   location   String?  @db.VarChar(250)
   devId      String   @db.VarChar(100)
   createAt   DateTime @default(now())
@@ -66,16 +66,16 @@ model Configs {
   subNet       String?  @db.VarChar(50)
   getway       String?  @db.VarChar(50)
   dns          String?  @db.VarChar(50)
-  ssid         String?  @db.VarChar(200)
-  ssidPass     String?  @db.VarChar(200)
+  ssid         String?  @db.VarChar(100)
+  ssidPass     String?  @db.VarChar(100)
   sim          String?  @db.VarChar(100)
   email1       String?  @db.VarChar(200)
   email2       String?  @db.VarChar(200)
   email3       String?  @db.VarChar(200)
-  notiTime     Int      @default(0) @db.Int //ดีเลการส่งแจ้งเตือน 0 คือส่งทันที
+  notiTime     String   @default("0") @db.Char(1) //ดีเลการส่งแจ้งเตือน 0 คือส่งทันที
   backToNormal String   @default("0") @db.Char(1) //ส่งแจ้งเตือนหลังอุณหภูมิกลับมาปกติ
-  mobileNoti   String?  @default("1") @db.Char(1) //เปิดปิดการแจ้งเตือนไปยังมือถือ
-  repeat       String?  @default("1") @db.Char(1) //ตั้งค่าการส่งซ้ำ ค่าเริ่มต้นคือ 1
+  mobileNoti   String   @default("1") @db.Char(1) //เปิดปิดการแจ้งเตือนไปยังมือถือ
+  repeat       String   @default("1") @db.Char(1) //ตั้งค่าการส่งซ้ำ ค่าเริ่มต้นคือ 1
   devId        String   @unique @db.VarChar(100)
   createAt     DateTime @default(now())
   updateAt     DateTime @default(now()) @updatedAt
@@ -147,7 +147,7 @@ model Notifications {
 
 model Repairs {
   repairId       String   @id @db.VarChar(100)
-  repairNo       Int      @unique @default(autoincrement()) @db.Int
+  repairNo       Int      @unique @default(autoincrement()) @db.SmallInt
   devId          String   @db.VarChar(100)
   repairInfo     String?  @db.VarChar(155)
   repairInfo1    String?  @db.VarChar(155)
@@ -179,10 +179,10 @@ model Warranties {
 model LogDays {
   logId         String   @id @db.VarChar(100)
   devId         String   @db.VarChar(100)
-  tempValue     Float    @default(0.00)
-  tempAvg       Float    @default(0.00)
-  humidityValue Float    @default(0.00)
-  humidityAvg   Float    @default(0.00)
+  tempValue     Float    @default(0.00) @db.Float
+  tempAvg       Float    @default(0.00) @db.Float
+  humidityValue Float    @default(0.00) @db.Float
+  humidityAvg   Float    @default(0.00) @db.Float
   sendTime      DateTime @default(now())
   ac            String   @default("0") @db.Char(1)
   door1         String   @default("0") @db.Char(1)
@@ -190,8 +190,8 @@ model LogDays {
   door3         String   @default("0") @db.Char(1)
   internet      String   @default("0") @db.Char(1)
   probe         String   @default("1") @db.VarChar(10)
-  battery       Int      @default(0)
-  ambient       Float?   @default(0.00)
+  battery       Int      @default(0) @db.SmallInt
+  ambient       Float?   @default(0.00) @db.Float
   sdCard        String   @default("0") @db.Char(1)
   createAt      DateTime @default(now())
   updateAt      DateTime @default(now()) @updatedAt
@@ -201,10 +201,10 @@ model LogDays {
 model LogDaysBackup {
   logId         String   @id @db.VarChar(100)
   devId         String   @db.VarChar(100)
-  tempValue     Float    @default(0.00)
-  tempAvg       Float    @default(0.00)
-  humidityValue Float    @default(0.00)
-  humidityAvg   Float    @default(0.00)
+  tempValue     Float    @default(0.00) @db.Float
+  tempAvg       Float    @default(0.00) @db.Float
+  humidityValue Float    @default(0.00) @db.Float
+  humidityAvg   Float    @default(0.00) @db.Float
   sendTime      DateTime @default(now())
   ac            String   @default("0") @db.Char(1)
   door1         String   @default("0") @db.Char(1)
@@ -212,8 +212,8 @@ model LogDaysBackup {
   door3         String   @default("0") @db.Char(1)
   internet      String   @default("0") @db.Char(1)
   probe         String   @default("1") @db.VarChar(10)
-  battery       Int      @default(0)
-  ambient       Float?   @default(0.00)
+  battery       Int      @default(0) @db.SmallInt
+  ambient       Float?   @default(0.00) @db.Float
   sdCard        String   @default("0") @db.Char(1)
   createAt      DateTime @default(now())
   updateAt      DateTime @default(now()) @updatedAt
