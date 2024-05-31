@@ -1,27 +1,7 @@
 import { z } from "zod";
 
 export const ZDeviceParam = z.object({ devId: z.string() });
-
-export const ZDevice = z.object({
-  devId: z.string().optional(),
-  wardId: z.string().optional(),
-  devSerial: z.string().optional(),
-  devName: z.string().optional(),
-  devDetail: z.string().optional(),
-  devStatus: z.string().optional(),
-  devSeq: z.string().optional(),
-  devZone: z.string().optional(),
-  locInstall: z.string().optional(),
-  locPic: z.string().optional(),
-  dateInstall: z.date().optional(),
-  firmwareVersion: z.string().optional(),
-  createBy: z.string().optional(),
-  comment: z.string().optional(),
-  backupStatus: z.string().optional(),
-  moveStatus: z.string().optional(),
-  alarn: z.string().optional(),
-  duration: z.number().optional()
-});
+export type TDevice = z.infer<typeof ZDevice>;
 
 export const ZConfig = z.object({
   confId: z.string().optional(),
@@ -44,3 +24,26 @@ export const ZConfig = z.object({
   repeat: z.string().optional(),
   devId: z.string().optional(),
 });
+
+export const ZDevice = z.object({
+  devId: z.string().optional(),
+  wardId: z.string().optional(),
+  devSerial: z.string().optional(),
+  devName: z.string().optional(),
+  devDetail: z.string().optional(),
+  devStatus: z.string().optional(),
+  devSeq: z.string().optional(),
+  devZone: z.string().optional(),
+  locInstall: z.string().optional(),
+  locPic: z.string().optional(),
+  dateInstall: z.date().optional(),
+  firmwareVersion: z.string().optional(),
+  createBy: z.string().optional(),
+  comment: z.string().optional(),
+  backupStatus: z.string().optional(),
+  moveStatus: z.string().optional(),
+  alarn: z.string().optional(),
+  duration: z.number().optional(),
+  config:  ZConfig.optional()
+});
+

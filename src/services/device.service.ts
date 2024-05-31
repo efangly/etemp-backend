@@ -6,6 +6,7 @@ import { getDeviceImage } from "../utils/image";
 import { Configs, Devices } from "@prisma/client";
 import { getDateFormat } from "../utils/format-date";
 import { NotFoundError } from "../error";
+import { TDevice } from "../models";
 
 const deviceList = async (): Promise<Devices[]> => {
   // const { user_level, hos_id } = res.locals.token;
@@ -43,14 +44,14 @@ const deviceById = async (deviceId: string): Promise<Devices | null> => {
   }
 };
 
-const addDevice = async (body: Devices, pic?: Express.Multer.File): Promise<Devices> => {
+const addDevice = async (body: TDevice, pic?: Express.Multer.File): Promise<Devices> => {
   try {
     const seq: Devices[] = await deviceList();
     const result = await prisma.devices.create({
       data: {
         devId: `DEV-${uuidv4()}`,
         devName: `DEVICE-${uuidv4()}`,
-        devSerial: body.devSerial,
+        devSerial: String(body.devSerial),
         wardId: !body.wardId ? "WID-DEVELOPMENT" : body.wardId,
         locPic: pic ? `/img/device/${pic.filename}` : null,
         devSeq: seq.length === 0 ? 1 : seq[seq.length - 1].devSeq + 1,
@@ -59,6 +60,7 @@ const addDevice = async (body: Devices, pic?: Express.Multer.File): Promise<Devi
         config: {
           create: {
             confId: `CONF-${uuidv4()}`,
+            macAddWiFi: body.config?.macAddWiFi,
             createAt: getDateFormat(new Date()),
             updateAt: getDateFormat(new Date())
           }

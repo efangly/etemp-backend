@@ -10,3 +10,4 @@ export * from "./log.model";
 
 export type * from "./user.model";
 export type * from "./noti.model";
+export type * from "./device.model";
