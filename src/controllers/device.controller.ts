@@ -6,7 +6,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { addDevice, deviceById, deviceList, editConfig, editDevice, findConfig, removeDevice } from "../services";
 import { HttpError, ValidationError } from "../error";
 import { BaseResponse } from "../utils/interface";
-import { ZConfig, ZDevice, ZDeviceParam } from "../models";
+import { TDevice, ZConfig, ZDevice, ZDeviceParam } from "../models";
 import { fromZodError } from "zod-validation-error";
 import { z } from "zod";
 
@@ -52,7 +52,7 @@ const createDevice = async (req: Request, res: Response<BaseResponse<Devices>>, 
     res.status(201).json({
       message: 'Successful',
       success: true,
-      data: await addDevice(body as unknown as Devices, req.file)
+      data: await addDevice(body as unknown as TDevice, req.file)
     });
   } catch (error) {
     if (req.file) fs.unlinkSync(path.join('public/images/device', req.file.filename));
