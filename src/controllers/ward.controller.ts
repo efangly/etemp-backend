@@ -14,7 +14,7 @@ const getWard = async (req: Request, res: Response<BaseResponse<Wards[]>>, next:
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await wardList()
+      data: await wardList(res.locals.token)
     });
   } catch (error) {
     if (error instanceof PrismaClientKnownRequestError) {
@@ -50,7 +50,7 @@ const createWard = async (req: Request, res: Response<BaseResponse<Wards>>, next
     res.status(201).json({
       message: 'Successful',
       success: true,
-      data: await addWard(body as Wards)
+      data: await addWard(body as Wards, res.locals.token)
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

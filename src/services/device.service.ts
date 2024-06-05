@@ -6,12 +6,13 @@ import { getDeviceImage } from "../utils/image";
 import { Configs, Devices } from "@prisma/client";
 import { getDateFormat } from "../utils/format-date";
 import { NotFoundError } from "../error";
-import { TDevice } from "../models";
+import { ResToken, TDevice } from "../models";
 
-const deviceList = async (): Promise<Devices[]> => {
-  // const { user_level, hos_id } = res.locals.token;
+const deviceList = async (token: ResToken): Promise<Devices[]> => {
   try {
     const result = await prisma.devices.findMany({
+      where: token.userLevel === "4" ? { wardId: token.wardId } : 
+        token.userLevel === "3" ? { ward: { hosId: token.hosId } } : {},
       include: {
         log: {
           orderBy: { sendTime: 'desc' }
@@ -44,9 +45,9 @@ const deviceById = async (deviceId: string): Promise<Devices | null> => {
   }
 };
 
-const addDevice = async (body: TDevice, pic?: Express.Multer.File): Promise<Devices> => {
+const addDevice = async (body: TDevice, token: ResToken, pic?: Express.Multer.File): Promise<Devices> => {
   try {
-    const seq: Devices[] = await deviceList();
+    const seq: Devices[] = await deviceList(token);
     const result = await prisma.devices.create({
       data: {
         devId: `DEV-${uuidv4()}`,

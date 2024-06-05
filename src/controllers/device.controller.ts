@@ -11,12 +11,11 @@ import { fromZodError } from "zod-validation-error";
 import { z } from "zod";
 
 const getDevice = async (req: Request, res: Response<BaseResponse<Devices[]>>, next: NextFunction) => {
-  //const { user_level, hos_id } = res.locals.token;
   try {
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await deviceList()
+      data: await deviceList(res.locals.token)
     });
   } catch (error) {
     if (error instanceof PrismaClientKnownRequestError) {
@@ -52,7 +51,7 @@ const createDevice = async (req: Request, res: Response<BaseResponse<Devices>>, 
     res.status(201).json({
       message: 'Successful',
       success: true,
-      data: await addDevice(body as unknown as TDevice, req.file)
+      data: await addDevice(body as unknown as TDevice, res.locals.token, req.file)
     });
   } catch (error) {
     if (req.file) fs.unlinkSync(path.join('public/images/device', req.file.filename));

@@ -49,3 +49,10 @@ export type ResLogin = {
   displayName: string | null, 
   userPic: string | null
 }
+export type ResToken = {
+  userId: string, 
+  userLevel: string, 
+  hosId: string, 
+  wardId: string,
+  iat: number
+}

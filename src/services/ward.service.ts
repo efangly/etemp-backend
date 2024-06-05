@@ -3,10 +3,13 @@ import { v4 as uuidv4 } from 'uuid';
 import prisma from "../configs/prisma.config";
 import { getDateFormat } from "../utils/format-date";
 import { NotFoundError } from "../error";
+import { ResToken } from "../models";
 
-const wardList = async (): Promise<Wards[]> => {
+const wardList = async (token: ResToken): Promise<Wards[]> => {
   try {
     const result = await prisma.wards.findMany({
+      where: token.userLevel === "4" ? { wardId: token.wardId } : 
+      token.userLevel === "3" ? { hosId: token.hosId } : {},
       include: { hospital: true },
       orderBy: { wardSeq: 'asc' }
     });
@@ -29,9 +32,9 @@ const findWard = async (wardId: string): Promise<Wards | null> => {
   }
 }
 
-const addWard = async (body: Wards) => {
+const addWard = async (body: Wards, token: ResToken) => {
   try {
-    const seq: Wards[] = await wardList();
+    const seq: Wards[] = await wardList(token);
     body.wardId = `WID-${uuidv4()}`;
     body.wardSeq = seq.length === 0 ? 1 : seq[seq.length - 1].wardSeq + 1;
     body.createAt = getDateFormat(new Date());

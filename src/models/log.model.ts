@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const ZLogParam = z.object({ logId: z.string() });
 export const ZQueryLog = z.object({
-  devSerial: z.string().optional(),
+  devId: z.string().optional(),
   filter: z.string().optional()
 }).optional();
 
