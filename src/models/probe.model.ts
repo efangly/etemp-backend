@@ -15,5 +15,5 @@ export const ZProbe = z.object({
   delayTime: z.string().optional(),
   door: z.number().optional(),
   location: z.string().optional(),
-  devId: z.string().optional()
+  devSerial: z.string().optional()
 });

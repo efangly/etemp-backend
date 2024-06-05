@@ -47,6 +47,7 @@ const getLogById = async (req: Request, res: Response<BaseResponse<LogDays>>, ne
 }
 
 const createLog = async (req: Request, res: Response<BaseResponse>, next: NextFunction) => {
+  console.log("test")
   try {
     res.status(201).json({
       message: 'Successful',

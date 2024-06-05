@@ -31,7 +31,7 @@ const notificationList = async (): Promise<Notifications[]> => {
 const findNotification = async (deviceId: string): Promise<Notifications[]> => {
   try {
     return await prisma.notifications.findMany({
-      where: { devId: deviceId },
+      where: { devSerial: deviceId },
       include: {
         device: {
           select: {

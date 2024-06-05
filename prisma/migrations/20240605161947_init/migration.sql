@@ -6,7 +6,7 @@ CREATE TABLE `Devices` (
     `devName` VARCHAR(500) NOT NULL,
     `devDetail` VARCHAR(500) NULL,
     `devStatus` BOOLEAN NOT NULL DEFAULT false,
-    `devSeq` INTEGER NOT NULL,
+    `devSeq` SMALLINT NOT NULL,
     `devZone` VARCHAR(155) NULL,
     `locInstall` VARCHAR(250) NULL,
     `locPic` VARCHAR(200) NULL,
@@ -16,8 +16,8 @@ CREATE TABLE `Devices` (
     `comment` VARCHAR(155) NULL,
     `backupStatus` CHAR(1) NULL DEFAULT '0',
     `moveStatus` VARCHAR(100) NULL,
-    `alarn` BOOLEAN NOT NULL DEFAULT false,
-    `duration` INTEGER NULL,
+    `alarm` BOOLEAN NOT NULL DEFAULT false,
+    `duration` SMALLINT NULL,
     `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updateAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
@@ -40,9 +40,9 @@ CREATE TABLE `Probes` (
     `adjustTemp` FLOAT NOT NULL DEFAULT 0.00,
     `adjustHum` FLOAT NOT NULL DEFAULT 0.00,
     `delayTime` VARCHAR(11) NULL,
-    `door` INTEGER NULL DEFAULT 0,
+    `door` SMALLINT NULL DEFAULT 0,
     `location` VARCHAR(250) NULL,
-    `devId` VARCHAR(100) NOT NULL,
+    `devSerial` VARCHAR(100) NOT NULL,
     `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updateAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
@@ -52,28 +52,28 @@ CREATE TABLE `Probes` (
 -- CreateTable
 CREATE TABLE `Configs` (
     `confId` VARCHAR(100) NOT NULL,
-    `mode` VARCHAR(50) NULL DEFAULT '0',
+    `mode` CHAR(1) NULL DEFAULT '0',
     `ip` VARCHAR(50) NULL,
     `macAddEth` VARCHAR(50) NULL,
     `macAddWiFi` VARCHAR(50) NULL,
     `subNet` VARCHAR(50) NULL,
     `getway` VARCHAR(50) NULL,
     `dns` VARCHAR(50) NULL,
-    `ssid` VARCHAR(200) NULL,
-    `ssidPass` VARCHAR(200) NULL,
+    `ssid` VARCHAR(100) NULL,
+    `ssidPass` VARCHAR(100) NULL,
     `sim` VARCHAR(100) NULL,
     `email1` VARCHAR(200) NULL,
     `email2` VARCHAR(200) NULL,
     `email3` VARCHAR(200) NULL,
-    `notiTime` INTEGER NOT NULL DEFAULT 0,
-    `backToNormal` BOOLEAN NOT NULL DEFAULT false,
-    `mobileNoti` BOOLEAN NOT NULL DEFAULT true,
-    `repeat` INTEGER NOT NULL DEFAULT 1,
-    `devId` VARCHAR(100) NOT NULL,
+    `notiTime` CHAR(1) NOT NULL DEFAULT '0',
+    `backToNormal` CHAR(1) NOT NULL DEFAULT '0',
+    `mobileNoti` CHAR(1) NOT NULL DEFAULT '1',
+    `repeat` CHAR(1) NOT NULL DEFAULT '1',
+    `devSerial` VARCHAR(100) NOT NULL,
     `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updateAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
-    UNIQUE INDEX `Configs_devId_key`(`devId`),
+    UNIQUE INDEX `Configs_devSerial_key`(`devSerial`),
     PRIMARY KEY (`confId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -140,7 +140,7 @@ CREATE TABLE `Roles` (
 -- CreateTable
 CREATE TABLE `Notifications` (
     `notiId` VARCHAR(100) NOT NULL,
-    `devId` VARCHAR(100) NOT NULL,
+    `devSerial` VARCHAR(100) NOT NULL,
     `notiDetail` VARCHAR(255) NOT NULL,
     `notiStatus` BOOLEAN NOT NULL DEFAULT false,
     `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -152,7 +152,7 @@ CREATE TABLE `Notifications` (
 -- CreateTable
 CREATE TABLE `Repairs` (
     `repairId` VARCHAR(100) NOT NULL,
-    `repairNo` INTEGER NOT NULL AUTO_INCREMENT,
+    `repairNo` SMALLINT NOT NULL AUTO_INCREMENT,
     `devId` VARCHAR(100) NOT NULL,
     `repairInfo` VARCHAR(155) NULL,
     `repairInfo1` VARCHAR(155) NULL,
@@ -188,21 +188,21 @@ CREATE TABLE `Warranties` (
 -- CreateTable
 CREATE TABLE `LogDays` (
     `logId` VARCHAR(100) NOT NULL,
-    `devId` VARCHAR(100) NOT NULL,
-    `tempValue` DOUBLE NOT NULL DEFAULT 0.00,
-    `tempAvg` DOUBLE NOT NULL DEFAULT 0.00,
-    `humidityValue` DOUBLE NOT NULL DEFAULT 0.00,
-    `humidityAvg` DOUBLE NOT NULL DEFAULT 0.00,
+    `devSerial` VARCHAR(100) NOT NULL,
+    `tempValue` FLOAT NOT NULL DEFAULT 0.00,
+    `tempAvg` FLOAT NOT NULL DEFAULT 0.00,
+    `humidityValue` FLOAT NOT NULL DEFAULT 0.00,
+    `humidityAvg` FLOAT NOT NULL DEFAULT 0.00,
     `sendTime` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `ac` CHAR(10) NOT NULL DEFAULT '0',
-    `door1` BOOLEAN NOT NULL DEFAULT false,
-    `door2` BOOLEAN NOT NULL DEFAULT false,
-    `door3` BOOLEAN NOT NULL DEFAULT false,
-    `internet` BOOLEAN NOT NULL DEFAULT false,
+    `ac` CHAR(1) NOT NULL DEFAULT '0',
+    `door1` CHAR(1) NOT NULL DEFAULT '0',
+    `door2` CHAR(1) NOT NULL DEFAULT '0',
+    `door3` CHAR(1) NOT NULL DEFAULT '0',
+    `internet` CHAR(1) NOT NULL DEFAULT '0',
     `probe` VARCHAR(10) NOT NULL DEFAULT '1',
-    `battery` INTEGER NOT NULL DEFAULT 0,
-    `ambient` DOUBLE NULL DEFAULT 0.00,
-    `sdCard` CHAR(10) NOT NULL DEFAULT '0',
+    `battery` SMALLINT NOT NULL DEFAULT 0,
+    `ambient` FLOAT NULL DEFAULT 0.00,
+    `sdCard` CHAR(1) NOT NULL DEFAULT '0',
     `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updateAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
@@ -212,21 +212,21 @@ CREATE TABLE `LogDays` (
 -- CreateTable
 CREATE TABLE `LogDaysBackup` (
     `logId` VARCHAR(100) NOT NULL,
-    `devId` VARCHAR(100) NOT NULL,
-    `tempValue` DOUBLE NOT NULL DEFAULT 0.00,
-    `tempAvg` DOUBLE NOT NULL DEFAULT 0.00,
-    `humidityValue` DOUBLE NOT NULL DEFAULT 0.00,
-    `humidityAvg` DOUBLE NOT NULL DEFAULT 0.00,
+    `devSerial` VARCHAR(100) NOT NULL,
+    `tempValue` FLOAT NOT NULL DEFAULT 0.00,
+    `tempAvg` FLOAT NOT NULL DEFAULT 0.00,
+    `humidityValue` FLOAT NOT NULL DEFAULT 0.00,
+    `humidityAvg` FLOAT NOT NULL DEFAULT 0.00,
     `sendTime` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `ac` CHAR(10) NOT NULL DEFAULT '0',
-    `door1` BOOLEAN NOT NULL DEFAULT false,
-    `door2` BOOLEAN NOT NULL DEFAULT false,
-    `door3` BOOLEAN NOT NULL DEFAULT false,
-    `internet` BOOLEAN NOT NULL DEFAULT false,
+    `ac` CHAR(1) NOT NULL DEFAULT '0',
+    `door1` CHAR(1) NOT NULL DEFAULT '0',
+    `door2` CHAR(1) NOT NULL DEFAULT '0',
+    `door3` CHAR(1) NOT NULL DEFAULT '0',
+    `internet` CHAR(1) NOT NULL DEFAULT '0',
     `probe` VARCHAR(10) NOT NULL DEFAULT '1',
-    `battery` INTEGER NOT NULL DEFAULT 0,
-    `ambient` DOUBLE NULL DEFAULT 0.00,
-    `sdCard` CHAR(10) NOT NULL DEFAULT '0',
+    `battery` SMALLINT NOT NULL DEFAULT 0,
+    `ambient` FLOAT NULL DEFAULT 0.00,
+    `sdCard` CHAR(1) NOT NULL DEFAULT '0',
     `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updateAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
@@ -237,10 +237,10 @@ CREATE TABLE `LogDaysBackup` (
 ALTER TABLE `Devices` ADD CONSTRAINT `Devices_wardId_fkey` FOREIGN KEY (`wardId`) REFERENCES `Wards`(`wardId`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Probes` ADD CONSTRAINT `Probes_devId_fkey` FOREIGN KEY (`devId`) REFERENCES `Devices`(`devId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Probes` ADD CONSTRAINT `Probes_devSerial_fkey` FOREIGN KEY (`devSerial`) REFERENCES `Devices`(`devSerial`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Configs` ADD CONSTRAINT `Configs_devId_fkey` FOREIGN KEY (`devId`) REFERENCES `Devices`(`devId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Configs` ADD CONSTRAINT `Configs_devSerial_fkey` FOREIGN KEY (`devSerial`) REFERENCES `Devices`(`devSerial`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Wards` ADD CONSTRAINT `Wards_hosId_fkey` FOREIGN KEY (`hosId`) REFERENCES `Hospitals`(`hosId`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -252,7 +252,7 @@ ALTER TABLE `Users` ADD CONSTRAINT `Users_wardId_fkey` FOREIGN KEY (`wardId`) RE
 ALTER TABLE `Users` ADD CONSTRAINT `Users_userLevel_fkey` FOREIGN KEY (`userLevel`) REFERENCES `Roles`(`roleId`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Notifications` ADD CONSTRAINT `Notifications_devId_fkey` FOREIGN KEY (`devId`) REFERENCES `Devices`(`devId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Notifications` ADD CONSTRAINT `Notifications_devSerial_fkey` FOREIGN KEY (`devSerial`) REFERENCES `Devices`(`devSerial`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Repairs` ADD CONSTRAINT `Repairs_devId_fkey` FOREIGN KEY (`devId`) REFERENCES `Devices`(`devId`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -261,4 +261,4 @@ ALTER TABLE `Repairs` ADD CONSTRAINT `Repairs_devId_fkey` FOREIGN KEY (`devId`) 
 ALTER TABLE `Warranties` ADD CONSTRAINT `Warranties_devName_fkey` FOREIGN KEY (`devName`) REFERENCES `Devices`(`devName`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `LogDays` ADD CONSTRAINT `LogDays_devId_fkey` FOREIGN KEY (`devId`) REFERENCES `Devices`(`devId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `LogDays` ADD CONSTRAINT `LogDays_devSerial_fkey` FOREIGN KEY (`devSerial`) REFERENCES `Devices`(`devSerial`) ON DELETE RESTRICT ON UPDATE CASCADE;

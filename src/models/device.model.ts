@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const ZDeviceParam = z.object({ devId: z.string() });
+export const ZConfigParam = z.object({ devSerial: z.string() });
 export type TDevice = z.infer<typeof ZDevice>;
 
 export const ZConfig = z.object({
@@ -22,7 +23,7 @@ export const ZConfig = z.object({
   backToNormal: z.string().optional(),
   mobileNoti: z.string().optional(),
   repeat: z.string().optional(),
-  devId: z.string().optional(),
+  devSerial: z.string().optional(),
 });
 
 export const ZDevice = z.object({
@@ -42,7 +43,7 @@ export const ZDevice = z.object({
   comment: z.string().optional(),
   backupStatus: z.string().optional(),
   moveStatus: z.string().optional(),
-  alarn: z.string().optional(),
+  alarm: z.string().optional(),
   duration: z.number().optional(),
   config:  ZConfig.optional()
 });

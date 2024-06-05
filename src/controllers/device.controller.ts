@@ -6,7 +6,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { addDevice, deviceById, deviceList, editConfig, editDevice, findConfig, removeDevice } from "../services";
 import { HttpError, ValidationError } from "../error";
 import { BaseResponse } from "../utils/interface";
-import { TDevice, ZConfig, ZDevice, ZDeviceParam } from "../models";
+import { TDevice, ZConfig, ZConfigParam, ZDevice, ZDeviceParam } from "../models";
 import { fromZodError } from "zod-validation-error";
 import { z } from "zod";
 
@@ -108,11 +108,11 @@ const deleteDevice = async (req: Request, res: Response<BaseResponse<Devices>>, 
 
 const getConfig = async (req: Request, res: Response<BaseResponse<Devices | null>>, next: NextFunction) => {
   try {
-    const params = ZDeviceParam.parse(req.params);
+    const params = ZConfigParam.parse(req.params);
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await findConfig(params.devId)
+      data: await findConfig(params.devSerial)
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -127,12 +127,12 @@ const getConfig = async (req: Request, res: Response<BaseResponse<Devices | null
 
 const updateConfig = async (req: Request, res: Response<BaseResponse<Configs>>, next: NextFunction) => {
   try {
-    const params = ZDeviceParam.parse(req.params);
+    const params = ZConfigParam.parse(req.params);
     const body = ZConfig.parse(req.body);
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await editConfig(params.devId, body as unknown as Configs)
+      data: await editConfig(params.devSerial, body as unknown as Configs)
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

@@ -2,7 +2,7 @@ import { Router } from "express";
 import device from "../controllers/device.controller";
 const configRouter = Router();
 
-configRouter.get('/:devId', device.getConfig);
-configRouter.put('/:devId', device.updateConfig);
+configRouter.get('/:devSerial', device.getConfig);
+configRouter.put('/:devSerial', device.updateConfig);
 
 export default configRouter;

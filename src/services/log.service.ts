@@ -4,9 +4,10 @@ import { LogDays } from "@prisma/client";
 import { getDateFormat, getDistanceTime } from "../utils/format-date";
 import { TQueryLog } from "../models";
 import { NotFoundError } from "../error";
+import { isNumber } from "node:util";
 
 type filter = {
-  devId: string,
+  devSerial: string,
   sendTime?: {
     gte: Date,
     lte?: Date
@@ -50,7 +51,7 @@ const addLog = async (body: LogDays | LogDays[]) => {
       body.forEach((log) => {
         logArr.push({
           logId: `LOG-${uuidv4()}`,
-          devId: log.devId,
+          devSerial: log.devSerial,
           tempValue: log.tempValue,
           tempAvg: log.tempAvg,
           humidityValue: log.humidityValue,
@@ -93,8 +94,8 @@ const removeLog = async (logId: string) => {
 }
 
 const filterLog = (query: TQueryLog) => {
-  if (query?.devId) {
-    let condition: filter = { devId: query.devId };
+  if (query?.devSerial) {
+    let condition: filter = { devSerial: query.devSerial };
     if (query.filter) {
       switch (query.filter) {
         case 'day':

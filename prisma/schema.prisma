@@ -24,7 +24,7 @@ model Devices {
   comment         String?         @db.VarChar(155)
   backupStatus    String?         @default("0") @db.Char(1)
   moveStatus      String?         @db.VarChar(100)
-  alarn           Boolean         @default(false)
+  alarm           Boolean         @default(false)
   duration        Int?            @db.SmallInt
   createAt        DateTime        @default(now())
   updateAt        DateTime        @default(now()) @updatedAt
@@ -51,10 +51,10 @@ model Probes {
   delayTime  String?  @db.VarChar(11)
   door       Int?     @default(0) @db.SmallInt
   location   String?  @db.VarChar(250)
-  devId      String   @db.VarChar(100)
+  devSerial  String   @db.VarChar(100)
   createAt   DateTime @default(now())
   updateAt   DateTime @default(now()) @updatedAt
-  device     Devices  @relation(fields: [devId], references: [devId])
+  device     Devices  @relation(fields: [devSerial], references: [devSerial])
 }
 
 model Configs {
@@ -76,10 +76,10 @@ model Configs {
   backToNormal String   @default("0") @db.Char(1) //ส่งแจ้งเตือนหลังอุณหภูมิกลับมาปกติ
   mobileNoti   String   @default("1") @db.Char(1) //เปิดปิดการแจ้งเตือนไปยังมือถือ
   repeat       String   @default("1") @db.Char(1) //ตั้งค่าการส่งซ้ำ ค่าเริ่มต้นคือ 1
-  devId        String   @unique @db.VarChar(100)
+  devSerial    String   @unique @db.VarChar(100)
   createAt     DateTime @default(now())
   updateAt     DateTime @default(now()) @updatedAt
-  device       Devices  @relation(fields: [devId], references: [devId])
+  device       Devices  @relation(fields: [devSerial], references: [devSerial])
 }
 
 model Hospitals {
@@ -137,12 +137,12 @@ model Roles {
 
 model Notifications {
   notiId     String   @id @db.VarChar(100)
-  devId      String   @db.VarChar(100)
+  devSerial  String   @db.VarChar(100)
   notiDetail String   @db.VarChar(255)
   notiStatus Boolean  @default(false)
   createAt   DateTime @default(now())
   updateAt   DateTime @default(now()) @updatedAt
-  device     Devices  @relation(fields: [devId], references: [devId])
+  device     Devices  @relation(fields: [devSerial], references: [devSerial])
 }
 
 model Repairs {
@@ -178,7 +178,7 @@ model Warranties {
 
 model LogDays {
   logId         String   @id @db.VarChar(100)
-  devId         String   @db.VarChar(100)
+  devSerial     String   @db.VarChar(100)
   tempValue     Float    @default(0.00) @db.Float
   tempAvg       Float    @default(0.00) @db.Float
   humidityValue Float    @default(0.00) @db.Float
@@ -195,12 +195,12 @@ model LogDays {
   sdCard        String   @default("0") @db.Char(1)
   createAt      DateTime @default(now())
   updateAt      DateTime @default(now()) @updatedAt
-  device        Devices  @relation(fields: [devId], references: [devId])
+  device        Devices  @relation(fields: [devSerial], references: [devSerial])
 }
 
 model LogDaysBackup {
   logId         String   @id @db.VarChar(100)
-  devId         String   @db.VarChar(100)
+  devSerial     String   @db.VarChar(100)
   tempValue     Float    @default(0.00) @db.Float
   tempAvg       Float    @default(0.00) @db.Float
   humidityValue Float    @default(0.00) @db.Float

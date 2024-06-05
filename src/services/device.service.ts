@@ -116,9 +116,9 @@ const removeDevice = async (deviceId: string): Promise<Devices> => {
 const findConfig = async (deviceId: string): Promise<Devices | null> => {
   try {
     const result = await prisma.devices.findUnique({
-      where: { devId: deviceId },
+      where: { devSerial: deviceId },
       select:{
-        devId: true,
+        devSerial: true,
         config: true,
         probe: true
       }
@@ -133,7 +133,7 @@ const editConfig = async (deviceId: string, body: Configs): Promise<Configs> => 
   try {
     body.updateAt = getDateFormat(new Date());
     const result = await prisma.configs.update({
-      where: { devId: deviceId },
+      where: { devSerial: deviceId },
       data: body
     });
     return result;
