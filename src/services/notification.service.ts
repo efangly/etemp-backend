@@ -1,14 +1,23 @@
 import dotenv from "dotenv";
 import { getMessaging, Message } from "firebase-admin/messaging";
 import prisma from "../configs/prisma.config";
-import { Notifications } from "@prisma/client";
+import { Notifications, Prisma } from "@prisma/client";
 import { getDateFormat } from "../utils/format-date";
 import { v4 as uuidv4 } from 'uuid';
+import { socket } from "../configs/socket.config";
+import { ResToken } from "../models";
 dotenv.config();
 
-const notificationList = async (): Promise<Notifications[]> => {
+const notificationList = async (token: ResToken): Promise<Notifications[]> => {
   try {
+    let condition: Prisma.NotificationsWhereInput = {}
+    if (token?.userLevel === "4") {
+      condition = { device: { ward: { wardId: token.wardId } } }
+    } else if (token?.userLevel === "3") {
+      condition = { device: { ward: { hosId: token.hosId } } }
+    }
     return await prisma.notifications.findMany({
+      where: condition,
       include: {
         device: {
           select: {
@@ -58,6 +67,7 @@ const addNotification = async (body: Notifications): Promise<Notifications> => {
     body.updateAt = getDateFormat(new Date());
     const result = await prisma.notifications.create({ data: body });
     pushNotification('test', body.notiDetail);
+    socket.emit("send_message", { device: body.devSerial, message: body.notiDetail, time: body.createAt.toString() });
     return result;
   } catch (error) {
     throw error;

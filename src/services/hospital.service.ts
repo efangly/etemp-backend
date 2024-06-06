@@ -5,11 +5,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { getHospitalImage } from "../utils/image";
 import { Hospitals } from "@prisma/client";
 import { getDateFormat } from "../utils/format-date";
-import { NotFoundError } from "../error";
+import { HttpError, NotFoundError } from "../error";
+import { ResToken } from "../models";
 
-const hospitalList = async (): Promise<Hospitals[]> => {
+const hospitalList = async (token: ResToken): Promise<Hospitals[]> => {
   try {
+    if (token?.userLevel === "4") throw new HttpError(400, "Unable to receive information.");
     const result = await prisma.hospitals.findMany({ 
+      where: token?.userLevel === "3" ? { hosId: token?.hosId } : {},
       include: { ward: true } 
     });
     return result;
@@ -18,8 +21,11 @@ const hospitalList = async (): Promise<Hospitals[]> => {
   }
 }
 
-const findHospital = async (hosId: string): Promise<Hospitals | null> => {
+const findHospital = async (hosId: string, token: ResToken): Promise<Hospitals | null> => {
   try {
+    if (token?.userLevel === "4" || token?.userLevel === "3") {
+      throw new HttpError(400, "Unable to receive information.");
+    }
     const result = await prisma.hospitals.findUnique({ 
       where: { hosId: hosId },
       include: { ward: true }  

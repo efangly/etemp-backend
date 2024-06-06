@@ -5,10 +5,13 @@ import fs from "node:fs";
 import path from "node:path";
 import { getDateFormat } from "../utils/format-date";
 import { NotFoundError } from "../error";
+import { ResToken } from "../models";
 
-const getAllUser = async (): Promise<Users[]> => {
+const getAllUser = async (token: ResToken): Promise<Users[]> => {
   try {
     const result = await prisma.users.findMany({
+      where: token.userLevel === "4" ? { wardId: token.wardId } : 
+      token.userLevel === "3" ? { ward: { hosId: token.hosId } } : {},
       select: {
         userId: true,
         wardId: true,

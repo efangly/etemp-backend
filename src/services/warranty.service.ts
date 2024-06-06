@@ -4,10 +4,13 @@ import prisma from "../configs/prisma.config";
 import { getDateFormat } from "../utils/format-date";
 import { NotFoundError } from "../error";
 import { format, toDate } from "date-fns";
+import { ResToken } from "../models";
 
-const warrantyList = async (): Promise<Warranties[]> => {
+const warrantyList = async (token: ResToken): Promise<Warranties[]> => {
   try {
     const result = await prisma.warranties.findMany({
+      where: token.userLevel === "4" ? { device: { wardId: token.wardId } } : 
+      token.userLevel === "3" ? { device: { ward: { hosId: token.hosId } } } : {},
       include: { device: true }
     });
     return result;

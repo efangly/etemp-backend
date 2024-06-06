@@ -51,7 +51,7 @@ const createDevice = async (req: Request, res: Response<BaseResponse<Devices>>, 
     res.status(201).json({
       message: 'Successful',
       success: true,
-      data: await addDevice(body as unknown as TDevice, res.locals.token, req.file)
+      data: await addDevice(body as unknown as TDevice, req.file)
     });
   } catch (error) {
     if (req.file) fs.unlinkSync(path.join('public/images/device', req.file.filename));

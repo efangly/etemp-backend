@@ -13,7 +13,7 @@ const getWarranty = async (req: Request, res: Response<BaseResponse<Warranties[]
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await warrantyList()
+      data: await warrantyList(res.locals.token)
     });
   } catch (error) {
     if (error instanceof PrismaClientKnownRequestError) {

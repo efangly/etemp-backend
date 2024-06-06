@@ -8,17 +8,20 @@ import { getDateFormat } from "../utils/format-date";
 import { NotFoundError } from "../error";
 import { ResToken, TDevice } from "../models";
 
-const deviceList = async (token: ResToken): Promise<Devices[]> => {
+const deviceList = async (token?: ResToken): Promise<Devices[]> => {
   try {
     const result = await prisma.devices.findMany({
-      where: token.userLevel === "4" ? { wardId: token.wardId } : 
-        token.userLevel === "3" ? { ward: { hosId: token.hosId } } : {},
+      where: token?.userLevel === "4" ? { wardId: token.wardId } : 
+        token?.userLevel === "3" ? { ward: { hosId: token?.hosId } } : {},
       include: {
         log: {
           orderBy: { sendTime: 'desc' }
         },
         probe: true,
-        config: true
+        config: true,
+        _count: {
+          select: { warranty: true, repair: true }
+        }
       },
       orderBy: { devSeq: "asc" }
     });
@@ -33,6 +36,7 @@ const deviceById = async (deviceId: string): Promise<Devices | null> => {
     const result = await prisma.devices.findUnique({
       where: { devId: deviceId },
       include: {
+        ward: { include: { hospital: { select: { hosName: true } } } },
         log: { orderBy: { sendTime: 'desc' } },
         probe: { orderBy: { probeCh: 'asc' } },
         config: true
@@ -45,9 +49,9 @@ const deviceById = async (deviceId: string): Promise<Devices | null> => {
   }
 };
 
-const addDevice = async (body: TDevice, token: ResToken, pic?: Express.Multer.File): Promise<Devices> => {
+const addDevice = async (body: TDevice, pic?: Express.Multer.File): Promise<Devices> => {
   try {
-    const seq: Devices[] = await deviceList(token);
+    const seq: Devices[] = await deviceList();
     const result = await prisma.devices.create({
       data: {
         devId: `DEV-${uuidv4()}`,

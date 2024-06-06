@@ -11,12 +11,11 @@ import { z } from "zod";
 import { ZHospital, ZHospitalParam } from "../models";
 
 const getHospital = async (req: Request, res: Response<BaseResponse<Hospitals[]>>, next: NextFunction) => {
-  //const { user_level, hos_id } = res.locals.token;
   try {
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await hospitalList()
+      data: await hospitalList(res.locals.token)
     });
   } catch (error) {
     if (error instanceof PrismaClientKnownRequestError) {
@@ -33,7 +32,7 @@ const getHospitalById = async (req: Request, res: Response<BaseResponse<Hospital
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await findHospital(params.hosId)
+      data: await findHospital(params.hosId, res.locals.token)
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

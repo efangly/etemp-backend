@@ -3,8 +3,8 @@ import { BaseResponse } from "../utils/interface";
 import { z } from "zod";
 import {  fromZodError } from "zod-validation-error";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { regisUser, userLogin } from "../services";
-import { ResLogin, ZLogin, ZRegisUser } from "../models";
+import { regisUser, resetPassword, userLogin } from "../services";
+import { ResLogin, ZLogin, ZRegisUser, ZResetPass, ZUserParam } from "../models";
 import { Users } from "@prisma/client";
 import fs from "node:fs";
 import path from "node:path";
@@ -50,7 +50,28 @@ const checkLogin = async (req: Request, res: Response<BaseResponse<ResLogin>>, n
   }
 };
 
+const changePassword = async (req: Request, res: Response<BaseResponse<string>>, next: NextFunction) => {
+  try {
+    const params = ZUserParam.parse(req.params);
+    const body = ZResetPass.parse(req.body);
+    res.status(200).json({
+      message: 'Successful',
+      success: true,
+      data: await resetPassword(body.password, params.userId)
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      next(new ValidationError(fromZodError(error).toString()));
+    } else if (error instanceof PrismaClientKnownRequestError) {
+      next(new HttpError(400, `${error.name} : ${error.code}`));
+    } else {
+      next(error);
+    }
+  }
+};
+
 export {
   checkLogin,
   register,
+  changePassword
 };

@@ -1,12 +1,13 @@
 import { z } from "zod";
 
 export const ZUserParam = z.object({ userId: z.string() });
-
 export const ZLogin = z.object({
   username: z.string(),
   password: z.string()
 });
-
+export const ZResetPass = z.object({
+  password: z.string()
+});
 export const ZRegisUser = z.object({
   userId: z.string().optional(),
   wardId: z.string(),

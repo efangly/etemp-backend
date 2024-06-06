@@ -8,6 +8,7 @@ import { initRedis } from "./configs/redis.config";
 import { backupScheduleJob } from "./utils/schedule";
 import connectFireBase from "./configs/firebase.config";
 import { globalErrorHanlder } from "./middlewares";
+import { socket } from "./configs/socket.config";
 
 const app: Application = express();
 
@@ -27,6 +28,8 @@ app.listen(port, async () => {
   await initRedis();
   connectFireBase();
   backupScheduleJob();
+  socket.on('connect', () => console.log("Socket Connected"));
+  socket.on('disconnect', () => console.log("Socket Disconnected"));
   console.log(`Start server in port ${port}`);
   console.log(process.env.NODE_ENV === 'production' ? 'Production Mode' : 'Developer Mode');
 });

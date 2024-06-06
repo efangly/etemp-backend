@@ -69,6 +69,21 @@ const userLogin = async (login: TLogin): Promise<ResLogin> => {
   }
 }
 
+const resetPassword = async (password: string, userId: string): Promise<string> => {
+  try {
+    await prisma.users.update({
+      where: { userId: userId },
+      data: {
+        userPassword: await hashPassword(password),
+        updateAt: getDateFormat(new Date())
+      }
+    });
+    return "Reset password success!!";
+  } catch (error) {
+    throw error;
+  }
+}
+
 const hashPassword = (pass: string) => {
   return new Promise<string>((resolve, reject) => {
     bcrypt.hash(pass, 10, (err, hash) => {
@@ -78,4 +93,4 @@ const hashPassword = (pass: string) => {
   });
 }
 
-export { regisUser, userLogin };
+export { regisUser, userLogin, resetPassword };

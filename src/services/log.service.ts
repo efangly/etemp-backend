@@ -1,9 +1,9 @@
 import prisma from "../configs/prisma.config";
 import { v4 as uuidv4 } from 'uuid';
-import { LogDays } from "@prisma/client";
+import { LogDays, Prisma } from "@prisma/client";
 import { getDateFormat, getDistanceTime } from "../utils/format-date";
 import { TQueryLog } from "../models";
-import { NotFoundError } from "../error";
+import { NotFoundError, ValidationError } from "../error";
 
 type filter = {
   devId: string,
@@ -15,7 +15,7 @@ type filter = {
 
 const logList = async (query: TQueryLog): Promise<LogDays[]> => {
   try {
-    let condition: filter | undefined = filterLog(query);
+    let condition = filterLog(query);
     return await prisma.logDays.findMany({
       where: condition,
       include: {
@@ -47,34 +47,40 @@ const addLog = async (body: LogDays | LogDays[]) => {
     if (Array.isArray(body)) {
       let logArr: LogDays[] = [];
       body.forEach((log) => {
-        logArr.push({
-          logId: `LOG-${uuidv4()}`,
-          devSerial: log.devSerial,
-          tempValue: log.tempValue,
-          tempAvg: log.tempAvg,
-          humidityValue: log.humidityValue,
-          humidityAvg: log.humidityAvg,
-          sendTime: getDateFormat(log.sendTime || new Date()),
-          ac: log.ac,
-          door1: log.door1,
-          door2: log.door2,
-          door3: log.door3,
-          internet: log.internet,
-          probe: log.probe,
-          battery: log.battery,
-          ambient: log.ambient,
-          sdCard: log.sdCard,
-          createAt: getDateFormat(new Date()),
-          updateAt: getDateFormat(new Date()),
-        });
+        if (log.tempValue !== 0 && log.humidityValue !== 0) {
+          logArr.push({
+            logId: `LOG-${uuidv4()}`,
+            devSerial: log.devSerial,
+            tempValue: log.tempValue,
+            tempAvg: log.tempAvg,
+            humidityValue: log.humidityValue,
+            humidityAvg: log.humidityAvg,
+            sendTime: getDateFormat(log.sendTime || new Date()),
+            ac: log.ac,
+            door1: log.door1,
+            door2: log.door2,
+            door3: log.door3,
+            internet: log.internet,
+            probe: log.probe,
+            battery: log.battery,
+            ambient: log.ambient,
+            sdCard: log.sdCard,
+            createAt: getDateFormat(new Date()),
+            updateAt: getDateFormat(new Date()),
+          });
+        }
       });
       return await prisma.logDays.createMany({ data: logArr });
     } else {
-      body.logId = `LOG-${uuidv4()}`;
-      body.sendTime = getDateFormat(body.sendTime || new Date());
-      body.createAt = getDateFormat(new Date());
-      body.updateAt = getDateFormat(new Date());
-      return await prisma.logDays.create({ data: body });
+      if (body.tempValue !== 0 && body.humidityValue !== 0) {
+        body.logId = `LOG-${uuidv4()}`;
+        body.sendTime = getDateFormat(body.sendTime || new Date());
+        body.createAt = getDateFormat(new Date());
+        body.updateAt = getDateFormat(new Date());
+        return await prisma.logDays.create({ data: body });
+      } else {
+        throw new ValidationError("Invalid value!!");
+      }
     }
   } catch (error) {
     throw error;
@@ -91,9 +97,9 @@ const removeLog = async (logId: string) => {
   }
 }
 
-const filterLog = (query: TQueryLog) => {
+const filterLog = (query: TQueryLog): Prisma.LogDaysWhereInput | undefined => {
   if (query?.devId) {
-    let condition: filter = { devId: query.devId };
+    let condition: Prisma.LogDaysWhereInput = { devSerial: query.devId };
     if (query.filter) {
       switch (query.filter) {
         case 'day':

@@ -13,7 +13,7 @@ const getRepair = async (req: Request, res: Response<BaseResponse<Repairs[]>>, n
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await repairList()
+      data: await repairList(res.locals.token)
     });
   } catch (error) {
     if (error instanceof PrismaClientKnownRequestError) {

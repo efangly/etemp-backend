@@ -3,10 +3,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { Repairs } from "@prisma/client";
 import { getDateFormat } from "../utils/format-date";
 import { NotFoundError } from "../error";
+import { ResToken } from "../models";
 
-const repairList = async (): Promise<Repairs[]> => {
+const repairList = async (token: ResToken): Promise<Repairs[]> => {
   try {
-    return await prisma.repairs.findMany({ include: { device: true } });
+    return await prisma.repairs.findMany({ 
+      where: token.userLevel === "4" ? { device: { wardId: token.wardId } } : 
+      token.userLevel === "3" ? { device: { ward: { hosId: token.hosId } } } : {},
+      include: { device: true } 
+    });
   } catch (error) {
     throw error;
   }
