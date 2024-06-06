@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { Probes } from "@prisma/client";
-import { BaseResponse } from "../utils/interface";
+import { BaseResponse } from "../models";
 import { HttpError, ValidationError } from "../error";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { addProbe, editProbe, findProbe, probeList, removeProbe } from "../services";

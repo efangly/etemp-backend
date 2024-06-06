@@ -1,6 +1,6 @@
 import { Notifications } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
-import { BaseResponse } from "../utils/interface";
+import { BaseResponse } from "../models";
 import { addNotification, editNotification, findNotification, notificationList } from "../services";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { HttpError, ValidationError } from "../error";

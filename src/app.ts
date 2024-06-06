@@ -4,7 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import prisma from "./configs/prisma.config";
 import routes from "./routes";
-import { initRedis } from "./configs/redis.config";
+// import { initRedis } from "./configs/redis.config";
 import { backupScheduleJob } from "./utils/schedule";
 import connectFireBase from "./configs/firebase.config";
 import { globalErrorHanlder } from "./middlewares";
@@ -25,7 +25,7 @@ app.use('/etemp', routes);
 app.use(globalErrorHanlder);
 
 app.listen(port, async () => {
-  await initRedis();
+  // await initRedis();
   connectFireBase();
   backupScheduleJob();
   socket.on('connect', () => console.log("Socket Connected"));

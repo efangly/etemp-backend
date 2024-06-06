@@ -62,7 +62,7 @@ const userLogin = async (login: TLogin): Promise<ResLogin> => {
         throw new HttpError(400, "Wrong user or password!!");
       }
     } else {
-      throw new HttpError(400, "Wrong user or password!!!!");
+      throw new HttpError(400, "Wrong user or password!!");
     }
   } catch (error) {
     throw error;

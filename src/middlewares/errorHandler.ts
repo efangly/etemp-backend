@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { BaseResponse } from "../utils/interface";
+import { BaseResponse } from "../models";
 import { HttpError } from '../error';
+import { createLog } from '../utils/logger';
 
 export const globalErrorHanlder = (error: unknown, req: Request, res: Response<BaseResponse>, next: NextFunction) => {
   let statusCode = 500;
@@ -17,7 +18,7 @@ export const globalErrorHanlder = (error: unknown, req: Request, res: Response<B
     console.error('An unknown error occurred');
     message = `An unknown error occurred, ${String(error)}`;
   }
-
+  createLog(String(statusCode), message);
   res.status(statusCode).send({
     message,
     success: false,

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { Repairs } from "@prisma/client";
-import { BaseResponse } from "../utils/interface";
+import { BaseResponse } from "../models";
 import { addRepair, editRepair, findRepair, removeRepair, repairList } from "../services/repair.service";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { HttpError, ValidationError } from "../error";

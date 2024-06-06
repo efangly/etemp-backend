@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { LogDays } from "@prisma/client";
-import { BaseResponse } from "../utils/interface";
+import { BaseResponse } from "../models";
 import { ZLogParam, ZQueryLog } from "../models";
 import { z } from "zod";
 import { logList, findLog, addLog, removeLog } from "../services";

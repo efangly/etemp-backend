@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { BaseResponse } from "../utils/interface";
+import { BaseResponse } from "../models";
 import { z } from "zod";
 import {  fromZodError } from "zod-validation-error";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";

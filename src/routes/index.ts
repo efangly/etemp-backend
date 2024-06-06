@@ -11,7 +11,7 @@ import warrantyRouter from './warranty';
 import notiRouter from './noti';
 import logRouter from './log';
 import configRouter from './config';
-import { BaseResponse } from '../utils/interface';
+import { BaseResponse } from '../models';
 
 const router = Router();
 

@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { HttpError, ValidationError } from "../error";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { BaseResponse } from "../utils/interface";
+import { BaseResponse } from "../models";
 import { z } from "zod";
 import {  fromZodError } from "zod-validation-error";
 import { delUser, editUser, getAllUser, getUserByUserId } from "../services";

@@ -5,17 +5,10 @@ import { getDateFormat, getDistanceTime } from "../utils/format-date";
 import { TQueryLog } from "../models";
 import { NotFoundError, ValidationError } from "../error";
 
-type filter = {
-  devId: string,
-  sendTime?: {
-    gte: Date,
-    lte?: Date
-  }
-}
-
 const logList = async (query: TQueryLog): Promise<LogDays[]> => {
   try {
     let condition = filterLog(query);
+    console.log(condition)
     return await prisma.logDays.findMany({
       where: condition,
       include: {
@@ -98,9 +91,9 @@ const removeLog = async (logId: string) => {
 }
 
 const filterLog = (query: TQueryLog): Prisma.LogDaysWhereInput | undefined => {
-  if (query?.devId) {
-    let condition: Prisma.LogDaysWhereInput = { devSerial: query.devId };
-    if (query.filter) {
+  if (query?.devSerial) {
+    let condition: Prisma.LogDaysWhereInput = { devSerial: query.devSerial };
+    if (query?.filter) {
       switch (query.filter) {
         case 'day':
           condition.sendTime = {

@@ -5,7 +5,7 @@ import { Configs, Devices } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { addDevice, deviceById, deviceList, editConfig, editDevice, findConfig, removeDevice } from "../services";
 import { HttpError, ValidationError } from "../error";
-import { BaseResponse } from "../utils/interface";
+import { BaseResponse } from "../models";
 import { TDevice, ZConfig, ZConfigParam, ZDevice, ZDeviceParam } from "../models";
 import { fromZodError } from "zod-validation-error";
 import { z } from "zod";

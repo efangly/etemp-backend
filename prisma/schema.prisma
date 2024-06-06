@@ -32,9 +32,11 @@ model Devices {
   config          Configs?
   noti            Notifications[]
   log             LogDays[]
+  logBak          LogDaysBackup[]
   repair          Repairs[]
   warranty        Warranties[]
   probe           Probes[]
+  history         ConfigHistory[]
 }
 
 model Probes {
@@ -217,4 +219,15 @@ model LogDaysBackup {
   sdCard        String   @default("0") @db.Char(1)
   createAt      DateTime @default(now())
   updateAt      DateTime @default(now()) @updatedAt
+  device        Devices  @relation(fields: [devSerial], references: [devSerial])
+}
+
+model ConfigHistory {
+  id        String   @id @db.VarChar(100)
+  devSerial String   @db.VarChar(100)
+  detail    String   @db.VarChar(500)
+  userName  String   @db.VarChar(155)
+  createAt  DateTime @default(now())
+  updateAt  DateTime @default(now()) @updatedAt
+  device    Devices  @relation(fields: [devSerial], references: [devSerial])
 }
