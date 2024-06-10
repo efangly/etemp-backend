@@ -1,23 +1,97 @@
 import prisma from "../configs/prisma.config";
 import { v4 as uuidv4 } from 'uuid';
-import { LogDays, Prisma } from "@prisma/client";
+import { LogDays, LogDaysBackup, Prisma } from "@prisma/client";
 import { getDateFormat, getDistanceTime } from "../utils/format-date";
 import { TQueryLog } from "../models";
 import { NotFoundError, ValidationError } from "../error";
 
 const logList = async (query: TQueryLog): Promise<LogDays[]> => {
   try {
-    let condition = filterLog(query);
-    console.log(condition)
-    return await prisma.logDays.findMany({
-      where: condition,
-      include: {
-        device: true
-      },
-      orderBy: {
-        sendTime: 'desc'
+    if (query.devSerial && query.filter) {
+      switch (query.filter) {
+        case "day":
+          return await prisma.logDays.findMany({
+            where: {
+              devSerial: query.devSerial,
+              sendTime: { gte: getDistanceTime('day') }
+            },
+            include: { device: true },
+            orderBy: { sendTime: 'asc' }
+          });
+        case "week":
+          const [week, weekBackup] = await prisma.$transaction([
+            prisma.logDays.findMany({
+              where: {
+                devSerial: query.devSerial,
+                sendTime: { gte: getDistanceTime('day') }
+              },
+              include: { device: true },
+              orderBy: { sendTime: 'asc' }
+            }),
+            prisma.logDaysBackup.findMany({
+              where: { 
+                devSerial: query.devSerial,
+                sendTime: { gte: getDistanceTime('week') } 
+              },
+              include: { device: true },
+              orderBy: { sendTime: 'asc' }
+            })
+          ]);
+          return weekBackup.concat(week);
+        case "month":
+          const [month, monthBackup] = await prisma.$transaction([
+            prisma.logDays.findMany({
+              where: {
+                devSerial: query.devSerial,
+                sendTime: { gte: getDistanceTime('day') }
+              },
+              include: { device: true },
+              orderBy: { sendTime: 'asc' }
+            }),
+            prisma.logDaysBackup.findMany({
+              where: { 
+                devSerial: query.devSerial,
+                sendTime: { gte: getDistanceTime('month') } 
+              },
+              include: { device: true },
+              orderBy: { sendTime: 'asc' }
+            })
+          ]);
+          return monthBackup.concat(month);
+        default:
+          const [logday, logdayBackup] = await prisma.$transaction([
+            prisma.logDays.findMany({
+              where: {
+                devSerial: query.devSerial,
+                sendTime: {
+                  gte: getDateFormat(new Date(query.filter.split(",")[0])),
+                  lte: getDateFormat(new Date(query.filter.split(",")[1])),
+                }
+              },
+              include: { device: true },
+              orderBy: { sendTime: 'asc' }
+            }),
+            prisma.logDaysBackup.findMany({
+              where: {
+                devSerial: query.devSerial,
+                sendTime: {
+                  gte: getDateFormat(new Date(query.filter.split(",")[0])),
+                  lte: getDateFormat(new Date(query.filter.split(",")[1])),
+                }
+              },
+              include: { device: true },
+              orderBy: { sendTime: 'asc' }
+            })
+          ]);
+          return logdayBackup.concat(logday);
       }
-    })
+    } else {
+      return await prisma.logDays.findMany({
+        where: { devSerial: query.devSerial },
+        include: { device: true },
+        orderBy: { sendTime: 'asc' }
+      });
+    }
   } catch (error) {
     throw error;
   }
@@ -90,38 +164,28 @@ const removeLog = async (logId: string) => {
   }
 }
 
-const filterLog = (query: TQueryLog): Prisma.LogDaysWhereInput | undefined => {
-  if (query?.devSerial) {
-    let condition: Prisma.LogDaysWhereInput = { devSerial: query.devSerial };
-    if (query?.filter) {
-      switch (query.filter) {
-        case 'day':
-          condition.sendTime = {
-            gte: getDistanceTime('day')
-          };
-          break;
-        case 'week':
-          condition.sendTime = {
-            gte: getDistanceTime('week')
-          };
-          break;
-        case 'month':
-          condition.sendTime = {
-            gte: getDistanceTime('month')
-          };
-          break;
-        default:
-          condition.sendTime = {
-            gte: getDateFormat(new Date(query.filter.split(",")[0])),
-            lte: getDateFormat(new Date(query.filter.split(",")[1])),
-          };
-      }
-      return condition;
+const backupLog = async () => {
+  try {
+    const backupList = await prisma.logDays.findMany({
+      where: {
+        sendTime: { lt: getDistanceTime('day') }
+      },
+      orderBy: { createAt: 'asc' }
+    });
+    if (backupList.length > 0) {
+      await prisma.logDaysBackup.createMany({
+        data: backupList
+      })
+      await prisma.logDays.deleteMany({
+        where: { sendTime: { lt: getDistanceTime('day') } }
+      });
+      console.log("Backup Success");
     } else {
-      return condition;
+      console.log("No data for backup");
     }
-  } else {
-    return undefined;
+    return backupList;
+  } catch (error) {
+    console.log(error);
   }
 }
 
@@ -129,5 +193,6 @@ export {
   logList,
   findLog,
   addLog,
-  removeLog
+  removeLog,
+  backupLog
 };

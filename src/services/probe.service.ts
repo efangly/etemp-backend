@@ -3,10 +3,13 @@ import { v4 as uuidv4 } from 'uuid';
 import prisma from "../configs/prisma.config";
 import { getDateFormat } from "../utils/format-date";
 import { NotFoundError } from "../error";
+import { ResToken } from "../models";
 
-const probeList = async (): Promise<Probes[]> => {
+const probeList = async (token: ResToken): Promise<Probes[]> => {
   try {
     const result = await prisma.probes.findMany({
+      where: token.userLevel === "4" ? { device: { wardId: token.wardId } } : 
+      token.userLevel === "3" ? { device: { ward: { hosId: token.hosId } } } : {},
       include: { device: true }
     });
     return result;

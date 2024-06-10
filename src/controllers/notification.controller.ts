@@ -1,6 +1,6 @@
 import { Notifications } from "@prisma/client";
 import { NextFunction, Request, Response } from "express";
-import { BaseResponse } from "../models";
+import { BaseResponse, ZConfigParam } from "../models";
 import { addNotification, editNotification, findNotification, notificationList } from "../services";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { HttpError, ValidationError } from "../error";
@@ -26,11 +26,11 @@ const getNotification = async (req: Request, res: Response<BaseResponse<Notifica
 
 const getNotificationByDevice = async (req: Request, res: Response<BaseResponse<Notifications[]>>, next: NextFunction) => {
   try {
-    const params = ZDeviceParam.parse(req.params);
+    const params = ZConfigParam.parse(req.params);
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await findNotification(params.devId)
+      data: await findNotification(params.devSerial)
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

@@ -9,6 +9,7 @@ import { backupScheduleJob } from "./utils/schedule";
 import connectFireBase from "./configs/firebase.config";
 import { globalErrorHanlder } from "./middlewares";
 import { socket } from "./configs/socket.config";
+import { backupLog } from "./services";
 
 const app: Application = express();
 
@@ -26,6 +27,7 @@ app.use(globalErrorHanlder);
 
 app.listen(port, async () => {
   // await initRedis();
+  backupLog();
   connectFireBase();
   backupScheduleJob();
   socket.on('connect', () => console.log("Socket Connected"));

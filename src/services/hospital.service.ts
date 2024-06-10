@@ -23,9 +23,6 @@ const hospitalList = async (token: ResToken): Promise<Hospitals[]> => {
 
 const findHospital = async (hosId: string, token: ResToken): Promise<Hospitals | null> => {
   try {
-    if (token?.userLevel === "4" || token?.userLevel === "3") {
-      throw new HttpError(400, "Unable to receive information.");
-    }
     const result = await prisma.hospitals.findUnique({ 
       where: { hosId: hosId },
       include: { ward: true }  

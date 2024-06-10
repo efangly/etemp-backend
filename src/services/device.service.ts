@@ -19,7 +19,14 @@ const deviceList = async (token?: ResToken): Promise<Devices[]> => {
         },
         probe: true,
         config: true,
-        noti: true,
+        noti: {
+          where: {
+            OR: [
+              { notiDetail: { endsWith: 'OVER',} },
+              { notiDetail: { endsWith: 'LOWER' } },
+            ]
+          }
+        },
         _count: {
           select: { warranty: true, repair: true }
         }

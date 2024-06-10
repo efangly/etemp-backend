@@ -14,7 +14,7 @@ const getProbe = async (req: Request, res: Response<BaseResponse<Probes[]>>, nex
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await probeList()
+      data: await probeList(res.locals.token)
     });
   } catch (error) {
     if (error instanceof PrismaClientKnownRequestError) {

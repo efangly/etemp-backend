@@ -11,8 +11,12 @@ import warrantyRouter from './warranty';
 import notiRouter from './noti';
 import logRouter from './log';
 import configRouter from './config';
+import swaggerUi from 'swagger-ui-express';
+import fs from 'node:fs';
+import YAML from 'yaml';
 import { BaseResponse } from '../models';
 
+const file = fs.readFileSync("./swagger.yaml", "utf8");
 const router = Router();
 
 router.use('/auth', authRouter);
@@ -29,7 +33,7 @@ router.use('/log', logRouter);
 
 router.use('/img', express.static('public/images'));
 router.use('/font', express.static('public/fonts'));
-
+router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(YAML.parse(file)));
 router.use('/', (req: Request, res: Response<BaseResponse>) => {
   res.status(404).json({ 
     message: 'Not Found',

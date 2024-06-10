@@ -1,0 +1,64 @@
+openapi: 3.0.0
+info:
+  title: E-TEMP API
+  description: testing api page.
+  version: 0.1.9
+servers:
+  - url: https://api.siamatic.co.th/etemp
+  - url: http://localhost:8080/etemp
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT  # optional, for documentation purposes only
+security:
+  - bearerAuth: []
+tags:
+  - name: Auth
+  - name: Device
+  - name: Hospital
+  - name: User
+  - name: Ward
+  - name: Log
+  - name: Notification
+  - name: Probe
+  - name: Repair
+  - name: Warranty
+paths:
+  /auth/login:
+    post:
+      tags: 
+        - Auth
+      summary: Returns a login users.
+      requestBody:
+        description: Require username & password
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: 
+                type: array
+  /user:
+    get:
+      tags:
+        - User
+      summary: Returns a list of users.
+      responses:
+        '200':    # status code
+          content:
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  type: string
