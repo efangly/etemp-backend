@@ -1,6 +1,6 @@
 import prisma from "../configs/prisma.config";
 import { v4 as uuidv4 } from 'uuid';
-import { LogDays, LogDaysBackup, Prisma } from "@prisma/client";
+import { LogDays } from "@prisma/client";
 import { getDateFormat, getDistanceTime } from "../utils/format-date";
 import { TQueryLog } from "../models";
 import { NotFoundError, ValidationError } from "../error";
@@ -164,7 +164,7 @@ const removeLog = async (logId: string) => {
   }
 }
 
-const backupLog = async () => {
+const backupLog = async (): Promise<string> => {
   try {
     const backupList = await prisma.logDays.findMany({
       where: {
@@ -175,17 +175,16 @@ const backupLog = async () => {
     if (backupList.length > 0) {
       await prisma.logDaysBackup.createMany({
         data: backupList
-      })
+      });
       await prisma.logDays.deleteMany({
         where: { sendTime: { lt: getDistanceTime('day') } }
       });
-      console.log("Backup Success");
+      return "Backup Success";
     } else {
-      console.log("No data for backup");
+      return "No data for backup";
     }
-    return backupList;
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 }
 
