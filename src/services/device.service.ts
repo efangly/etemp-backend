@@ -7,6 +7,8 @@ import { Configs, Devices } from "@prisma/client";
 import { getDateFormat } from "../utils/format-date";
 import { NotFoundError } from "../error";
 import { ResToken, TDevice } from "../models";
+import { addHistory } from "./history.service";
+import { objToString } from "../utils/convert";
 
 const deviceList = async (token?: ResToken): Promise<Devices[]> => {
   try {
@@ -22,13 +24,26 @@ const deviceList = async (token?: ResToken): Promise<Devices[]> => {
         noti: {
           where: {
             OR: [
-              { notiDetail: { endsWith: 'OVER',} },
+              { notiDetail: { endsWith: 'OVER' } },
               { notiDetail: { endsWith: 'LOWER' } },
             ]
-          }
+          },
+          orderBy:{ createAt: 'desc' }
         },
         _count: {
-          select: { warranty: true, repair: true }
+          select: { 
+            warranty: true, 
+            repair: true,
+            history: true,
+            noti: { 
+              where: {
+                AND: [
+                  { notiDetail: { startsWith: 'PROBE' } },
+                  { notiDetail: { endsWith: 'ON' } },
+                ]
+              } 
+            }
+          }
         }
       },
       orderBy: { devSeq: "asc" }
@@ -142,13 +157,15 @@ const findConfig = async (deviceId: string): Promise<Devices | null> => {
   }
 };
 
-const editConfig = async (deviceId: string, body: Configs): Promise<Configs> => {
+const editConfig = async (deviceId: string, body: Configs, token: ResToken): Promise<Configs> => {
   try {
+    const detail = objToString(body);
     body.updateAt = getDateFormat(new Date());
     const result = await prisma.configs.update({
       where: { devSerial: deviceId },
       data: body
     });
+    await addHistory(`Config: [${detail}]`, result.devSerial, token.userId);
     return result;
   } catch (error) {
     throw error;

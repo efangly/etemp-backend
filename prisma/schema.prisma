@@ -112,20 +112,21 @@ model Wards {
 }
 
 model Users {
-  userId       String   @id @db.VarChar(100)
-  wardId       String   @db.VarChar(100)
-  userName     String   @unique @db.VarChar(155)
-  userPassword String   @db.VarChar(155)
-  userStatus   Boolean  @default(true)
-  userLevel    String   @default("4") @db.Char(1)
-  displayName  String?  @db.VarChar(150)
-  userPic      String?  @db.VarChar(255)
-  comment      String?  @db.VarChar(255)
-  createBy     String?  @db.VarChar(155)
-  createAt     DateTime @default(now())
-  updateAt     DateTime @default(now()) @updatedAt
-  ward         Wards    @relation(fields: [wardId], references: [wardId])
-  role         Roles    @relation(fields: [userLevel], references: [roleId])
+  userId       String          @id @db.VarChar(100)
+  wardId       String          @db.VarChar(100)
+  userName     String          @unique @db.VarChar(155)
+  userPassword String          @db.VarChar(155)
+  userStatus   Boolean         @default(true)
+  userLevel    String          @default("4") @db.Char(1)
+  displayName  String?         @db.VarChar(150)
+  userPic      String?         @db.VarChar(255)
+  comment      String?         @db.VarChar(255)
+  createBy     String?         @db.VarChar(155)
+  createAt     DateTime        @default(now())
+  updateAt     DateTime        @default(now()) @updatedAt
+  ward         Wards           @relation(fields: [wardId], references: [wardId])
+  role         Roles           @relation(fields: [userLevel], references: [roleId])
+  history      ConfigHistory[]
 }
 
 model Roles {
@@ -226,8 +227,9 @@ model ConfigHistory {
   id        String   @id @db.VarChar(100)
   devSerial String   @db.VarChar(100)
   detail    String   @db.VarChar(500)
-  userName  String   @db.VarChar(155)
+  userId    String   @db.VarChar(155)
   createAt  DateTime @default(now())
   updateAt  DateTime @default(now()) @updatedAt
   device    Devices  @relation(fields: [devSerial], references: [devSerial])
+  user      Users    @relation(fields: [userId], references: [userId])
 }

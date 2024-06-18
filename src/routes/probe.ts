@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyToken } from "../middlewares/auth";
+import { verifyToken } from "../middlewares";
 import probe from "../controllers/probe.controller";
 
 const probeRouter: Router = Router();

@@ -1,4 +1,4 @@
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import express, { Router } from 'express';
 import authRouter from './auth';
 import userRouter from './user';
@@ -16,6 +16,8 @@ import fs from 'node:fs';
 import YAML from 'yaml';
 import log from "../controllers/log.controller";
 import { BaseResponse } from '../models';
+import { historyList } from '../services';
+import { verifyToken } from '../middlewares';
 
 const file = fs.readFileSync("./swagger.yaml", "utf8");
 const router = Router();
@@ -34,8 +36,20 @@ router.use('/log', logRouter);
 
 router.use('/img', express.static('public/images'));
 router.use('/font', express.static('public/fonts'));
+router.use('/firmware', express.static('public/firmwares'));
 router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(YAML.parse(file)));
 router.use('/backup', log.backupData);
+router.use('/history', verifyToken, async (req: Request, res: Response<BaseResponse>, next: NextFunction) => {
+  try {
+    res.status(200).json({ 
+      message: 'Successful',
+      success: true, 
+      data: await historyList(res.locals.token)
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 router.use('/', (req: Request, res: Response<BaseResponse>) => {
   res.status(404).json({ 
     message: 'Not Found',

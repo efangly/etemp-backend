@@ -4,12 +4,14 @@ import prisma from "../configs/prisma.config";
 import { getDateFormat } from "../utils/format-date";
 import { NotFoundError } from "../error";
 import { ResToken } from "../models";
+import { objToString } from "../utils/convert";
+import { addHistory } from "./history.service";
 
 const probeList = async (token: ResToken): Promise<Probes[]> => {
   try {
     const result = await prisma.probes.findMany({
-      where: token.userLevel === "4" ? { device: { wardId: token.wardId } } : 
-      token.userLevel === "3" ? { device: { ward: { hosId: token.hosId } } } : {},
+      where: token.userLevel === "4" ? { device: { wardId: token.wardId } } :
+        token.userLevel === "3" ? { device: { ward: { hosId: token.hosId } } } : {},
       include: { device: true }
     });
     return result;
@@ -46,13 +48,15 @@ const addProbe = async (body: Probes) => {
   }
 }
 
-const editProbe = async (probeId: string, body: Probes) => {
+const editProbe = async (probeId: string, body: Probes, token: ResToken) => {
   try {
+    const detail = objToString(body);
     body.updateAt = getDateFormat(new Date());
-    const result = prisma.probes.update({
+    const result = await prisma.probes.update({
       where: { probeId: probeId },
       data: body
     });
+    await addHistory(`Probe: [${detail}]`, result.devSerial, token.userId);
     return result;
   } catch (error) {
     throw error;

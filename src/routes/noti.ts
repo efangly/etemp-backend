@@ -1,6 +1,6 @@
 import { Router } from "express";
 import noti from "../controllers/notification.controller"; 
-import { verifyToken } from "../middlewares/auth";
+import { verifyToken } from "../middlewares";
 const notiRouter: Router = Router();
 
 notiRouter.get('/', verifyToken, noti.getNotification);

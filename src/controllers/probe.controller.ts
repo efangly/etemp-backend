@@ -70,7 +70,7 @@ const updateProbe = async (req: Request, res: Response<BaseResponse<Probes>>, ne
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await editProbe(params.probeId, body as unknown as Probes)
+      data: await editProbe(params.probeId, body as unknown as Probes, res.locals.token)
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

@@ -110,6 +110,10 @@ const pushNotification = async (topic: string, detail: string) => {
   }
 };
 
+const setDetailMessage = (msg: string) => {
+
+}
+
 export {
   notificationList,
   findNotification,

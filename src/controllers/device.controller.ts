@@ -131,7 +131,7 @@ const updateConfig = async (req: Request, res: Response<BaseResponse<Configs>>, 
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await editConfig(params.devSerial, body as unknown as Configs)
+      data: await editConfig(params.devSerial, body as unknown as Configs, res.locals.token)
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

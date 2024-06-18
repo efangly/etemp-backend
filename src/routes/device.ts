@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyToken } from "../middlewares/auth";
+import { verifyToken } from "../middlewares";
 import device from "../controllers/device.controller";
 import upload from "../middlewares/uplodfile";
 const deviceRouter: Router = Router();

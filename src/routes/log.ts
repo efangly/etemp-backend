@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyToken } from "../middlewares/auth";
+import { verifyToken } from "../middlewares";
 import log from "../controllers/log.controller";
 const logRouter: Router = Router();
 
