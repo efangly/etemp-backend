@@ -31,6 +31,7 @@ model Devices {
   ward            Wards           @relation(fields: [wardId], references: [wardId])
   config          Configs?
   noti            Notifications[]
+  notiBak         NotificationsBackup[]
   log             LogDays[]
   logBak          LogDaysBackup[]
   repair          Repairs[]
@@ -221,6 +222,16 @@ model LogDaysBackup {
   createAt      DateTime @default(now())
   updateAt      DateTime @default(now()) @updatedAt
   device        Devices  @relation(fields: [devSerial], references: [devSerial])
+}
+
+model NotificationsBackup {
+  notiId     String   @id @db.VarChar(100)
+  devSerial  String   @db.VarChar(100)
+  notiDetail String   @db.VarChar(255)
+  notiStatus Boolean  @default(false)
+  createAt   DateTime @default(now())
+  updateAt   DateTime @default(now()) @updatedAt
+  device     Devices  @relation(fields: [devSerial], references: [devSerial])
 }
 
 model ConfigHistory {

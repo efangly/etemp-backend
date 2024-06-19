@@ -4,7 +4,7 @@ import path from "node:path";
 import { v4 as uuidv4 } from 'uuid';
 import { getDeviceImage } from "../utils/image";
 import { Configs, Devices } from "@prisma/client";
-import { getDateFormat } from "../utils/format-date";
+import { getDateFormat, getDistanceTime } from "../utils/format-date";
 import { NotFoundError } from "../error";
 import { ResToken, TDevice } from "../models";
 import { addHistory } from "./history.service";
@@ -24,19 +24,25 @@ const deviceList = async (token?: ResToken): Promise<Devices[]> => {
         noti: {
           where: {
             OR: [
-              { notiDetail: { endsWith: 'OVER' } },
-              { notiDetail: { endsWith: 'LOWER' } },
-            ]
+              { notiDetail: { contains: 'OVER' } },
+              { notiDetail: { contains: 'LOWER' } }
+            ],
+            createAt: { gte: getDistanceTime('day') }
           },
-          orderBy:{ createAt: 'desc' }
+          orderBy: { createAt: 'desc' }
         },
         _count: {
           select: { 
             warranty: true, 
             repair: true,
-            history: true,
+            history: { 
+              where: {
+                createAt: { gte: getDistanceTime('day') },
+              } 
+            },
             noti: { 
               where: {
+                createAt: { gte: getDistanceTime('day') },
                 AND: [
                   { notiDetail: { startsWith: 'PROBE' } },
                   { notiDetail: { endsWith: 'ON' } },

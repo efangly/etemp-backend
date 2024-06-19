@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import { getMessaging, Message } from "firebase-admin/messaging";
 import prisma from "../configs/prisma.config";
 import { Notifications, Prisma } from "@prisma/client";
-import { getDateFormat } from "../utils/format-date";
+import { getDateFormat, getDistanceTime } from "../utils/format-date";
 import { v4 as uuidv4 } from 'uuid';
 import { socket } from "../configs/socket.config";
 import { ResToken } from "../models";
@@ -114,10 +114,35 @@ const setDetailMessage = (msg: string) => {
 
 }
 
+const backupNoti = async (): Promise<string> => {
+  try {
+    const backupList = await prisma.notifications.findMany({
+      where: {
+        createAt: { lt: getDistanceTime('day') }
+      },
+      orderBy: { createAt: 'asc' }
+    });
+    if (backupList.length > 0) {
+      await prisma.notificationsBackup.createMany({
+        data: backupList
+      });
+      await prisma.notifications.deleteMany({
+        where: { createAt: { lt: getDistanceTime('day') } }
+      });
+      return "Backup notification success";
+    } else {
+      return "No notification data for backup";
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
 export {
   notificationList,
   findNotification,
   addNotification,
   editNotification,
-  pushNotification
+  pushNotification,
+  backupNoti
 };
