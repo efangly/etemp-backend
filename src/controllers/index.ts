@@ -8,5 +8,5 @@ export * from './repair.controller';
 export * from './user.controller';
 export * from './ward.controller';
 export * from './warranty.controller';
-
+export * from './firmware.controller';
 

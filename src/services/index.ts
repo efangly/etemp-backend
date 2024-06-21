@@ -8,3 +8,4 @@ export * from "./warranty.service";
 export * from "./notification.service";
 export * from "./log.service";
 export * from "./history.service";
+export * from "./firmware.service";

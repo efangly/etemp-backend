@@ -16,14 +16,13 @@ const storage: StorageEngine = diskStorage({
   filename: (req: Request, file: Express.Multer.File, callback: FileNameCallback): void => {
     let extArr: string[] = file.originalname.split('.');
     let ext: string = extArr[extArr.length-1];
-    callback(null, `img-${uuidv4()}.${ext}`);
+    callback(null, file.mimetype === "application/octet-stream" ? file.originalname : `img-${uuidv4()}.${ext}`);
   }
 });
-
 const upload: Multer = multer({ 
   storage: storage,
   fileFilter: (req: Request, file: Express.Multer.File, callback: FileFilterCallback) => {
-    if(file.mimetype === "image/png" || file.mimetype === "image/jpg" || file.mimetype === "image/jpeg") {
+    if(file.mimetype === "image/png" || file.mimetype === "image/jpg" || file.mimetype === "image/jpeg" || file.mimetype === "application/octet-stream") {
       callback(null, true);
     }else {
       return callback(new Error('Invalid mime type'));
@@ -45,6 +44,9 @@ const selectPath = (path: string): string => {
       break;
     case 'auth':
       pathname = 'public/images/user';
+      break;
+    case 'firmwares':
+      pathname = 'public/firmwares';
       break;
     default:
       pathname = 'public/images';

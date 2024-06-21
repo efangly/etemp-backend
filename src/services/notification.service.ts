@@ -67,9 +67,10 @@ const addNotification = async (body: Notifications): Promise<Notifications> => {
     body.notiId = `NID-${uuidv4()}`;
     body.createAt = getDateFormat(new Date());
     body.updateAt = getDateFormat(new Date());
-    const result = await prisma.notifications.create({ data: body });
-    pushNotification('test', body.notiDetail);
-    socket.emit("send_message", { device: body.devSerial, message: body.notiDetail, time: body.createAt.toString() });
+    const result = await prisma.notifications.create({ data: body, include: { device: true } });
+    const pushMessage = setDetailMessage(body.notiDetail);
+    pushNotification('test', result.device.devDetail!, pushMessage);
+    socket.emit("send_message", { device: result.device.devDetail, message: pushMessage, time: body.createAt.toString() });
     return result;
   } catch (error) {
     throw error;
@@ -88,11 +89,11 @@ const editNotification = async (notiId: string, body: Notifications): Promise<No
   }
 };
 
-const pushNotification = async (topic: string, detail: string) => {
+const pushNotification = async (topic: string, title: string, detail: string) => {
   try {
     const message: Message = {
       notification: {
-        title: "แจ้งเตือน",
+        title: title,
         body: detail,
       },
       android: {
@@ -110,8 +111,64 @@ const pushNotification = async (topic: string, detail: string) => {
   }
 };
 
-const setDetailMessage = (msg: string) => {
+const setDetailMessage = (msg: string): string => {
+  const msgType = msg.split("/");
+  let detailMessage = "";
+  switch (msgType[0]) {
+    case "TEMP":
+      if (msgType[1] === "OVER") {
+        detailMessage = "Temperature is too high";
+      } else if (msgType[1] === "LOWER") {
+        detailMessage = "Temperature is too low";
+      } else {
+        detailMessage = "Temperature returned to normal";
+      }
+      break;
+    case "SD":
+      if (msgType[1] === "ON") {
+        detailMessage = "SDCard connected";
+      } else {
+        detailMessage = "SDCard failed";
+      }
+      break;
+    case "AC":
+      if (msgType[1] === "ON") {
+        detailMessage = "Power on";
+      } else {
+        detailMessage = "Power off";
+      }
+      break;
+    case "PROBE1":
+      detailMessage = `PROBE1: ${setProbe(msgType[1], msgType[2])}`;
+      break;
+    case "PROBE2":
+      detailMessage = `PROBE2: ${setProbe(msgType[1], msgType[2])}`;
+      break;
+    case "PROBE3":
+      detailMessage = `PROBE3: ${setProbe(msgType[1], msgType[2])}`;
+      break;
+    case "PROBE4":
+      detailMessage = `PROBE4: ${setProbe(msgType[1], msgType[2])}`;
+      break;
+    default:
+      detailMessage = msg;
+  }
+  return detailMessage;
+}
 
+const setProbe = (door: string, action: string): string => {
+  let doorMsg = "";
+  switch (door) {
+    case "DOOR1":
+      doorMsg = `DOOR1 is ${action === "ON" ? "opened" : "closed"}`;
+      break;
+    case "DOOR2":
+      doorMsg = `DOOR2 is ${action === "ON" ? "opened" : "closed"}`;
+      break;
+    default:
+      doorMsg = `DOOR3 is ${action === "ON" ? "opened" : "closed"}`;
+  }
+  return doorMsg;
 }
 
 const backupNoti = async (): Promise<string> => {

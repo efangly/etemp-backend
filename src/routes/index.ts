@@ -18,6 +18,7 @@ import log from "../controllers/log.controller";
 import { BaseResponse } from '../models';
 import { historyList } from '../services';
 import { verifyToken } from '../middlewares';
+import firmwareRouter from './firmware';
 
 const file = fs.readFileSync("./swagger.yaml", "utf8");
 const router = Router();
@@ -33,7 +34,7 @@ router.use('/repair', repairRouter);
 router.use('/warranty', warrantyRouter);
 router.use('/notification', notiRouter);
 router.use('/log', logRouter);
-
+router.use('/firmwares', firmwareRouter);
 router.use('/img', express.static('public/images'));
 router.use('/font', express.static('public/fonts'));
 router.use('/firmware', express.static('public/firmwares'));
