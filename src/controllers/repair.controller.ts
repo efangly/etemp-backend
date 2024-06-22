@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { Repairs } from "@prisma/client";
 import { BaseResponse } from "../models";
-import { addRepair, editRepair, findRepair, removeRepair, repairList } from "../services/repair.service";
+import { addRepair, editRepair, findRepair, removeRepair, repairList } from "../services";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { HttpError, ValidationError } from "../error";
 import { ZRepair, ZRepairParam } from "../models";
@@ -101,7 +101,7 @@ const deleteRepair = async (req: Request, res: Response<BaseResponse<Repairs>>, 
   }
 }
 
-export default {
+export {
   getRepair,
   getRepairById,
   createRepair,

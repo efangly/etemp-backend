@@ -1,7 +1,7 @@
-import prisma from "../configs/prisma.config";
+import { prisma } from "../configs";
 import { v4 as uuidv4 } from 'uuid';
 import { LogDays } from "@prisma/client";
-import { getDateFormat, getDistanceTime } from "../utils/format-date";
+import { getDateFormat, getDistanceTime } from "../utils";
 import { TQueryLog } from "../models";
 import { NotFoundError, ValidationError } from "../error";
 import { backupNoti } from "./notification.service";

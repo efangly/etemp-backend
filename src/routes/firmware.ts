@@ -1,7 +1,6 @@
 import { Router } from "express";
-import { verifyToken } from "../middlewares";
+import { verifyToken, upload } from "../middlewares";
 import { createFirmware, deleteFirmware, getFirmwares } from "../controllers";
-import upload from "../middlewares/uplodfile";
 const firmwareRouter: Router = Router();
 
 firmwareRouter.get('/', verifyToken, getFirmwares);

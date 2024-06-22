@@ -19,7 +19,7 @@ const storage: StorageEngine = diskStorage({
     callback(null, file.mimetype === "application/octet-stream" ? file.originalname : `img-${uuidv4()}.${ext}`);
   }
 });
-const upload: Multer = multer({ 
+export const upload: Multer = multer({ 
   storage: storage,
   fileFilter: (req: Request, file: Express.Multer.File, callback: FileFilterCallback) => {
     if(file.mimetype === "image/png" || file.mimetype === "image/jpg" || file.mimetype === "image/jpeg" || file.mimetype === "application/octet-stream") {
@@ -53,5 +53,3 @@ const selectPath = (path: string): string => {
   }
   return pathname;
 }
-
-export default upload;

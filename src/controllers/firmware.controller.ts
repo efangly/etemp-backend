@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { BaseResponse } from "../models";
-import { firmwareList, removeFirmware } from "../services";
+import { firmwareList, addFirmware, removeFirmware } from "../services";
 
-const getFirmwares = (req: Request, res: Response<BaseResponse<string[]>>, next: NextFunction) => {
+const getFirmwares = (req: Request, res: Response<BaseResponse>, next: NextFunction) => {
   try {
     res.status(200).json({
       message: 'Successful',
@@ -14,19 +14,19 @@ const getFirmwares = (req: Request, res: Response<BaseResponse<string[]>>, next:
   }
 }
 
-const createFirmware = async (req: Request, res: Response<BaseResponse<string>>, next: NextFunction) => {
+const createFirmware = (req: Request, res: Response<BaseResponse>, next: NextFunction) => {
   try {
     res.status(201).json({
       message: 'Successful',
       success: true,
-      data: `Create file ${req.file?.originalname} success`
+      data: addFirmware(req.file!)
     });
   } catch (error) {
     next(error);
   }
 };
 
-const deleteFirmware = async (req: Request, res: Response<BaseResponse<string>>, next: NextFunction) => {
+const deleteFirmware = (req: Request, res: Response<BaseResponse<string>>, next: NextFunction) => {
   try {
     res.status(200).json({
       message: 'Successful',

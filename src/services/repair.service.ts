@@ -1,7 +1,7 @@
-import prisma from "../configs/prisma.config";
+import { prisma } from "../configs";
 import { v4 as uuidv4 } from 'uuid';
 import { Repairs } from "@prisma/client";
-import { getDateFormat } from "../utils/format-date";
+import { getDateFormat } from "../utils";
 import { NotFoundError } from "../error";
 import { ResToken } from "../models";
 

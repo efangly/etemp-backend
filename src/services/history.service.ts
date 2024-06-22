@@ -1,6 +1,6 @@
-import prisma from "../configs/prisma.config";
+import { prisma } from "../configs";
 import { ResToken } from "../models";
-import { getDateFormat } from "../utils/format-date";
+import { getDateFormat } from "../utils";
 import { v4 as uuidv4 } from 'uuid';
 
 const historyList = async (token: ResToken) => {

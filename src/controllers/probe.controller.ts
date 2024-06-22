@@ -102,7 +102,7 @@ const deleteProbe = async (req: Request, res: Response<BaseResponse<Probes>>, ne
   }
 }
 
-export default {
+export {
   getProbe,
   getProbeById,
   createProbe,

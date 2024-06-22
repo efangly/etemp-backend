@@ -144,7 +144,7 @@ const updateConfig = async (req: Request, res: Response<BaseResponse<Configs>>, 
   }
 };
 
-export default {
+export {
   getDevice,
   getDeviceByid,
   createDevice,

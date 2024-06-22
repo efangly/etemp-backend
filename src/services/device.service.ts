@@ -1,14 +1,12 @@
-import prisma from "../configs/prisma.config";
+import { prisma } from "../configs";
 import fs from "node:fs"
 import path from "node:path";
 import { v4 as uuidv4 } from 'uuid';
-import { getDeviceImage } from "../utils/image";
+import { getDeviceImage, getDateFormat, getDistanceTime, objToString } from "../utils";
 import { Configs, Devices } from "@prisma/client";
-import { getDateFormat, getDistanceTime } from "../utils/format-date";
 import { NotFoundError } from "../error";
 import { ResToken, TDevice } from "../models";
 import { addHistory } from "./history.service";
-import { objToString } from "../utils/convert";
 
 const deviceList = async (token?: ResToken): Promise<Devices[]> => {
   try {

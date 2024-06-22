@@ -4,7 +4,7 @@ import { BaseResponse, ZConfigParam } from "../models";
 import { addNotification, editNotification, findNotification, notificationList } from "../services";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { HttpError, ValidationError } from "../error";
-import { ZDeviceParam, ZNoti, ZNotiParam } from "../models";
+import { ZNoti, ZNotiParam } from "../models";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 
@@ -82,7 +82,7 @@ const setPushNotification = async (req: Request, res: Response<BaseResponse<Noti
   }
 };
 
-export default {
+export {
   getNotification,
   getNotificationByDevice,
   setToReadNoti,

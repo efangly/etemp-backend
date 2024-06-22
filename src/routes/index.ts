@@ -11,14 +11,14 @@ import warrantyRouter from './warranty';
 import notiRouter from './noti';
 import logRouter from './log';
 import configRouter from './config';
+import firmwareRouter from './firmware';
 import swaggerUi from 'swagger-ui-express';
 import fs from 'node:fs';
 import YAML from 'yaml';
-import log from "../controllers/log.controller";
+import { backupData } from "../controllers";
 import { BaseResponse } from '../models';
 import { historyList } from '../services';
 import { verifyToken } from '../middlewares';
-import firmwareRouter from './firmware';
 
 const file = fs.readFileSync("./swagger.yaml", "utf8");
 const router = Router();
@@ -39,7 +39,7 @@ router.use('/img', express.static('public/images'));
 router.use('/font', express.static('public/fonts'));
 router.use('/firmware', express.static('public/firmwares'));
 router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(YAML.parse(file)));
-router.use('/backup', log.backupData);
+router.use('/backup', backupData);
 router.use('/history', verifyToken, async (req: Request, res: Response<BaseResponse>, next: NextFunction) => {
   try {
     res.status(200).json({ 

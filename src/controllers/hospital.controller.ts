@@ -105,7 +105,7 @@ const deleteHospital = async (req: Request, res: Response<BaseResponse<Hospitals
   }
 }
 
-export default {
+export {
   getHospital,
   getHospitalById,
   createHospital,

@@ -1,4 +1,4 @@
-import prisma from "../configs/prisma.config";
+import { prisma } from "../configs";
 
 const getUserImage = async (id: string): Promise<string | null | undefined> => {
   try{

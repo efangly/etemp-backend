@@ -1,9 +1,9 @@
-import prisma from "../configs/prisma.config";
+import { prisma } from "../configs";
 import bcrypt from "bcrypt";
 import { sign } from "jsonwebtoken";
 import { v4 as uuidv4 } from 'uuid';
 import { Users } from "@prisma/client";
-import { getDateFormat } from "../utils/format-date";
+import { getDateFormat } from "../utils";
 import { ResLogin, TLogin, TRegisUser } from "../models";
 import { HttpError } from "../error";
 

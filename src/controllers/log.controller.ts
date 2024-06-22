@@ -97,7 +97,7 @@ const backupData = async (req: Request, res: Response<BaseResponse<string>>, nex
   }
 }
 
-export default {
+export {
   getLog,
   getLogById,
   createLog,

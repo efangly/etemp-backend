@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { verifyToken } from "../middlewares";
-import log from "../controllers/log.controller";
+import { getLog, getLogById, createLog, deleteLog } from "../controllers";
 const logRouter: Router = Router();
 
-logRouter.get('/', verifyToken, log.getLog);
-logRouter.get('/:logId', verifyToken, log.getLogById);
-logRouter.post('/', log.createLog);
-logRouter.delete('/:logId', verifyToken, log.deleteLog);
+logRouter.get('/', verifyToken, getLog);
+logRouter.get('/:logId', verifyToken, getLogById);
+logRouter.post('/', createLog);
+logRouter.delete('/:logId', verifyToken, deleteLog);
 
 export default logRouter;

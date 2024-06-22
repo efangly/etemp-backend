@@ -102,7 +102,7 @@ const deleteWard = async (req: Request, res: Response<BaseResponse<Wards>>, next
   }
 }
 
-export default {
+export {
   getWard,
   getWardById,
   createWard,

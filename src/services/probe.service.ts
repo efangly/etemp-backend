@@ -1,10 +1,9 @@
 import { Probes } from "@prisma/client";
 import { v4 as uuidv4 } from 'uuid';
-import prisma from "../configs/prisma.config";
-import { getDateFormat } from "../utils/format-date";
+import { prisma } from "../configs";
+import { getDateFormat, objToString } from "../utils";
 import { NotFoundError } from "../error";
 import { ResToken } from "../models";
-import { objToString } from "../utils/convert";
 import { addHistory } from "./history.service";
 
 const probeList = async (token: ResToken): Promise<Probes[]> => {

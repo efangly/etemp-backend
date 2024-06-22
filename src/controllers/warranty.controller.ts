@@ -101,7 +101,7 @@ const deleteWarranty = async (req: Request, res: Response<BaseResponse<Warrantie
   }
 }
 
-export default {
+export {
   getWarranty,
   getWarrantyById,
   createWarranty,

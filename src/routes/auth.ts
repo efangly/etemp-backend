@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { register, checkLogin, changePassword } from "../controllers";
-import upload from "../middlewares/uplodfile";
+import { upload } from "../middlewares";
 const authRouter = Router();
 
 authRouter.post('/login', checkLogin);

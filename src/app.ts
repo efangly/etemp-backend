@@ -2,12 +2,10 @@ import express,{ Application } from "express";
 import morgan from "morgan";
 import cors from "cors";
 import dotenv from "dotenv";
-import prisma from "./configs/prisma.config";
+import { prisma, connectFireBase, socket } from "./configs";
 import routes from "./routes";
 // import { initRedis } from "./configs/redis.config";
-import connectFireBase from "./configs/firebase.config";
 import { globalErrorHanlder } from "./middlewares";
-import { socket } from "./configs/socket.config";
 
 const app: Application = express();
 

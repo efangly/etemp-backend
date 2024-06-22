@@ -1,11 +1,11 @@
 import { Router } from "express";
-import noti from "../controllers/notification.controller"; 
+import { getNotification, getNotificationByDevice, setToReadNoti, setPushNotification } from "../controllers"; 
 import { verifyToken } from "../middlewares";
 const notiRouter: Router = Router();
 
-notiRouter.get('/', verifyToken, noti.getNotification);
-notiRouter.get('/:devSerial', verifyToken, noti.getNotificationByDevice);
-notiRouter.patch('/:notiId', verifyToken, noti.setToReadNoti);
-notiRouter.post('/', noti.setPushNotification);
+notiRouter.get('/', verifyToken, getNotification);
+notiRouter.get('/:devSerial', verifyToken, getNotificationByDevice);
+notiRouter.patch('/:notiId', verifyToken, setToReadNoti);
+notiRouter.post('/', setPushNotification);
 
 export default notiRouter;

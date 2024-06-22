@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { verifyToken } from "../middlewares";
-import device from "../controllers/device.controller";
+import { getConfig, updateConfig } from "../controllers";
 const configRouter = Router();
 
-configRouter.get('/:devSerial', device.getConfig);
-configRouter.put('/:devSerial', verifyToken, device.updateConfig);
+configRouter.get('/:devSerial', getConfig);
+configRouter.put('/:devSerial', verifyToken, updateConfig);
 
 export default configRouter;

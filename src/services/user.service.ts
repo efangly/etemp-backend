@@ -1,9 +1,8 @@
-import prisma from "../configs/prisma.config";
+import { prisma } from "../configs";
 import { Users } from "@prisma/client";
-import { getUserImage } from "../utils/image";
+import { getUserImage, getDateFormat } from "../utils";
 import fs from "node:fs";
 import path from "node:path";
-import { getDateFormat } from "../utils/format-date";
 import { NotFoundError } from "../error";
 import { ResToken } from "../models";
 

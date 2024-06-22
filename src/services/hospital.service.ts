@@ -1,10 +1,9 @@
-import prisma from "../configs/prisma.config";
+import { prisma } from "../configs";
 import fs from "node:fs"
 import path from "node:path";
 import { v4 as uuidv4 } from 'uuid';
-import { getHospitalImage } from "../utils/image";
+import { getHospitalImage, getDateFormat } from "../utils";
 import { Hospitals } from "@prisma/client";
-import { getDateFormat } from "../utils/format-date";
 import { HttpError, NotFoundError } from "../error";
 import { ResToken } from "../models";
 

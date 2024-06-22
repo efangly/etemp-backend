@@ -1,13 +1,12 @@
 import { Router } from "express";
-import { verifyToken } from "../middlewares";
-import device from "../controllers/device.controller";
-import upload from "../middlewares/uplodfile";
+import { verifyToken, upload } from "../middlewares";
+import { getDevice, getDeviceByid, createDevice, updateDevice, deleteDevice } from "../controllers";
 const deviceRouter: Router = Router();
 
-deviceRouter.get('/', verifyToken, device.getDevice);
-deviceRouter.get('/:devId', verifyToken, device.getDeviceByid);
-deviceRouter.post('/', verifyToken, upload.single('fileupload'), device.createDevice);
-deviceRouter.put('/:devId', verifyToken, upload.single('fileupload'), device.updateDevice);
-deviceRouter.delete('/:devId', verifyToken, device.deleteDevice);
+deviceRouter.get('/', verifyToken, getDevice);
+deviceRouter.get('/:devId', verifyToken, getDeviceByid);
+deviceRouter.post('/', verifyToken, upload.single('fileupload'), createDevice);
+deviceRouter.put('/:devId', verifyToken, upload.single('fileupload'), updateDevice);
+deviceRouter.delete('/:devId', verifyToken, deleteDevice);
 
 export default deviceRouter; 

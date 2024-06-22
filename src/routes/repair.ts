@@ -1,13 +1,13 @@
 import { Router } from "express";
-import repair from "../controllers/repair.controller";
+import { getRepair, getRepairById, createRepair, updateRepair, deleteRepair } from "../controllers";
 import { verifyToken } from "../middlewares/auth";
 const repairRouter: Router = Router();
 
 //user 
-repairRouter.get('/', verifyToken, repair.getRepair);
-repairRouter.get('/:repairId', verifyToken, repair.getRepairById);
-repairRouter.post('/', verifyToken, repair.createRepair);
-repairRouter.put('/:repairId', verifyToken, repair.updateRepair);
-repairRouter.delete('/:repairId', verifyToken, repair.deleteRepair);
+repairRouter.get('/', verifyToken, getRepair);
+repairRouter.get('/:repairId', verifyToken, getRepairById);
+repairRouter.post('/', verifyToken, createRepair);
+repairRouter.put('/:repairId', verifyToken, updateRepair);
+repairRouter.delete('/:repairId', verifyToken, deleteRepair);
 
 export default repairRouter;

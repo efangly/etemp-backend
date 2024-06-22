@@ -1,10 +1,9 @@
 import dotenv from "dotenv";
 import { getMessaging, Message } from "firebase-admin/messaging";
-import prisma from "../configs/prisma.config";
+import { prisma, socket } from "../configs";
 import { Notifications, Prisma } from "@prisma/client";
-import { getDateFormat, getDistanceTime } from "../utils/format-date";
+import { getDateFormat, getDistanceTime } from "../utils";
 import { v4 as uuidv4 } from 'uuid';
-import { socket } from "../configs/socket.config";
 import { ResToken } from "../models";
 dotenv.config();
 
@@ -61,6 +60,34 @@ const findNotification = async (devSerial: string): Promise<Notifications[]> => 
     throw error;
   }
 };
+
+const findHistoryNotification = async (devSerial: string, startDate: string, endDate: string) => {
+  const [ noti, notiBackup ] = await prisma.$transaction([
+    prisma.notifications.findMany({
+      where: {
+        devSerial: devSerial,
+        createAt: {
+          gte: getDateFormat(startDate),
+          lte: getDateFormat(endDate)
+        }
+      },
+      include: { device: true },
+      orderBy: { createAt: 'asc' }
+    }),
+    prisma.notificationsBackup.findMany({
+      where: {
+        devSerial: devSerial,
+        createAt: {
+          gte: getDateFormat(startDate),
+          lte: getDateFormat(endDate)
+        }
+      },
+      include: { device: true },
+      orderBy: { createAt: 'asc' }
+    })
+  ]);
+  return notiBackup.concat(noti);
+}
 
 const addNotification = async (body: Notifications): Promise<Notifications> => {
   try {
@@ -201,5 +228,6 @@ export {
   addNotification,
   editNotification,
   pushNotification,
-  backupNoti
+  backupNoti,
+  findHistoryNotification
 };

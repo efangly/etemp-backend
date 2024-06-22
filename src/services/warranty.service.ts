@@ -1,7 +1,7 @@
 import { Warranties } from "@prisma/client";
 import { v4 as uuidv4 } from 'uuid';
-import prisma from "../configs/prisma.config";
-import { getDateFormat } from "../utils/format-date";
+import { prisma } from "../configs";
+import { getDateFormat } from "../utils";
 import { NotFoundError } from "../error";
 import { format, toDate } from "date-fns";
 import { ResToken } from "../models";
