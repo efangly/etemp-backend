@@ -4,14 +4,14 @@ import { LogDays } from "@prisma/client";
 import { getDateFormat, getDistanceTime } from "../utils";
 import { TQueryLog } from "../models";
 import { NotFoundError, ValidationError } from "../error";
-import { backupNoti } from "./notification.service";
+import { backupNoti, findHistoryNotification } from "./notification.service";
 
-const logList = async (query: TQueryLog): Promise<LogDays[]> => {
+const logList = async (query: TQueryLog) => {
   try {
     if (query.devSerial && query.filter) {
       switch (query.filter) {
         case "day":
-          return await prisma.logDays.findMany({
+          const result = await prisma.logDays.findMany({
             where: {
               devSerial: query.devSerial,
               sendTime: { gte: getDistanceTime('day') }
@@ -19,6 +19,8 @@ const logList = async (query: TQueryLog): Promise<LogDays[]> => {
             include: { device: true },
             orderBy: { sendTime: 'asc' }
           });
+          const dayAction = await findHistoryNotification(query.devSerial, getDistanceTime('day'), getDateFormat(new Date()));
+          return { log: result, action: dayAction };
         case "week":
           const [week, weekBackup] = await prisma.$transaction([
             prisma.logDays.findMany({
@@ -38,7 +40,8 @@ const logList = async (query: TQueryLog): Promise<LogDays[]> => {
               orderBy: { sendTime: 'asc' }
             })
           ]);
-          return weekBackup.concat(week);
+          const weekAction = await findHistoryNotification(query.devSerial, getDistanceTime('week'), getDateFormat(new Date()));
+          return { log: weekBackup.concat(week), action: weekAction };
         case "month":
           const [month, monthBackup] = await prisma.$transaction([
             prisma.logDays.findMany({
@@ -58,15 +61,18 @@ const logList = async (query: TQueryLog): Promise<LogDays[]> => {
               orderBy: { sendTime: 'asc' }
             })
           ]);
-          return monthBackup.concat(month);
+          const monthAction = await findHistoryNotification(query.devSerial, getDistanceTime('month'), getDateFormat(new Date()));
+          return { log: monthBackup.concat(month), action: monthAction };
         default:
+          const startDate = getDateFormat(new Date(query.filter.split(",")[0]));
+          const endDate = getDateFormat(new Date(query.filter.split(",")[1]));
           const [logday, logdayBackup] = await prisma.$transaction([
             prisma.logDays.findMany({
               where: {
                 devSerial: query.devSerial,
                 sendTime: {
-                  gte: getDateFormat(new Date(query.filter.split(",")[0])),
-                  lte: getDateFormat(new Date(query.filter.split(",")[1])),
+                  gte: startDate,
+                  lte: endDate,
                 }
               },
               include: { device: true },
@@ -76,15 +82,16 @@ const logList = async (query: TQueryLog): Promise<LogDays[]> => {
               where: {
                 devSerial: query.devSerial,
                 sendTime: {
-                  gte: getDateFormat(new Date(query.filter.split(",")[0])),
-                  lte: getDateFormat(new Date(query.filter.split(",")[1])),
+                  gte: startDate,
+                  lte: endDate,
                 }
               },
               include: { device: true },
               orderBy: { sendTime: 'asc' }
             })
           ]);
-          return logdayBackup.concat(logday);
+          const filterAction = await findHistoryNotification(query.devSerial, startDate, endDate);
+          return { log: logdayBackup.concat(logday), action: filterAction };
       }
     } else {
       return await prisma.logDays.findMany({

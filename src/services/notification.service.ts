@@ -61,28 +61,34 @@ const findNotification = async (devSerial: string): Promise<Notifications[]> => 
   }
 };
 
-const findHistoryNotification = async (devSerial: string, startDate: string, endDate: string) => {
+const findHistoryNotification = async (devSerial: string, startDate: Date, endDate: Date) => {
   const [ noti, notiBackup ] = await prisma.$transaction([
     prisma.notifications.findMany({
       where: {
         devSerial: devSerial,
+        AND: [
+          { notiDetail: { startsWith: 'PROBE' } },
+          { notiDetail: { endsWith: 'ON' } },
+        ],
         createAt: {
-          gte: getDateFormat(startDate),
-          lte: getDateFormat(endDate)
+          gte: startDate,
+          lte: endDate
         }
       },
-      include: { device: true },
       orderBy: { createAt: 'asc' }
     }),
     prisma.notificationsBackup.findMany({
       where: {
         devSerial: devSerial,
+        AND: [
+          { notiDetail: { startsWith: 'PROBE' } },
+          { notiDetail: { endsWith: 'ON' } },
+        ],
         createAt: {
-          gte: getDateFormat(startDate),
-          lte: getDateFormat(endDate)
+          gte: startDate,
+          lte: endDate
         }
       },
-      include: { device: true },
       orderBy: { createAt: 'asc' }
     })
   ]);

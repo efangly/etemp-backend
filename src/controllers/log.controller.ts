@@ -8,7 +8,7 @@ import { fromZodError } from "zod-validation-error";
 import { HttpError, ValidationError } from "../error";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
-const getLog = async (req: Request, res: Response<BaseResponse<LogDays[]>>, next: NextFunction) => {
+const getLog = async (req: Request, res: Response<BaseResponse>, next: NextFunction) => {
   try {
     const query = ZQueryLog.parse(req.query);
     res.status(200).json({
