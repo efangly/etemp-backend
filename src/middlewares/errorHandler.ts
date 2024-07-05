@@ -2,18 +2,26 @@ import { Request, Response, NextFunction } from 'express';
 import { BaseResponse } from "../models";
 import { HttpError } from '../error';
 import { createLog } from '../utils';
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { fromZodError } from "zod-validation-error";
+import { z } from "zod";
 
-export const globalErrorHanlder = (error: unknown, req: Request, res: Response<BaseResponse>, next: NextFunction) => {
+export const globalErrorHanlder = (error: unknown, req: Request, res: Response<BaseResponse<null>>, next: NextFunction) => {
   let statusCode = 500;
   let message = '';
-  console.log(`${req.method} ${req.originalUrl}`);
-  if(error instanceof HttpError) {
+  if (error instanceof HttpError) {
     statusCode = error.statusCode;
   }
-
-  if(error instanceof Error) {
-    console.error(`${error.name}: ${error.message}`);
-    message = error.message;
+  if (error instanceof Error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      message = `PrismaError: ${error.code} [${error.meta?.modelName}: ${error.meta?.cause}]`;
+    } else if (error instanceof z.ZodError) {
+      statusCode = 400;
+      message = fromZodError(error).toString();
+    } else {
+      message = error.message;
+    }
+    console.error(`${error.name}: ${error.message}`); 
   } else {
     console.error('An unknown error occurred');
     message = `An unknown error occurred, ${String(error)}`;

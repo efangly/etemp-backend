@@ -158,50 +158,15 @@ const setDetailMessage = (msg: string): string => {
       }
       break;
     case "SD":
-      if (msgType[1] === "ON") {
-        detailMessage = "SDCard connected";
-      } else {
-        detailMessage = "SDCard failed";
-      }
+      detailMessage = msgType[1] === "ON" ? "SDCard connected" : "SDCard failed";
       break;
     case "AC":
-      if (msgType[1] === "ON") {
-        detailMessage = "Power on";
-      } else {
-        detailMessage = "Power off";
-      }
-      break;
-    case "PROBE1":
-      detailMessage = `PROBE1: ${setProbe(msgType[1], msgType[2])}`;
-      break;
-    case "PROBE2":
-      detailMessage = `PROBE2: ${setProbe(msgType[1], msgType[2])}`;
-      break;
-    case "PROBE3":
-      detailMessage = `PROBE3: ${setProbe(msgType[1], msgType[2])}`;
-      break;
-    case "PROBE4":
-      detailMessage = `PROBE4: ${setProbe(msgType[1], msgType[2])}`;
+      detailMessage = msgType[1] === "ON" ? "Power on" : "Power off";
       break;
     default:
-      detailMessage = msg;
+      detailMessage = `${msgType[0]}: ${msgType[1]} is ${msgType[2] === "ON" ? "opened" : "closed"}`;
   }
   return detailMessage;
-}
-
-const setProbe = (door: string, action: string): string => {
-  let doorMsg = "";
-  switch (door) {
-    case "DOOR1":
-      doorMsg = `DOOR1 is ${action === "ON" ? "opened" : "closed"}`;
-      break;
-    case "DOOR2":
-      doorMsg = `DOOR2 is ${action === "ON" ? "opened" : "closed"}`;
-      break;
-    default:
-      doorMsg = `DOOR3 is ${action === "ON" ? "opened" : "closed"}`;
-  }
-  return doorMsg;
 }
 
 const backupNoti = async (): Promise<string> => {

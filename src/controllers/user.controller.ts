@@ -2,11 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { Users } from "@prisma/client";
 import fs from "node:fs";
 import path from "node:path";
-import { HttpError, ValidationError } from "../error";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { BaseResponse } from "../models";
-import { z } from "zod";
-import { fromZodError } from "zod-validation-error";
 import { delUser, editUser, getAllUser, getUserByUserId } from "../services";
 import { ZUserBody, ZUserParam } from "../models";
 
@@ -18,11 +14,7 @@ const getUser = async (req: Request, res: Response<BaseResponse<Users[]>>, next:
       data: await getAllUser(res.locals.token)
     });
   } catch (error) {
-    if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 }
 
@@ -35,13 +27,7 @@ const getUserById = async (req: Request, res: Response<BaseResponse<Users | null
       data: await getUserByUserId(params.userId)
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 }
 
@@ -56,13 +42,7 @@ const updateUser = async (req: Request, res: Response<BaseResponse<Users>>, next
     });
   } catch (error) {
     if (req.file) fs.unlinkSync(path.join('public/images/user', String(req.file.filename)));
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 }
 const deleteUser = async (req: Request, res: Response<BaseResponse<Users>>, next: NextFunction) => {
@@ -74,13 +54,7 @@ const deleteUser = async (req: Request, res: Response<BaseResponse<Users>>, next
       data: await delUser(params.userId)
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 }
 

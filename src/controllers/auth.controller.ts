@@ -1,14 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { BaseResponse } from "../models";
-import { z } from "zod";
-import {  fromZodError } from "zod-validation-error";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { regisUser, resetPassword, userLogin } from "../services";
 import { ResLogin, ZLogin, ZRegisUser, ZResetPass, ZUserParam } from "../models";
 import { Users } from "@prisma/client";
 import fs from "node:fs";
 import path from "node:path";
-import { HttpError, ValidationError } from "../error";
 
 const register = async (req: Request, res: Response<BaseResponse<Users>>, next: NextFunction) => {
   try {
@@ -21,13 +17,7 @@ const register = async (req: Request, res: Response<BaseResponse<Users>>, next: 
     });
   } catch (error) {
     if (req.file) fs.unlinkSync(path.join('public/images/user', String(req.file.filename)));
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 };
 
@@ -40,13 +30,7 @@ const checkLogin = async (req: Request, res: Response<BaseResponse<ResLogin>>, n
       data: await userLogin(login)
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 };
 
@@ -60,13 +44,7 @@ const changePassword = async (req: Request, res: Response<BaseResponse<string>>,
       data: await resetPassword(body.password, params.userId)
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 };
 

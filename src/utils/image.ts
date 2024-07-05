@@ -1,41 +1,41 @@
 import { prisma } from "../configs";
 
 const getUserImage = async (id: string): Promise<string | null | undefined> => {
-  try{
+  try {
     const image = await prisma.users.findUnique({
-      where: { 
-        userId: id 
+      where: {
+        userId: id
       }
     });
     return image?.userPic;
-  }catch(err){
-    throw new Error(`ERROR: ${err}`);
+  } catch (error) {
+    throw error;
   }
 }
 
 const getHospitalImage = async (id: string): Promise<string | null | undefined> => {
-  try{
+  try {
     const image = await prisma.hospitals.findUnique({
-      where: { 
-        hosId: id 
+      where: {
+        hosId: id
       }
     });
     return image?.hosPic;
-  }catch(err){
-    throw new Error(`ERROR: ${err}`);
+  } catch (error) {
+    throw error;
   }
 }
 
 const getDeviceImage = async (id: string): Promise<string | null | undefined> => {
-  try{
+  try {
     const image = await prisma.devices.findUnique({
-      where: { 
-        devId: id 
+      where: {
+        devId: id
       }
     });
     return image?.locPic;
-  }catch(err){
-    throw new Error(`ERROR: ${err}`);
+  } catch (error) {
+    throw error;
   }
 }
 

@@ -4,9 +4,10 @@ import { LogDays } from "@prisma/client";
 import { getDateFormat, getDistanceTime } from "../utils";
 import { TQueryLog } from "../models";
 import { NotFoundError, ValidationError } from "../error";
-import { backupNoti, findHistoryNotification } from "./notification.service";
+import { backupNoti } from "./notification.service";
+import { format } from "date-fns";
 
-const logList = async (query: TQueryLog) => {
+const logList = async (query: TQueryLog): Promise<LogDays[]> => {
   try {
     if (query.devSerial && query.filter) {
       switch (query.filter) {
@@ -19,8 +20,7 @@ const logList = async (query: TQueryLog) => {
             include: { device: true },
             orderBy: { sendTime: 'asc' }
           });
-          const dayAction = await findHistoryNotification(query.devSerial, getDistanceTime('day'), getDateFormat(new Date()));
-          return { log: result, action: dayAction };
+          return result;
         case "week":
           const [week, weekBackup] = await prisma.$transaction([
             prisma.logDays.findMany({
@@ -40,8 +40,7 @@ const logList = async (query: TQueryLog) => {
               orderBy: { sendTime: 'asc' }
             })
           ]);
-          const weekAction = await findHistoryNotification(query.devSerial, getDistanceTime('week'), getDateFormat(new Date()));
-          return { log: weekBackup.concat(week), action: weekAction };
+          return query.type ? weekBackup.concat(week) : splitLog(weekBackup.concat(week), 2);
         case "month":
           const [month, monthBackup] = await prisma.$transaction([
             prisma.logDays.findMany({
@@ -61,11 +60,11 @@ const logList = async (query: TQueryLog) => {
               orderBy: { sendTime: 'asc' }
             })
           ]);
-          const monthAction = await findHistoryNotification(query.devSerial, getDistanceTime('month'), getDateFormat(new Date()));
-          return { log: monthBackup.concat(month), action: monthAction };
+          return query.type ? monthBackup.concat(month) : splitLog(monthBackup.concat(month), 4);
         default:
           const startDate = getDateFormat(new Date(query.filter.split(",")[0]));
           const endDate = getDateFormat(new Date(query.filter.split(",")[1]));
+          let diffDays = Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24));
           const [logday, logdayBackup] = await prisma.$transaction([
             prisma.logDays.findMany({
               where: {
@@ -90,8 +89,9 @@ const logList = async (query: TQueryLog) => {
               orderBy: { sendTime: 'asc' }
             })
           ]);
-          const filterAction = await findHistoryNotification(query.devSerial, startDate, endDate);
-          return { log: logdayBackup.concat(logday), action: filterAction };
+          const splitTime = diffDays <= 7 ? 2 : diffDays > 7 && diffDays <= 20 ? 3 : 4;
+          const value = diffDays == 1 ? logdayBackup.concat(logday) : splitLog(logdayBackup.concat(logday), splitTime);
+          return query.type ? logdayBackup.concat(logday) : value;
       }
     } else {
       return await prisma.logDays.findMany({
@@ -122,7 +122,9 @@ const addLog = async (body: LogDays | LogDays[]) => {
     if (Array.isArray(body)) {
       let logArr: LogDays[] = [];
       body.forEach((log) => {
-        if (log.tempValue !== 0 && log.humidityValue !== 0) {
+        const sendTimeYear = format(log.sendTime, "yyyy");
+        const currentYear = format(new Date(), "yyyy");
+        if (log.tempValue !== 0 && log.humidityValue !== 0 && sendTimeYear === currentYear) {
           logArr.push({
             logId: `LOG-${uuidv4()}`,
             devSerial: log.devSerial,
@@ -145,16 +147,22 @@ const addLog = async (body: LogDays | LogDays[]) => {
           });
         }
       });
-      return await prisma.logDays.createMany({ data: logArr });
+      return logArr.length > 0 ? await prisma.logDays.createMany({ data: logArr }) : [];
     } else {
-      if (body.tempValue !== 0 && body.humidityValue !== 0) {
+      const sendTimeYear = format(body.sendTime, "yyyy");
+      const currentYear = format(new Date(), "yyyy");
+      if (body.tempValue !== 0 && body.humidityValue !== 0 && sendTimeYear === currentYear) {
         body.logId = `LOG-${uuidv4()}`;
-        body.sendTime = getDateFormat(body.sendTime || new Date());
+        body.sendTime = getDateFormat(body.sendTime);
         body.createAt = getDateFormat(new Date());
         body.updateAt = getDateFormat(new Date());
         return await prisma.logDays.create({ data: body });
       } else {
-        throw new ValidationError("Invalid value!!");
+        if (sendTimeYear === currentYear) {
+          throw new ValidationError("Invalid log value!!");
+        } else {
+          throw new ValidationError(`Invalid date: Expected years ${currentYear}, received ${sendTimeYear}`);
+        }
       }
     }
   } catch (error) {
@@ -170,6 +178,14 @@ const removeLog = async (logId: string) => {
   } catch (error) {
     throw error;
   }
+}
+
+const splitLog = (log: LogDays[], time: number = 1) => {
+  let result: LogDays[] = log;
+  for (let i = 0; i < time; i++) {
+    result = result.filter((_item, index) => index % 2 === 0);
+  }
+  return result;
 }
 
 const backupLog = async (): Promise<string> => {

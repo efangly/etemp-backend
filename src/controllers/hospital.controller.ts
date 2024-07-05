@@ -3,11 +3,7 @@ import path from "node:path";
 import { NextFunction, Request, Response } from "express";
 import { Hospitals } from "@prisma/client";
 import { BaseResponse } from "../models";
-import { HttpError, ValidationError } from "../error";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { addHospital, editHospital, findHospital, hospitalList, removeHospital } from "../services";
-import { fromZodError } from "zod-validation-error";
-import { z } from "zod";
 import { ZHospital, ZHospitalParam } from "../models";
 
 const getHospital = async (req: Request, res: Response<BaseResponse<Hospitals[]>>, next: NextFunction) => {
@@ -18,11 +14,7 @@ const getHospital = async (req: Request, res: Response<BaseResponse<Hospitals[]>
       data: await hospitalList(res.locals.token)
     });
   } catch (error) {
-    if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 }
 
@@ -35,13 +27,7 @@ const getHospitalById = async (req: Request, res: Response<BaseResponse<Hospital
       data: await findHospital(params.hosId, res.locals.token)
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 }
 
@@ -55,13 +41,7 @@ const createHospital = async (req: Request, res: Response<BaseResponse<Hospitals
     });
   } catch (error) {
     if (req.file) fs.unlinkSync(path.join('public/images/hospital', req.file.filename));
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 };
 
@@ -76,13 +56,7 @@ const updateHospital = async (req: Request, res: Response<BaseResponse<Hospitals
     });
   } catch (error) {
     if (req.file) fs.unlinkSync(path.join('public/images/hospital', req.file.filename));
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 }
 
@@ -95,13 +69,7 @@ const deleteHospital = async (req: Request, res: Response<BaseResponse<Hospitals
       data: await removeHospital(params.hosId)
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 }
 

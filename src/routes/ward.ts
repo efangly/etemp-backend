@@ -1,13 +1,13 @@
 import { Router } from "express";
-import { verifyToken } from "../middlewares/auth";
+import { isAdmin, verifyToken } from "../middlewares/auth";
 import { getWard, getWardById, createWard, updateWard, deleteWard } from "../controllers";
 
 const wardRouter: Router = Router();
 
 wardRouter.get('/', verifyToken, getWard);
 wardRouter.get('/:wardId', verifyToken, getWardById);
-wardRouter.post('/', verifyToken, createWard);
-wardRouter.put('/:wardId', verifyToken, updateWard);
-wardRouter.delete('/:wardId', verifyToken, deleteWard);
+wardRouter.post('/', verifyToken, isAdmin, createWard);
+wardRouter.put('/:wardId', verifyToken, isAdmin, updateWard);
+wardRouter.delete('/:wardId', verifyToken, isAdmin, deleteWard);
 
 export default wardRouter; 

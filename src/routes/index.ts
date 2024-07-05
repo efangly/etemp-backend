@@ -51,7 +51,7 @@ router.use('/history', verifyToken, async (req: Request, res: Response<BaseRespo
     next(error);
   }
 });
-router.use('/', (req: Request, res: Response<BaseResponse>) => {
+router.use('/', (req: Request, res: Response<BaseResponse<null>>) => {
   res.status(404).json({ 
     message: 'Not Found',
     success: false, 

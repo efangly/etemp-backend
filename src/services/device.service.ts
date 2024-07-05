@@ -31,7 +31,9 @@ const deviceList = async (token?: ResToken): Promise<Devices[]> => {
         },
         _count: {
           select: { 
-            warranty: true, 
+            warranty: {
+              where: { warrStatus: true }
+            }, 
             repair: true,
             history: { 
               where: {
@@ -145,6 +147,28 @@ const removeDevice = async (deviceId: string): Promise<Devices> => {
   }
 };
 
+const editSequence = async (beforeId: string, beforeSeq: number, afterId: string, afterSeq: number) => {
+  try {
+    await prisma.$transaction([
+      prisma.devices.update({
+        where: { devId: afterId },
+        data: { devSeq: Math.floor(Math.random() * (32000 - 31000)) + 31000 }
+      }),
+      prisma.devices.update({
+        where: { devId: beforeId },
+        data: { devSeq: afterSeq }
+      }),
+      prisma.devices.update({
+        where: { devId: afterId },
+        data: { devSeq: beforeSeq }
+      }),
+    ]);
+    return true;
+  } catch (error) {
+    throw error;
+  }
+}
+
 const findConfig = async (deviceId: string): Promise<Devices | null> => {
   try {
     const result = await prisma.devices.findUnique({
@@ -183,5 +207,6 @@ export {
   editDevice,
   removeDevice,
   findConfig,
-  editConfig
+  editConfig,
+  editSequence
 };

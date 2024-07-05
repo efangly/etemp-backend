@@ -44,6 +44,7 @@ const userLogin = async (login: TLogin): Promise<ResLogin> => {
       include: { ward: { include: { hospital: true } } }
     });
     if (result) {
+      if (!!result.userStatus) throw new HttpError(400, "User is disabled!!");
       const match = await bcrypt.compare(login.password, result.userPassword);
       if (match) {
         const userId: string = result.userId;

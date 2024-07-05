@@ -1,13 +1,13 @@
 import { Router } from "express";
-import { verifyToken, upload } from "../middlewares";
+import { verifyToken, upload, isSuperAdmin } from "../middlewares";
 import { getHospital, getHospitalById, createHospital, updateHospital, deleteHospital } from "../controllers";
 
 const hospitalRouter: Router = Router();
 
-hospitalRouter.get('/', verifyToken, getHospital);
-hospitalRouter.get('/:hosId', verifyToken, getHospitalById);
-hospitalRouter.post('/', verifyToken, upload.single('fileupload'), createHospital);
-hospitalRouter.put('/:hosId', verifyToken, upload.single('fileupload'), updateHospital);
-hospitalRouter.delete('/:hosId', verifyToken, deleteHospital);
+hospitalRouter.get('/', verifyToken, isSuperAdmin, getHospital);
+hospitalRouter.get('/:hosId', verifyToken, isSuperAdmin, getHospitalById);
+hospitalRouter.post('/', verifyToken, isSuperAdmin, upload.single('fileupload'), createHospital);
+hospitalRouter.put('/:hosId', verifyToken, isSuperAdmin, upload.single('fileupload'), updateHospital);
+hospitalRouter.delete('/:hosId', verifyToken, isSuperAdmin, deleteHospital);
 
 export default hospitalRouter;

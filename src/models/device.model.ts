@@ -2,6 +2,8 @@ import { z } from "zod";
 
 export const ZDeviceParam = z.object({ devId: z.string() });
 export const ZConfigParam = z.object({ devSerial: z.string() });
+export const ZChangeSeqParam = z.object({ devId: z.string(), afterDevId: z.string() });
+export const ZChangeSeqBody = z.object({ devSeq: z.number(), afterDevSeq: z.number() });
 export type TDevice = z.infer<typeof ZDevice>;
 
 export const ZConfig = z.object({

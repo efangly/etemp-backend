@@ -9,7 +9,7 @@ import { ResToken } from "../models";
 
 const hospitalList = async (token: ResToken): Promise<Hospitals[]> => {
   try {
-    if (token?.userLevel === "4") throw new HttpError(400, "Unable to receive information.");
+    if (token?.userLevel === "4") throw new HttpError(403, "Unable to receive information.");
     const result = await prisma.hospitals.findMany({ 
       where: token?.userLevel === "3" ? { hosId: token?.hosId } : {},
       include: { ward: true } 

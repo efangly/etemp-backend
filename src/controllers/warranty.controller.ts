@@ -1,10 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { Warranties } from "@prisma/client";
 import { BaseResponse } from "../models";
-import { HttpError, ValidationError } from "../error";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { fromZodError } from "zod-validation-error";
-import { z } from "zod";
 import { addWarranty, editWarranty, findWarranty, removeWarranty, warrantyList } from "../services";
 import { ZWarranty, ZWarrantyParam } from "../models";
 
@@ -16,11 +12,7 @@ const getWarranty = async (req: Request, res: Response<BaseResponse<Warranties[]
       data: await warrantyList(res.locals.token)
     });
   } catch (error) {
-    if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 }
 
@@ -33,13 +25,7 @@ const getWarrantyById = async (req: Request, res: Response<BaseResponse<Warranti
       data: await findWarranty(params.warrId)
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 }
 
@@ -52,13 +38,7 @@ const createWarranty = async (req: Request, res: Response<BaseResponse<Warrantie
       data: await addWarranty(body as unknown as Warranties)
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 }
 
@@ -72,13 +52,7 @@ const updateWarranty = async (req: Request, res: Response<BaseResponse<Warrantie
       data: await editWarranty(params.warrId, body as unknown as Warranties)
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 }
  
@@ -91,13 +65,7 @@ const deleteWarranty = async (req: Request, res: Response<BaseResponse<Warrantie
       data: await removeWarranty(params.warrId)
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 }
 

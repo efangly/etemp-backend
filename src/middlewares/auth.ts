@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { JsonWebTokenError, verify } from "jsonwebtoken";
 import { HttpError } from "../error";
 
-const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   try {
     if (req.headers.authorization) {
       const token: string = req.headers.authorization.split(" ")[1];
@@ -21,6 +21,18 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
-export {
-  verifyToken
-};
+export const isSuperAdmin = (req: Request, res: Response, next: NextFunction) => {
+  if (res.locals.token.userLevel === "0") {
+    next();
+  } else {
+    next(new HttpError(403, "Access denied"));
+  }
+}
+
+export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
+  if (res.locals.token.userLevel === "3" || res.locals.token.userLevel === "4") {
+    next(new HttpError(403, "Access denied"));
+  } else {
+    next();
+  }
+}

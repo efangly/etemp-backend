@@ -2,13 +2,9 @@ import { NextFunction, Request, Response } from "express";
 import fs from "node:fs"
 import path from "node:path";
 import { Configs, Devices } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { addDevice, deviceById, deviceList, editConfig, editDevice, findConfig, removeDevice } from "../services";
-import { HttpError, ValidationError } from "../error";
-import { BaseResponse } from "../models";
+import { addDevice, deviceById, deviceList, editConfig, editDevice, editSequence, findConfig, removeDevice } from "../services";
+import { BaseResponse, ZChangeSeqBody, ZChangeSeqParam } from "../models";
 import { TDevice, ZConfig, ZConfigParam, ZDevice, ZDeviceParam } from "../models";
-import { fromZodError } from "zod-validation-error";
-import { z } from "zod";
 
 const getDevice = async (req: Request, res: Response<BaseResponse<Devices[]>>, next: NextFunction) => {
   try {
@@ -18,11 +14,7 @@ const getDevice = async (req: Request, res: Response<BaseResponse<Devices[]>>, n
       data: await deviceList(res.locals.token)
     });
   } catch (error) {
-    if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 };
  
@@ -35,13 +27,7 @@ const getDeviceByid = async (req: Request, res: Response<BaseResponse<Devices | 
       data: await deviceById(params.devId)
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 };
 
@@ -55,13 +41,7 @@ const createDevice = async (req: Request, res: Response<BaseResponse<Devices>>, 
     });
   } catch (error) {
     if (req.file) fs.unlinkSync(path.join('public/images/device', req.file.filename));
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 };
 
@@ -76,13 +56,7 @@ const updateDevice = async (req: Request, res: Response<BaseResponse<Devices>>, 
     });
   } catch (error) {
     if (req.file) fs.unlinkSync(path.join('public/images/device', req.file.filename));
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 };
 
@@ -95,13 +69,7 @@ const deleteDevice = async (req: Request, res: Response<BaseResponse<Devices>>, 
       data: await removeDevice(params.devId)
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 };
 
@@ -114,13 +82,7 @@ const getConfig = async (req: Request, res: Response<BaseResponse<Devices | null
       data: await findConfig(params.devSerial)
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 };
 
@@ -134,15 +96,23 @@ const updateConfig = async (req: Request, res: Response<BaseResponse<Configs>>, 
       data: await editConfig(params.devSerial, body as unknown as Configs, res.locals.token)
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(fromZodError(error).toString()));
-    } else if (error instanceof PrismaClientKnownRequestError) {
-      next(new HttpError(400, `${error.name} : ${error.code}`));
-    } else {
-      next(error);
-    }
+    next(error);
   }
 };
+
+const changeSeq = async (req: Request, res: Response<BaseResponse<boolean>>, next: NextFunction) => {
+  try {
+    const params = ZChangeSeqParam.parse(req.params);
+    const body = ZChangeSeqBody.parse(req.body);
+    res.status(200).json({
+      message: 'Successful',
+      success: true,
+      data: await editSequence(params.devId, body.devSeq, params.afterDevId, body.afterDevSeq)
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 
 export {
   getDevice,
@@ -151,5 +121,6 @@ export {
   updateDevice,
   deleteDevice,
   getConfig,
-  updateConfig
+  updateConfig,
+  changeSeq
 };
