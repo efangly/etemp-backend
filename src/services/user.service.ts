@@ -1,16 +1,35 @@
-import { prisma } from "../configs";
-import { Users } from "@prisma/client";
+import { prisma, redisConn } from "../configs";
+import { Prisma, Users } from "@prisma/client";
 import { getUserImage, getDateFormat } from "../utils";
+import { NotFoundError } from "../error";
+import type { ResToken } from "../models";
 import fs from "node:fs";
 import path from "node:path";
-import { NotFoundError } from "../error";
-import { ResToken } from "../models";
 
 const getAllUser = async (token: ResToken): Promise<Users[]> => {
   try {
+    let conditions: Prisma.UsersWhereInput | undefined = undefined;
+    let keysName: string = "";
+    switch (token.userLevel) {
+      case "3":
+        conditions = { wardId: token.wardId };
+        keysName = `users:${token.wardId}`;
+        break;
+      case "2":
+        conditions = { ward: { hosId: token.hosId } };
+        keysName = `users:${token.hosId}`;
+        break;
+      default:
+        conditions = undefined;
+        keysName = "users";
+    }
+    // get cache
+    const cachedData = await redisConn.get(keysName);
+    if (cachedData) {
+      return JSON.parse(cachedData) as unknown as Users[];
+    }
     const result = await prisma.users.findMany({
-      where: token.userLevel === "4" ? { wardId: token.wardId } : 
-      token.userLevel === "3" ? { ward: { hosId: token.hosId } } : {},
+      where: conditions,
       select: {
         userId: true,
         wardId: true,
@@ -25,6 +44,8 @@ const getAllUser = async (token: ResToken): Promise<Users[]> => {
       },
       orderBy: { userLevel: 'asc' }
     });
+    // set cache
+    await redisConn.setEx(keysName, 3600, JSON.stringify(result));
     return result as unknown as Users[];
   } catch (error) {
     throw error;
@@ -44,9 +65,9 @@ const getUserByUserId = async (userId: string): Promise<Users | null> => {
         displayName: true,
         userPic: true,
         ward: {
-          select: { 
-            wardName: true, 
-            hosId: true, 
+          select: {
+            wardName: true,
+            hosId: true,
             hospital: {
               select: { hosName: true, hosPic: true }
             }

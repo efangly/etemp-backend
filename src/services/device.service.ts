@@ -1,22 +1,30 @@
-import { prisma } from "../configs";
 import fs from "node:fs"
 import path from "node:path";
+import { prisma, redisConn } from "../configs";
 import { v4 as uuidv4 } from 'uuid';
 import { getDeviceImage, getDateFormat, getDistanceTime, objToString } from "../utils";
-import { Configs, Devices } from "@prisma/client";
+import { Configs, Devices, Prisma } from "@prisma/client";
 import { NotFoundError } from "../error";
 import { ResToken, TDevice } from "../models";
 import { addHistory } from "./history.service";
 
 const deviceList = async (token?: ResToken): Promise<Devices[]> => {
   try {
+    let conditions: Prisma.DevicesWhereInput | undefined = undefined;
+    switch (token?.userLevel) {
+      case "3":
+        conditions = { wardId: token.wardId };
+        break;
+      case "2":
+        conditions = { ward: { hosId: token.hosId } };
+        break;
+      default:
+        conditions = undefined;
+    }
     const result = await prisma.devices.findMany({
-      where: token?.userLevel === "4" ? { wardId: token.wardId } : 
-        token?.userLevel === "3" ? { ward: { hosId: token?.hosId } } : {},
+      where: conditions,
       include: {
-        log: {
-          orderBy: { sendTime: 'desc' }
-        },
+        log: { orderBy: { sendTime: 'desc' } },
         probe: true,
         config: true,
         noti: {
@@ -31,15 +39,9 @@ const deviceList = async (token?: ResToken): Promise<Devices[]> => {
         },
         _count: {
           select: { 
-            warranty: {
-              where: { warrStatus: true }
-            }, 
+            warranty: { where: { warrStatus: true } }, 
             repair: true,
-            history: { 
-              where: {
-                createAt: { gte: getDistanceTime('day') },
-              } 
-            },
+            history: { where: { createAt: { gte: getDistanceTime('day') } } },
             noti: { 
               where: {
                 createAt: { gte: getDistanceTime('day') },
@@ -54,6 +56,8 @@ const deviceList = async (token?: ResToken): Promise<Devices[]> => {
       },
       orderBy: { devSeq: "asc" }
     });
+    // set cache
+    await redisConn.setEx("device", 3600 * 6, JSON.stringify(result));
     return result;
   } catch (error) {
     throw error;
@@ -111,6 +115,7 @@ const addDevice = async (body: TDevice, pic?: Express.Multer.File): Promise<Devi
         }
       }
     });
+    // await redisConn.del(keysName);
     return result;
   } catch (error) {
     throw error;

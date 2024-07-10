@@ -1,13 +1,33 @@
-import { prisma } from "../configs";
+import { ConfigHistory, Prisma } from "@prisma/client";
+import { prisma, redisConn } from "../configs";
 import { ResToken } from "../models";
 import { getDateFormat } from "../utils";
 import { v4 as uuidv4 } from 'uuid';
 
-const historyList = async (token: ResToken) => {
+const historyList = async (token: ResToken): Promise<ConfigHistory[]> => {
   try {
+    let conditions: Prisma.ConfigHistoryWhereInput | undefined = undefined;
+    let keysName: string = "";
+    switch (token?.userLevel) {
+      case "3":
+        conditions = { user: { wardId: token.wardId } };
+        keysName = `history:${token.wardId}`;
+        break;
+      case "2":
+        conditions = { user: { ward: { hosId: token.hosId } } };
+        keysName = `history:${token.hosId}`;
+        break;
+      default:
+        conditions = undefined;
+        keysName = "history";
+    }
+    // get cache
+    const cachedData = await redisConn.get(keysName);
+    if (cachedData) {
+      return JSON.parse(cachedData) as unknown as ConfigHistory[];
+    }
     const result = prisma.configHistory.findMany({
-      where: token.userLevel === "4" ? { user: { wardId: token.wardId } } :
-        token.userLevel === "3" ? { user: { ward: { hosId: token.hosId } } } : {},
+      where: conditions,
       select: {
         detail: true,
         devSerial: true,
@@ -16,7 +36,9 @@ const historyList = async (token: ResToken) => {
       },
       orderBy: { createAt: 'desc' }
     });
-    return result;
+    // set cache
+    await redisConn.setEx(keysName, 3600 * 6, JSON.stringify(result));
+    return result as unknown as ConfigHistory[];
   } catch (error) {
     throw error;
   }

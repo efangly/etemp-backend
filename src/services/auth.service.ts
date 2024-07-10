@@ -1,4 +1,4 @@
-import { prisma } from "../configs";
+import { prisma, redisConn } from "../configs";
 import bcrypt from "bcrypt";
 import { sign } from "jsonwebtoken";
 import { v4 as uuidv4 } from 'uuid';
@@ -12,6 +12,7 @@ const regisUser = async (params: TRegisUser, pic?: Express.Multer.File): Promise
     const result = await prisma.users.create({
       select: {
         userId: true,
+        userLevel: true,
         ward: {
           include: {
             hospital: true
@@ -31,6 +32,18 @@ const regisUser = async (params: TRegisUser, pic?: Express.Multer.File): Promise
         updateAt: getDateFormat(new Date())
       }
     });
+    let keysName: string = "";
+    switch (result.userLevel) {
+      case "3":
+        keysName = `users:${result.ward.wardId}`;
+        break;
+      case "2":
+        keysName = `users:${result.ward.hosId}`;
+        break;
+      default:
+        keysName = "users";
+    }
+    await redisConn.del(keysName);
     return result as unknown as Users;
   } catch (error) {
     throw error;

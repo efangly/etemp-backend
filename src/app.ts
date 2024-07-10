@@ -2,9 +2,8 @@ import express,{ Application } from "express";
 import morgan from "morgan";
 import cors from "cors";
 import dotenv from "dotenv";
-import { prisma, connectFireBase, socket } from "./configs";
+import { prisma, connectFireBase, socket, initRedis } from "./configs";
 import routes from "./routes";
-// import { initRedis } from "./configs/redis.config";
 import { globalErrorHanlder } from "./middlewares";
 
 const app: Application = express();
@@ -22,7 +21,7 @@ app.use('/etemp', routes);
 app.use(globalErrorHanlder);
 
 app.listen(port, async () => {
-  // await initRedis();
+  await initRedis();
   connectFireBase();
   socket.on('connect', () => console.log("Socket Connected"));
   socket.on('disconnect', () => console.log("Socket Disconnected"));
