@@ -4,6 +4,7 @@ import { Repairs } from "@prisma/client";
 import { getDateFormat } from "../utils";
 import { NotFoundError } from "../error";
 import { ResToken } from "../models";
+import { format } from "date-fns";
 
 const repairList = async (token: ResToken): Promise<Repairs[]> => {
   try {
@@ -32,7 +33,7 @@ const findRepair = async (repairId: string): Promise<Repairs | null> => {
 
 const addRepair = async (body: Repairs) => {
   try {
-    body.repairId = `RID-${uuidv4()}`;
+    body.repairId = `RID${format(new Date(), "yyyyMMddHHmmssSSS")}`;
     body.createAt = getDateFormat(new Date());
     body.updateAt = getDateFormat(new Date());
     const result = prisma.repairs.create({

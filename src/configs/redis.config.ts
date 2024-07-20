@@ -9,9 +9,16 @@ const initRedis = async (): Promise<RedisClientType> => {
     url: process.env.REDIS_URL,
     password: process.env.REDIS_PASSWORD
   });
-  redisConn.on('error', error => console.log('Redis Client Error', error));
   await redisConn.connect();
   await redisConn.flushAll();
+  redisConn.on('error', (error) => {
+    console.log('Redis client error', error);
+    setTimeout(() => { 
+      console.log('Redis client reconnect...');
+      initRedis(); 
+    }, 5000);
+  });
+  console.log('Redis client connected');
   return redisConn;
 }
 

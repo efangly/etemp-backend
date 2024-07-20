@@ -1,8 +1,8 @@
 import fs from "node:fs"
 import path from "node:path";
-import { prisma, redisConn } from "../configs";
+import { prisma } from "../configs";
 import { v4 as uuidv4 } from 'uuid';
-import { getDeviceImage, getDateFormat, getDistanceTime, objToString } from "../utils";
+import { getDeviceImage, getDateFormat, getDistanceTime, objToString, checkCachedData, setCacheData, removeCache } from "../utils";
 import { Configs, Devices, Prisma } from "@prisma/client";
 import { NotFoundError } from "../error";
 import { ResToken, TDevice } from "../models";
@@ -11,27 +11,43 @@ import { addHistory } from "./history.service";
 const deviceList = async (token?: ResToken): Promise<Devices[]> => {
   try {
     let conditions: Prisma.DevicesWhereInput | undefined = undefined;
+    let keyName = "";
     switch (token?.userLevel) {
       case "3":
         conditions = { wardId: token.wardId };
+        keyName = `device:${token.wardId}`;
         break;
       case "2":
         conditions = { ward: { hosId: token.hosId } };
+        keyName = `device:${token.hosId}`;
+        break;
+      case "1":
+        conditions = { NOT: { wardId: "WID-DEVELOPMENT" } };
+        keyName = "device:WID-DEVELOPMENT";
         break;
       default:
         conditions = undefined;
+        keyName = "device";
     }
+    const cache =  await checkCachedData(keyName);
+    if (cache) return JSON.parse(cache);
     const result = await prisma.devices.findMany({
       where: conditions,
       include: {
-        log: { orderBy: { sendTime: 'desc' } },
+        log: { take: 1, orderBy: { sendTime: 'desc' } },
         probe: true,
         config: true,
         noti: {
           where: {
             OR: [
               { notiDetail: { contains: 'OVER' } },
-              { notiDetail: { contains: 'LOWER' } }
+              { notiDetail: { contains: 'LOWER' } },
+              { AND: [
+                { notiDetail: { startsWith: 'PROBE' } },
+                { notiDetail: { endsWith: 'ON' } },
+              ] },
+              { notiDetail: "AC/OFF" },
+              { notiDetail: "SD/OFF" },
             ],
             createAt: { gte: getDistanceTime('day') }
           },
@@ -42,22 +58,14 @@ const deviceList = async (token?: ResToken): Promise<Devices[]> => {
             warranty: { where: { warrStatus: true } }, 
             repair: true,
             history: { where: { createAt: { gte: getDistanceTime('day') } } },
-            noti: { 
-              where: {
-                createAt: { gte: getDistanceTime('day') },
-                AND: [
-                  { notiDetail: { startsWith: 'PROBE' } },
-                  { notiDetail: { endsWith: 'ON' } },
-                ]
-              } 
-            }
+            log: { where: { internet: "1" } }
           }
         }
       },
       orderBy: { devSeq: "asc" }
     });
     // set cache
-    await redisConn.setEx("device", 3600 * 6, JSON.stringify(result));
+    await setCacheData(keyName, 3600, JSON.stringify(result));
     return result;
   } catch (error) {
     throw error;
@@ -114,17 +122,18 @@ const addDevice = async (body: TDevice, pic?: Express.Multer.File): Promise<Devi
           }
         }
       }
-    });
-    // await redisConn.del(keysName);
+    }); 
+    await removeCache("device");
     return result;
   } catch (error) {
     throw error;
   }
 };
 
-const editDevice = async (deviceId: string, body: Devices, pic?: Express.Multer.File): Promise<Devices> => {
+const editDevice = async (deviceId: string, body: Devices, token: ResToken, pic?: Express.Multer.File): Promise<Devices> => {
   try {
     const filename = await getDeviceImage(deviceId);
+    const detail = objToString(body);
     if (body.dateInstall) body.dateInstall = getDateFormat(body.dateInstall);
     if (body.devSeq) body.devSeq = Number(body.devSeq);
     if (body.devStatus) body.devStatus = String(body.devStatus) == "1" ? true : false;
@@ -135,6 +144,8 @@ const editDevice = async (deviceId: string, body: Devices, pic?: Express.Multer.
       data: body
     });
     if (pic && !!filename) fs.unlinkSync(path.join('public/images/device', filename.split("/")[3]));
+    await addHistory(`Device: [${detail}]`, result.devSerial, token.userId);
+    await removeCache("device");
     return result;
   } catch (error) {
     throw error;
@@ -146,6 +157,7 @@ const removeDevice = async (deviceId: string): Promise<Devices> => {
     const filename = await getDeviceImage(deviceId);
     const result = await prisma.devices.delete({ where: { devId: deviceId } });
     if (!!filename) fs.unlinkSync(path.join('public/images/device', filename.split("/")[3]));
+    await removeCache("device");
     return result;
   } catch (error) {
     throw error;
@@ -168,6 +180,7 @@ const editSequence = async (beforeId: string, beforeSeq: number, afterId: string
         data: { devSeq: beforeSeq }
       }),
     ]);
+    await removeCache("device");
     return true;
   } catch (error) {
     throw error;
@@ -199,6 +212,7 @@ const editConfig = async (deviceId: string, body: Configs, token: ResToken): Pro
       data: body
     });
     await addHistory(`Config: [${detail}]`, result.devSerial, token.userId);
+    await removeCache("device");
     return result;
   } catch (error) {
     throw error;

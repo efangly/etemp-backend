@@ -1,18 +1,36 @@
-import { Wards } from "@prisma/client";
+import { Prisma, Wards } from "@prisma/client";
 import { v4 as uuidv4 } from 'uuid';
 import { prisma } from "../configs";
-import { getDateFormat } from "../utils";
+import { checkCachedData, getDateFormat, removeCache, setCacheData } from "../utils";
 import { NotFoundError } from "../error";
 import { ResToken } from "../models";
 
 const wardList = async (token: ResToken): Promise<Wards[]> => {
   try {
+    let conditions: Prisma.WardsWhereInput | undefined = undefined;
+    let keyName = "";
+    switch (token.userLevel) {
+      case "2":
+        conditions = { hosId: token.hosId };
+        keyName = `ward:${token.hosId}`;
+        break;
+      case "1":
+        conditions = { NOT: { wardId: "WID-DEVELOPMENT" } };
+        keyName = "ward:WID-DEVELOPMENT";
+        break;
+      default:
+        conditions = undefined;
+        keyName = "ward";
+    }
+    const cache = await checkCachedData(keyName);
+    if (cache) return JSON.parse(cache);
     const result = await prisma.wards.findMany({
-      where: token.userLevel === "4" ? { wardId: token.wardId } : 
-      token.userLevel === "3" ? { hosId: token.hosId } : {},
+      where: conditions,
       include: { hospital: true },
       orderBy: { wardSeq: 'asc' }
     });
+    // set cache
+    await setCacheData(keyName, 3600, JSON.stringify(result));
     return result;
   } catch (error) {
     throw error;
@@ -43,6 +61,7 @@ const addWard = async (body: Wards, token: ResToken) => {
       data: body,
       include: { hospital: true }
     });
+    await removeCache("ward");
     return result;
   } catch (error) {
     throw error;
@@ -56,6 +75,7 @@ const editWard = async (wardId: string, body: Wards) => {
       where: { wardId: wardId },
       data: body
     });
+    await removeCache("ward");
     return result;
   } catch (error) {
     throw error;
@@ -64,6 +84,7 @@ const editWard = async (wardId: string, body: Wards) => {
 
 const removeWard = async (wardId: string) => {
   try {
+    await removeCache("ward");
     return await prisma.wards.delete({ where: { wardId: wardId } });
   } catch (error) {
     throw error;

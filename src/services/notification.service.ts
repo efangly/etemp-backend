@@ -2,22 +2,36 @@ import dotenv from "dotenv";
 import { getMessaging, Message } from "firebase-admin/messaging";
 import { prisma, socket } from "../configs";
 import { Notifications, Prisma } from "@prisma/client";
-import { getDateFormat, getDistanceTime } from "../utils";
+import { checkCachedData, getDateFormat, getDistanceTime, removeCache, setCacheData } from "../utils";
 import { v4 as uuidv4 } from 'uuid';
 import { ResToken } from "../models";
 dotenv.config();
 
 const notificationList = async (token: ResToken): Promise<Notifications[]> => {
   try {
-    let condition: Prisma.NotificationsWhereInput = {}
-    if (token?.userLevel === "4") {
-      condition = { device: { ward: { wardId: token.wardId } } }
-    } else if (token?.userLevel === "3") {
-      condition = { device: { ward: { hosId: token.hosId } } }
+    let conditions: Prisma.NotificationsWhereInput | undefined = undefined;
+    let keyName = "";
+    switch (token.userLevel) {
+      case "3":
+        conditions = { device: { ward: { wardId: token.wardId } } };
+        keyName = `noti:${token.wardId}`;
+        break;
+      case "2":
+        conditions = { device: { ward: { hosId: token.hosId } } };
+        keyName = `noti:${token.hosId}`;
+        break;
+      case "1":
+        conditions = { NOT: { device: { wardId: "WID-DEVELOPMENT" } } };
+        keyName = "noti:WID-DEVELOPMENT";
+        break;
+      default:
+        conditions = undefined;
+        keyName = "noti";
     }
-    return await prisma.notifications.findMany({
-      where: condition,
-      take: 99,
+    const cache =  await checkCachedData(keyName);
+    if (cache) return JSON.parse(cache);
+    const result = await prisma.notifications.findMany({
+      where: conditions,
       include: {
         device: {
           select: {
@@ -33,6 +47,9 @@ const notificationList = async (token: ResToken): Promise<Notifications[]> => {
         { createAt: 'desc' }
       ]
     });
+    // set cache
+    await setCacheData(keyName, 300, JSON.stringify(result));
+    return result;
   } catch (error) {
     throw error;
   }
@@ -62,7 +79,7 @@ const findNotification = async (devSerial: string): Promise<Notifications[]> => 
 };
 
 const findHistoryNotification = async (devSerial: string, startDate: Date, endDate: Date) => {
-  const [ noti, notiBackup ] = await prisma.$transaction([
+  const [noti, notiBackup] = await prisma.$transaction([
     prisma.notifications.findMany({
       where: {
         devSerial: devSerial,
@@ -100,10 +117,21 @@ const addNotification = async (body: Notifications): Promise<Notifications> => {
     body.notiId = `NID-${uuidv4()}`;
     body.createAt = getDateFormat(new Date());
     body.updateAt = getDateFormat(new Date());
-    const result = await prisma.notifications.create({ data: body, include: { device: true } });
+    const result = await prisma.notifications.create({ 
+      data: body, 
+      include: { 
+        device: { include: { ward: true } } 
+      } 
+    });
     const pushMessage = setDetailMessage(body.notiDetail);
     pushNotification('test', result.device.devDetail!, pushMessage);
-    socket.emit("send_message", { device: result.device.devDetail, message: pushMessage, time: body.createAt.toString() });
+    socket.emit("send_message", { 
+      device: result.device.devDetail, 
+      message: pushMessage, 
+      hospital: result.device.ward.hosId,
+      time: body.createAt.toString() 
+    });
+    await removeCache("noti");
     return result;
   } catch (error) {
     throw error;
@@ -113,6 +141,7 @@ const addNotification = async (body: Notifications): Promise<Notifications> => {
 const editNotification = async (notiId: string, body: Notifications): Promise<Notifications> => {
   try {
     body.updateAt = getDateFormat(new Date());
+    await removeCache("noti");
     return await prisma.notifications.update({
       where: { notiId: notiId },
       data: body

@@ -24,7 +24,7 @@ const getHospitalById = async (req: Request, res: Response<BaseResponse<Hospital
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await findHospital(params.hosId, res.locals.token)
+      data: await findHospital(params.hosId)
     });
   } catch (error) {
     next(error);

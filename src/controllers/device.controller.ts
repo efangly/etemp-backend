@@ -52,7 +52,7 @@ const updateDevice = async (req: Request, res: Response<BaseResponse<Devices>>, 
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await editDevice(params.devId, body as unknown as Devices, req.file)
+      data: await editDevice(params.devId, body as unknown as Devices, res.locals.token, req.file)
     });
   } catch (error) {
     if (req.file) fs.unlinkSync(path.join('public/images/device', req.file.filename));

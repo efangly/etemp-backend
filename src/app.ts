@@ -20,11 +20,11 @@ app.use(morgan("dev"));
 app.use('/etemp', routes);
 app.use(globalErrorHanlder);
 
-app.listen(port, async () => {
-  await initRedis();
+app.listen(port, () => {
+  initRedis();
   connectFireBase();
-  socket.on('connect', () => console.log("Socket Connected"));
-  socket.on('disconnect', () => console.log("Socket Disconnected"));
+  socket.on('connect', () => console.log("Socket connected"));
+  socket.on('disconnect', () => console.log("Socket disconnected"));
   console.log(`Start server in port ${port}`);
-  console.log(process.env.NODE_ENV === 'production' ? 'Production Mode' : 'Developer Mode');
+  console.log(process.env.NODE_ENV === 'production' ? 'Production mode' : 'Developer mode');
 });

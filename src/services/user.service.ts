@@ -1,6 +1,6 @@
-import { prisma, redisConn } from "../configs";
+import { prisma } from "../configs";
 import { Prisma, Users } from "@prisma/client";
-import { getUserImage, getDateFormat } from "../utils";
+import { getUserImage, getDateFormat, checkCachedData, setCacheData, removeCache } from "../utils";
 import { NotFoundError } from "../error";
 import type { ResToken } from "../models";
 import fs from "node:fs";
@@ -9,25 +9,33 @@ import path from "node:path";
 const getAllUser = async (token: ResToken): Promise<Users[]> => {
   try {
     let conditions: Prisma.UsersWhereInput | undefined = undefined;
-    let keysName: string = "";
+    let keyName: string = "";
     switch (token.userLevel) {
       case "3":
         conditions = { wardId: token.wardId };
-        keysName = `users:${token.wardId}`;
+        keyName = `user:${token.wardId}`;
         break;
       case "2":
         conditions = { ward: { hosId: token.hosId } };
-        keysName = `users:${token.hosId}`;
+        keyName = `user:${token.hosId}`;
+        break;
+      case "1":
+        conditions = { 
+          NOT: [
+            { wardId: "WID-DEVELOPMENT" },
+            { userLevel: "0" },
+            { userLevel: "1" }
+          ] 
+        };
+        keyName = "user:WID-DEVELOPMENT";
         break;
       default:
         conditions = undefined;
-        keysName = "users";
+        keyName = "user";
     }
     // get cache
-    const cachedData = await redisConn.get(keysName);
-    if (cachedData) {
-      return JSON.parse(cachedData) as unknown as Users[];
-    }
+    const cache =  await checkCachedData(keyName);
+    if (cache) return JSON.parse(cache) as unknown as Users[];
     const result = await prisma.users.findMany({
       where: conditions,
       select: {
@@ -45,7 +53,7 @@ const getAllUser = async (token: ResToken): Promise<Users[]> => {
       orderBy: { userLevel: 'asc' }
     });
     // set cache
-    await redisConn.setEx(keysName, 3600, JSON.stringify(result));
+    await setCacheData(keyName, 3600, JSON.stringify(result));
     return result as unknown as Users[];
   } catch (error) {
     throw error;
@@ -93,6 +101,7 @@ const editUser = async (userId: string, body: Users, pic?: Express.Multer.File):
       data: body
     });
     if (pic && !!filename) fs.unlinkSync(path.join('public/images/user', filename.split("/")[3]));
+    await removeCache("user");
     return result;
   } catch (error) {
     throw error;
@@ -106,6 +115,7 @@ const delUser = async (userId: string): Promise<Users> => {
       where: { userId: userId }
     });
     if (!!filename) fs.unlinkSync(path.join('public/images/user', filename.split("/")[3]));
+    await removeCache("user");
     return result;
   } catch (error) {
     throw error;

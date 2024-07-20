@@ -1,9 +1,9 @@
-import { prisma, redisConn } from "../configs";
+import { prisma } from "../configs";
 import bcrypt from "bcrypt";
 import { sign } from "jsonwebtoken";
 import { v4 as uuidv4 } from 'uuid';
 import { Users } from "@prisma/client";
-import { getDateFormat } from "../utils";
+import { getDateFormat, removeCache } from "../utils";
 import { ResLogin, TLogin, TRegisUser } from "../models";
 import { HttpError } from "../error";
 
@@ -32,18 +32,7 @@ const regisUser = async (params: TRegisUser, pic?: Express.Multer.File): Promise
         updateAt: getDateFormat(new Date())
       }
     });
-    let keysName: string = "";
-    switch (result.userLevel) {
-      case "3":
-        keysName = `users:${result.ward.wardId}`;
-        break;
-      case "2":
-        keysName = `users:${result.ward.hosId}`;
-        break;
-      default:
-        keysName = "users";
-    }
-    await redisConn.del(keysName);
+    await removeCache("user");
     return result as unknown as Users;
   } catch (error) {
     throw error;
@@ -70,7 +59,7 @@ const userLogin = async (login: TLogin): Promise<ResLogin> => {
         const hosName: string | null = result.ward.hospital.hosName;
         const wardId: string | null = result.wardId;
         const userStatus: boolean = result.userStatus;
-        const token: string = sign({ userId, userLevel, hosId, wardId }, String(process.env.JWT_SECRET));
+        const token: string = sign({ userId, userLevel, hosId, wardId }, String(process.env.JWT_SECRET), { expiresIn: '7d' });
         return { token, userId, hosId, wardId, userLevel, hosPic, hosName, userStatus, userName, displayName, userPic };
       } else {
         throw new HttpError(400, "Wrong user or password!!");
@@ -92,6 +81,7 @@ const resetPassword = async (password: string, userId: string): Promise<string> 
         updateAt: getDateFormat(new Date())
       }
     });
+    await removeCache("user");
     return "Reset password success!!";
   } catch (error) {
     throw error;

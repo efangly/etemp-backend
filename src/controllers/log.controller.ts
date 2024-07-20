@@ -10,7 +10,7 @@ const getLog = async (req: Request, res: Response<BaseResponse<LogDays[]>>, next
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await logList(query)
+      data: await logList(query, res.locals.token)
     });
   } catch (error) {
     next(error);

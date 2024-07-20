@@ -1,31 +1,29 @@
 import { ConfigHistory, Prisma } from "@prisma/client";
-import { prisma, redisConn } from "../configs";
+import { prisma } from "../configs";
 import { ResToken } from "../models";
-import { getDateFormat } from "../utils";
+import { checkCachedData, getDateFormat, removeCache, setCacheData } from "../utils";
 import { v4 as uuidv4 } from 'uuid';
 
 const historyList = async (token: ResToken): Promise<ConfigHistory[]> => {
   try {
     let conditions: Prisma.ConfigHistoryWhereInput | undefined = undefined;
-    let keysName: string = "";
+    let keyName: string = "";
     switch (token?.userLevel) {
       case "3":
         conditions = { user: { wardId: token.wardId } };
-        keysName = `history:${token.wardId}`;
+        keyName = `history:${token.wardId}`;
         break;
       case "2":
         conditions = { user: { ward: { hosId: token.hosId } } };
-        keysName = `history:${token.hosId}`;
+        keyName = `history:${token.hosId}`;
         break;
       default:
         conditions = undefined;
-        keysName = "history";
+        keyName = "history";
     }
     // get cache
-    const cachedData = await redisConn.get(keysName);
-    if (cachedData) {
-      return JSON.parse(cachedData) as unknown as ConfigHistory[];
-    }
+    const cache = await checkCachedData(keyName);
+    if (cache) return JSON.parse(cache) as unknown as ConfigHistory[];
     const result = prisma.configHistory.findMany({
       where: conditions,
       select: {
@@ -37,7 +35,7 @@ const historyList = async (token: ResToken): Promise<ConfigHistory[]> => {
       orderBy: { createAt: 'desc' }
     });
     // set cache
-    await redisConn.setEx(keysName, 3600 * 6, JSON.stringify(result));
+    await setCacheData(keyName, 3600, JSON.stringify(result));
     return result as unknown as ConfigHistory[];
   } catch (error) {
     throw error;
@@ -57,6 +55,7 @@ const addHistory = async (detail: string, serial: string, userId: string) => {
       },
       include: { device: true }
     });
+    await removeCache("history");
     return result;
   } catch (error) {
     throw error;
