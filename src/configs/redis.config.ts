@@ -12,7 +12,7 @@ const initRedis = async (): Promise<RedisClientType> => {
   await redisConn.connect();
   await redisConn.flushAll();
   redisConn.on('error', (error) => {
-    console.log('Redis client error', error);
+    console.log('Redis client', error);
     setTimeout(() => { 
       console.log('Redis client reconnect...');
       initRedis(); 

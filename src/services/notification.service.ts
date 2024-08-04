@@ -131,6 +131,7 @@ const addNotification = async (body: Notifications): Promise<Notifications> => {
       hospital: result.device.ward.hosId,
       time: body.createAt.toString() 
     });
+    await removeCache("device");
     await removeCache("noti");
     return result;
   } catch (error) {

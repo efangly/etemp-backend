@@ -2,34 +2,17 @@ import fs from "node:fs"
 import path from "node:path";
 import { prisma } from "../configs";
 import { v4 as uuidv4 } from 'uuid';
-import { getDeviceImage, getDateFormat, getDistanceTime, objToString, checkCachedData, setCacheData, removeCache } from "../utils";
-import { Configs, Devices, Prisma } from "@prisma/client";
+import { getDeviceImage, getDateFormat, getDistanceTime, objToString, checkCachedData, setCacheData, removeCache, splitLog } from "../utils";
+import { Configs, Devices, LogDays, Prisma } from "@prisma/client";
 import { NotFoundError } from "../error";
-import { ResToken, TDevice } from "../models";
+import { ResToken, TDevice, TQueryDevice } from "../models";
 import { addHistory } from "./history.service";
+import { format } from "date-fns";
 
 const deviceList = async (token?: ResToken): Promise<Devices[]> => {
   try {
-    let conditions: Prisma.DevicesWhereInput | undefined = undefined;
-    let keyName = "";
-    switch (token?.userLevel) {
-      case "3":
-        conditions = { wardId: token.wardId };
-        keyName = `device:${token.wardId}`;
-        break;
-      case "2":
-        conditions = { ward: { hosId: token.hosId } };
-        keyName = `device:${token.hosId}`;
-        break;
-      case "1":
-        conditions = { NOT: { wardId: "WID-DEVELOPMENT" } };
-        keyName = "device:WID-DEVELOPMENT";
-        break;
-      default:
-        conditions = undefined;
-        keyName = "device";
-    }
-    const cache =  await checkCachedData(keyName);
+    let { conditions, keyName } = setCondition(token);
+    const cache = await checkCachedData(keyName);
     if (cache) return JSON.parse(cache);
     const result = await prisma.devices.findMany({
       where: conditions,
@@ -37,25 +20,10 @@ const deviceList = async (token?: ResToken): Promise<Devices[]> => {
         log: { take: 1, orderBy: { sendTime: 'desc' } },
         probe: true,
         config: true,
-        noti: {
-          where: {
-            OR: [
-              { notiDetail: { contains: 'OVER' } },
-              { notiDetail: { contains: 'LOWER' } },
-              { AND: [
-                { notiDetail: { startsWith: 'PROBE' } },
-                { notiDetail: { endsWith: 'ON' } },
-              ] },
-              { notiDetail: "AC/OFF" },
-              { notiDetail: "SD/OFF" },
-            ],
-            createAt: { gte: getDistanceTime('day') }
-          },
-          orderBy: { createAt: 'desc' }
-        },
+        noti: { orderBy: { createAt: 'desc' } },
         _count: {
-          select: { 
-            warranty: { where: { warrStatus: true } }, 
+          select: {
+            warranty: { where: { warrStatus: true } },
             repair: true,
             history: { where: { createAt: { gte: getDistanceTime('day') } } },
             log: { where: { internet: "1" } }
@@ -122,7 +90,7 @@ const addDevice = async (body: TDevice, pic?: Express.Multer.File): Promise<Devi
           }
         }
       }
-    }); 
+    });
     await removeCache("device");
     return result;
   } catch (error) {
@@ -191,7 +159,7 @@ const findConfig = async (deviceId: string): Promise<Devices | null> => {
   try {
     const result = await prisma.devices.findUnique({
       where: { devSerial: deviceId },
-      select:{
+      select: {
         devSerial: true,
         config: true,
         probe: true
@@ -219,6 +187,125 @@ const editConfig = async (deviceId: string, body: Configs, token: ResToken): Pro
   }
 };
 
+const compareDevice = async (query: TQueryDevice, token: ResToken) => {
+  try {
+    let { conditions, keyName } = setCondition(token);
+    let logCondition: Prisma.LogDaysWhereInput | undefined = undefined;
+    let diffDays = 0;
+    if (query.start && query.end) {
+      const startDate = getDateFormat(new Date(query.start));
+      const endDate = getDateFormat(new Date(query.end));
+      logCondition = { 
+        sendTime: { 
+          gte: startDate, 
+          lte: endDate
+        } 
+      }
+      diffDays = Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24));
+      keyName = keyName + `${format(startDate, "yyyyMMdd")}${format(endDate, "yyyyMMdd")}`;
+    } else {
+      logCondition = { 
+        sendTime: { 
+          gte: getDistanceTime('month')
+        } 
+      }
+      keyName = keyName + "month";
+    }
+    const cache = await checkCachedData(keyName);
+    if (cache) return JSON.parse(cache);
+    const result = await prisma.devices.findMany({
+      select: { 
+        devSerial: true, 
+        devDetail: true,
+        ward: { include: { hospital: true } },
+        log: { 
+          where: logCondition,
+          orderBy: { sendTime: 'asc' } 
+        },
+        logBak: {
+          where: logCondition as Prisma.LogDaysBackupWhereInput,
+          orderBy: { sendTime: 'asc' } 
+        } 
+      },
+      where: conditions,
+      orderBy: { devSeq: "asc" }
+    });
+    const log = result.map((item) => {
+      return {
+        devSerial: item.devSerial,
+        devDetail: item.devDetail,
+        wardName: item.ward.wardName,
+        hosName: item.ward.hospital.hosName,
+        log: setSplitCondition(result.length, diffDays, item.logBak.concat(item.log))
+      };
+    });
+    // set cache
+    await setCacheData(keyName, 3600, JSON.stringify(log));
+    return log;
+  } catch (error) {
+    throw error;
+  }
+}
+
+const setCondition = (token?: ResToken) => {
+  let conditions: Prisma.DevicesWhereInput | undefined = undefined;
+  let keyName = "";
+  switch (token?.userLevel) {
+    case "3":
+      conditions = { wardId: token.wardId };
+      keyName = `device:${token.wardId}`;
+      break;
+    case "2":
+      conditions = { ward: { hosId: token.hosId } };
+      keyName = `device:${token.hosId}`;
+      break;
+    case "1":
+      conditions = { NOT: { wardId: "WID-DEVELOPMENT" } };
+      keyName = "device:WID-DEVELOPMENT";
+      break;
+    default:
+      conditions = undefined;
+      keyName = "device";
+  }
+  return { conditions, keyName };
+}
+
+const setSplitCondition = (device: number, diff: number, data: LogDays[]) => {
+  if (diff === 0) {
+    if (device < 5) {
+      return splitLog(data, 6);
+    } else if (device >= 5 && device < 10) {
+      return splitLog(data, 7);
+    } else {
+      return splitLog(data, 8);
+    }
+  } else if (diff < 7) {
+    if (device < 5) {
+      return splitLog(data, 2);
+    } else if (device >= 5 && device < 10) {
+      return splitLog(data, 3);
+    } else {
+      return splitLog(data, 4);
+    }
+  } else if (diff >= 7 && diff < 21) {
+    if (device < 5) {
+      return splitLog(data, 3);
+    } else if (device >= 5 && device < 10) {
+      return splitLog(data, 4);
+    } else {
+      return splitLog(data, 5);
+    }
+  } else {
+    if (device < 5) {
+      return splitLog(data, 6);
+    } else if (device >= 5 && device < 10) {
+      return splitLog(data, 7);
+    } else {
+      return splitLog(data, 8);
+    }
+  }
+}
+
 export {
   deviceList,
   deviceById,
@@ -227,5 +314,6 @@ export {
   removeDevice,
   findConfig,
   editConfig,
-  editSequence
+  editSequence,
+  compareDevice
 };

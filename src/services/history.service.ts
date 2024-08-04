@@ -23,8 +23,8 @@ const historyList = async (token: ResToken): Promise<ConfigHistory[]> => {
     }
     // get cache
     const cache = await checkCachedData(keyName);
-    if (cache) return JSON.parse(cache) as unknown as ConfigHistory[];
-    const result = prisma.configHistory.findMany({
+    if (cache) return JSON.parse(cache);
+    const result = await prisma.configHistory.findMany({
       where: conditions,
       select: {
         detail: true,

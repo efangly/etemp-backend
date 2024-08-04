@@ -2,9 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import fs from "node:fs"
 import path from "node:path";
 import { Configs, Devices } from "@prisma/client";
-import { addDevice, deviceById, deviceList, editConfig, editDevice, editSequence, findConfig, removeDevice } from "../services";
-import { BaseResponse, ZChangeSeqBody, ZChangeSeqParam } from "../models";
+import { addDevice, compareDevice, deviceById, deviceList, editConfig, editDevice, editSequence, findConfig, removeDevice } from "../services";
+import { BaseResponse, ZChangeSeqBody, ZChangeSeqParam, ZQueryDevice } from "../models";
 import { TDevice, ZConfig, ZConfigParam, ZDevice, ZDeviceParam } from "../models";
+import { compare } from "bcrypt";
 
 const getDevice = async (req: Request, res: Response<BaseResponse<Devices[]>>, next: NextFunction) => {
   try {
@@ -114,6 +115,19 @@ const changeSeq = async (req: Request, res: Response<BaseResponse<boolean>>, nex
   }
 }
 
+const getCompareDevice = async (req: Request, res: Response<BaseResponse>, next: NextFunction) => {
+  try {
+    const query = ZQueryDevice.parse(req.query);
+    res.status(200).json({
+      message: 'Successful',
+      success: true,
+      data: await compareDevice(query, res.locals.token)
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export {
   getDevice,
   getDeviceByid,
@@ -122,5 +136,6 @@ export {
   deleteDevice,
   getConfig,
   updateConfig,
-  changeSeq
+  changeSeq,
+  getCompareDevice
 };

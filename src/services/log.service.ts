@@ -1,7 +1,7 @@
 import { prisma, redisConn } from "../configs";
 import { v4 as uuidv4 } from 'uuid';
 import { LogDays, Prisma } from "@prisma/client";
-import { getDateFormat, getDistanceTime, removeCache, setCacheData } from "../utils";
+import { getDateFormat, getDistanceTime, removeCache, setCacheData, splitLog } from "../utils";
 import { ResToken, TQueryLog } from "../models";
 import { NotFoundError, ValidationError } from "../error";
 import { backupNoti } from "./notification.service";
@@ -119,7 +119,7 @@ const logList = async (query: TQueryLog, token: ResToken): Promise<LogDays[]> =>
               })
             )
           ]);
-          const splitTime = diffDays <= 7 ? 2 : diffDays > 7 && diffDays <= 20 ? 3 : 4;
+          const splitTime = diffDays <= 7 ? 2 : diffDays > 7 && diffDays <= 20 ? 3 : 4; // optimize data for graph
           const value = diffDays == 1 ? logdayBackup.concat(logday) : splitLog(logdayBackup.concat(logday), splitTime);
           const result = query.type ? logdayBackup.concat(logday) : value;
           const keyDate = `${format(startDate, "yyyyMMdd")}${format(endDate, "yyyyMMdd")}`;
@@ -215,14 +215,6 @@ const removeLog = async (logId: string) => {
   } catch (error) {
     throw error;
   }
-}
-
-const splitLog = (log: LogDays[], time: number = 1) => {
-  let result: LogDays[] = log;
-  for (let i = 0; i < time; i++) {
-    result = result.filter((_item, index) => index % 2 === 0);
-  }
-  return result;
 }
 
 const backupLog = async (): Promise<string> => {

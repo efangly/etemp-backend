@@ -15,7 +15,7 @@ import firmwareRouter from './firmware';
 import swaggerUi from 'swagger-ui-express';
 import fs from 'node:fs';
 import YAML from 'yaml';
-import { backupData } from "../controllers";
+import { backupData, getCompareDevice } from "../controllers";
 import { BaseResponse } from '../models';
 import { historyList } from '../services';
 import { verifyToken } from '../middlewares';
@@ -40,6 +40,7 @@ router.use('/font', express.static('public/fonts'));
 router.use('/firmware', express.static('public/firmwares'));
 router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(YAML.parse(file)));
 router.use('/backup', backupData);
+router.use('/compare', verifyToken, getCompareDevice);
 router.use('/history', verifyToken, async (req: Request, res: Response<BaseResponse>, next: NextFunction) => {
   try {
     res.status(200).json({ 

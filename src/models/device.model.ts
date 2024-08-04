@@ -2,9 +2,20 @@ import { z } from "zod";
 
 export const ZDeviceParam = z.object({ devId: z.string() });
 export const ZConfigParam = z.object({ devSerial: z.string() });
-export const ZChangeSeqParam = z.object({ devId: z.string(), afterDevId: z.string() });
-export const ZChangeSeqBody = z.object({ devSeq: z.number(), afterDevSeq: z.number() });
+export const ZChangeSeqParam = z.object({ 
+  devId: z.string(), 
+  afterDevId: z.string() 
+});
+export const ZChangeSeqBody = z.object({ 
+  devSeq: z.number(), 
+  afterDevSeq: z.number() 
+});
+export const ZQueryDevice = z.object({
+  start: z.string().optional(),
+  end: z.string().optional()
+});
 export type TDevice = z.infer<typeof ZDevice>;
+export type TQueryDevice = z.infer<typeof ZQueryDevice>;
 
 export const ZConfig = z.object({
   confId: z.string().optional(),
@@ -49,4 +60,3 @@ export const ZDevice = z.object({
   duration: z.number().optional(),
   config:  ZConfig.optional()
 });
-

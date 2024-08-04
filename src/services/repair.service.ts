@@ -9,8 +9,8 @@ import { format } from "date-fns";
 const repairList = async (token: ResToken): Promise<Repairs[]> => {
   try {
     return await prisma.repairs.findMany({ 
-      where: token.userLevel === "4" ? { device: { wardId: token.wardId } } : 
-      token.userLevel === "3" ? { device: { ward: { hosId: token.hosId } } } : {},
+      where: token.userLevel === "3" ? { device: { wardId: token.wardId } } : 
+      token.userLevel === "2" ? { device: { ward: { hosId: token.hosId } } } : {},
       include: { device: true } 
     });
   } catch (error) {
