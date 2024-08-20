@@ -8,27 +8,27 @@ datasource db {
 }
 
 model Devices {
-  devId           String          @id @db.VarChar(100)
-  wardId          String          @db.VarChar(100)
-  devSerial       String          @unique @db.VarChar(100)
-  devName         String          @unique @db.VarChar(500)
-  devDetail       String?         @db.VarChar(500)
-  devStatus       Boolean         @default(false)
-  devSeq          Int             @unique @db.SmallInt
-  devZone         String?         @db.VarChar(155)
-  locInstall      String?         @db.VarChar(250)
-  locPic          String?         @db.VarChar(200)
-  dateInstall     DateTime?       @default(now())
-  firmwareVersion String?         @db.VarChar(55)
-  createBy        String?         @db.VarChar(100)
-  comment         String?         @db.VarChar(155)
-  backupStatus    String?         @default("0") @db.Char(1)
-  moveStatus      String?         @db.VarChar(100)
-  alarm           Boolean         @default(false)
-  duration        Int?            @db.SmallInt
-  createAt        DateTime        @default(now())
-  updateAt        DateTime        @default(now()) @updatedAt
-  ward            Wards           @relation(fields: [wardId], references: [wardId])
+  devId           String                @id @db.VarChar(100)
+  wardId          String                @db.VarChar(100)
+  devSerial       String                @unique @db.VarChar(100)
+  devName         String                @unique @db.VarChar(500)
+  devDetail       String?               @db.VarChar(500)
+  devStatus       Boolean               @default(false)
+  devSeq          Int                   @unique @db.SmallInt
+  devZone         String?               @db.VarChar(155)
+  locInstall      String?               @db.VarChar(250)
+  locPic          String?               @db.VarChar(200)
+  dateInstall     DateTime?             @default(now())
+  firmwareVersion String?               @db.VarChar(55)
+  createBy        String?               @db.VarChar(100)
+  comment         String?               @db.VarChar(155)
+  backupStatus    String?               @default("0") @db.Char(1)
+  moveStatus      String?               @db.VarChar(100)
+  alarm           Boolean               @default(false)
+  duration        Int?                  @db.SmallInt
+  createAt        DateTime              @default(now())
+  updateAt        DateTime              @default(now()) @updatedAt
+  ward            Wards                 @relation(fields: [wardId], references: [wardId])
   config          Configs?
   noti            Notifications[]
   notiBak         NotificationsBackup[]
@@ -79,6 +79,12 @@ model Configs {
   backToNormal String   @default("0") @db.Char(1) //ส่งแจ้งเตือนหลังอุณหภูมิกลับมาปกติ
   mobileNoti   String   @default("1") @db.Char(1) //เปิดปิดการแจ้งเตือนไปยังมือถือ
   repeat       String   @default("1") @db.Char(1) //ตั้งค่าการส่งซ้ำ ค่าเริ่มต้นคือ 1
+  firstDay     String?  @db.VarChar(3) //ตั้งค่าการส่งตามวัน ค่าเริ่มต้นคือ null
+  secondDay    String?  @db.VarChar(3) //ตั้งค่าการส่งตามวัน ค่าเริ่มต้นคือ null
+  thirdDay     String?  @db.VarChar(3) //ตั้งค่าการส่งตามวัน ค่าเริ่มต้นคือ null
+  firstTime    String?  @db.VarChar(4) //ตั้งค่าการส่งตามเวลา ค่าเริ่มต้นคือ null
+  secondTime   String?  @db.VarChar(4) //ตั้งค่าการส่งตามเวลา ค่าเริ่มต้นคือ null
+  thirdTime    String?  @db.VarChar(4) //ตั้งค่าการส่งตามเวลา ค่าเริ่มต้นคือ null
   devSerial    String   @unique @db.VarChar(100)
   createAt     DateTime @default(now())
   updateAt     DateTime @default(now()) @updatedAt

@@ -36,6 +36,12 @@ export const ZConfig = z.object({
   backToNormal: z.string().optional(),
   mobileNoti: z.string().optional(),
   repeat: z.string().optional(),
+  firstDay: z.string().optional(),
+  secondDay: z.string().optional(),
+  thirdDay: z.string().optional(),
+  firstTime: z.string().optional(),
+  secondTime: z.string().optional(),
+  thirdTime: z.string().optional(),
   devSerial: z.string().optional(),
 });
 

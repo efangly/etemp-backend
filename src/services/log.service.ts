@@ -193,6 +193,7 @@ const addLog = async (body: LogDays | LogDays[]) => {
         body.createAt = getDateFormat(new Date());
         body.updateAt = getDateFormat(new Date());
         await removeCache("log");
+        await removeCache("device");
         return await prisma.logDays.create({ data: body });
       } else {
         if (sendTimeYear === currentYear) {
