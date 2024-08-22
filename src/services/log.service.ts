@@ -181,8 +181,8 @@ const addLog = async (body: LogDays | LogDays[]) => {
           });
         }
       });
-      await removeCache("log");
-      await removeCache("device");
+      removeCache("log");
+      removeCache("device");
       return logArr.length > 0 ? await prisma.logDays.createMany({ data: logArr }) : [];
     } else {
       const sendTimeYear = format(body.sendTime, "yyyy");
@@ -192,14 +192,18 @@ const addLog = async (body: LogDays | LogDays[]) => {
         body.sendTime = getDateFormat(body.sendTime);
         body.createAt = getDateFormat(new Date());
         body.updateAt = getDateFormat(new Date());
-        await removeCache("log");
-        await removeCache("device");
+        removeCache("log");
+        removeCache("device");
         return await prisma.logDays.create({ data: body });
       } else {
         if (sendTimeYear === currentYear) {
-          throw new ValidationError("Invalid log value!!");
+          if (body.tempValue !== 0 && body.humidityValue !== 0) {
+            throw new ValidationError(`${body.devSerial}: Temp and Humi value must be greater than 0`);
+          } else {
+            throw new ValidationError(`${body.devSerial}: Unknown error`);
+          }
         } else {
-          throw new ValidationError(`Invalid date: Expected years ${currentYear}, received ${sendTimeYear}`);
+          throw new ValidationError(`${body.devSerial}: Expected years ${currentYear}. received ${sendTimeYear}`);
         }
       }
     }

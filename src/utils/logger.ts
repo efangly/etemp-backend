@@ -6,6 +6,6 @@ import fs from "node:fs"
 export const createLog = async (src: string, message: string) => {
   const pathName = `public/logs/${format(new Date(), "yyyyMM")}`;
   if (!fs.existsSync(pathName)) fs.mkdirSync(pathName, { recursive: true });
-  const logContent = `${format(new Date(), "yyyy/MM/dd'T'HH:mm:ss")} => ${src}, Message: ${message} \n`;
-  await writeFile(path.join(pathName, `Log_${format(new Date(), "yyyyMMdd")}.log`), logContent, { flag: 'a+' });
+  const logContent = `${format(new Date(), "yyyy/MM/dd'T'HH:mm:ss")}, ${src}, ${message} \n`;
+  await writeFile(path.join(pathName, `log_${format(new Date(), "yyyyMMdd")}.log`), logContent, { flag: 'a+' });
 }

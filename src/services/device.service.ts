@@ -91,7 +91,7 @@ const addDevice = async (body: TDevice, pic?: Express.Multer.File): Promise<Devi
         }
       }
     });
-    await removeCache("device");
+    removeCache("device");
     return result;
   } catch (error) {
     throw error;
@@ -113,7 +113,7 @@ const editDevice = async (deviceId: string, body: Devices, token: ResToken, pic?
     });
     if (pic && !!filename) fs.unlinkSync(path.join('public/images/device', filename.split("/")[3]));
     await addHistory(`Device: [${detail}]`, result.devSerial, token.userId);
-    await removeCache("device");
+    removeCache("device");
     return result;
   } catch (error) {
     throw error;
@@ -125,7 +125,7 @@ const removeDevice = async (deviceId: string): Promise<Devices> => {
     const filename = await getDeviceImage(deviceId);
     const result = await prisma.devices.delete({ where: { devId: deviceId } });
     if (!!filename) fs.unlinkSync(path.join('public/images/device', filename.split("/")[3]));
-    await removeCache("device");
+    removeCache("device");
     return result;
   } catch (error) {
     throw error;
@@ -148,14 +148,27 @@ const editSequence = async (beforeId: string, beforeSeq: number, afterId: string
         data: { devSeq: beforeSeq }
       }),
     ]);
-    await removeCache("device");
+    removeCache("device");
     return true;
   } catch (error) {
     throw error;
   }
 }
 
-const findConfig = async (deviceId: string): Promise<Devices | null> => {
+const findConfig = async (): Promise<Configs[]> => {
+  try {
+    const cache = await checkCachedData("config");
+    if (cache) return JSON.parse(cache);
+    const result = await prisma.configs.findMany();
+    // set cache
+    await setCacheData("config", 3600 * 24, JSON.stringify(result));
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+const findConfigById = async (deviceId: string): Promise<Devices | null> => {
   try {
     const result = await prisma.devices.findUnique({
       where: { devSerial: deviceId },
@@ -180,7 +193,8 @@ const editConfig = async (deviceId: string, body: Configs, token: ResToken): Pro
       data: body
     });
     await addHistory(`Config: [${detail}]`, result.devSerial, token.userId);
-    await removeCache("device");
+    removeCache("device");
+    removeCache("config");
     return result;
   } catch (error) {
     throw error;
@@ -313,6 +327,7 @@ export {
   editDevice,
   removeDevice,
   findConfig,
+  findConfigById,
   editConfig,
   editSequence,
   compareDevice

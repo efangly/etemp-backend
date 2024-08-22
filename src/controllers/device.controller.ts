@@ -2,10 +2,19 @@ import { NextFunction, Request, Response } from "express";
 import fs from "node:fs"
 import path from "node:path";
 import { Configs, Devices } from "@prisma/client";
-import { addDevice, compareDevice, deviceById, deviceList, editConfig, editDevice, editSequence, findConfig, removeDevice } from "../services";
 import { BaseResponse, ZChangeSeqBody, ZChangeSeqParam, ZQueryDevice } from "../models";
 import { TDevice, ZConfig, ZConfigParam, ZDevice, ZDeviceParam } from "../models";
-import { compare } from "bcrypt";
+import { addDevice, 
+  compareDevice, 
+  deviceById, 
+  deviceList, 
+  editConfig, 
+  editDevice, 
+  editSequence, 
+  findConfigById, 
+  removeDevice, 
+  findConfig 
+} from "../services";
 
 const getDevice = async (req: Request, res: Response<BaseResponse<Devices[]>>, next: NextFunction) => {
   try {
@@ -74,13 +83,25 @@ const deleteDevice = async (req: Request, res: Response<BaseResponse<Devices>>, 
   }
 };
 
-const getConfig = async (req: Request, res: Response<BaseResponse<Devices | null>>, next: NextFunction) => {
+const getConfig = async (req: Request, res: Response<BaseResponse<Configs[]>>, next: NextFunction) => {
+  try {
+    res.status(200).json({
+      message: 'Successful',
+      success: true,
+      data: await findConfig()
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+const getConfigById = async (req: Request, res: Response<BaseResponse<Devices | null>>, next: NextFunction) => {
   try {
     const params = ZConfigParam.parse(req.params);
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await findConfig(params.devSerial)
+      data: await findConfigById(params.devSerial)
     });
   } catch (error) {
     next(error);
@@ -135,6 +156,7 @@ export {
   updateDevice,
   deleteDevice,
   getConfig,
+  getConfigById,
   updateConfig,
   changeSeq,
   getCompareDevice
