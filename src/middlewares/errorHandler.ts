@@ -13,10 +13,10 @@ export const globalErrorHanlder = (error: unknown, req: Request, res: Response<B
     statusCode = error.statusCode;
   }
   if (error instanceof Error) {
+    statusCode = 400;
     if (error instanceof PrismaClientKnownRequestError) {
       message = `PrismaError: ${error.code} [${error.meta?.modelName}: ${error.meta?.cause}]`;
     } else if (error instanceof z.ZodError) {
-      statusCode = 400;
       message = fromZodError(error).toString();
     } else {
       message = error.message;

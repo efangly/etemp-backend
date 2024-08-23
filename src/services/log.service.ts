@@ -197,7 +197,7 @@ const addLog = async (body: LogDays | LogDays[]) => {
         return await prisma.logDays.create({ data: body });
       } else {
         if (sendTimeYear === currentYear) {
-          if (body.tempValue !== 0 && body.humidityValue !== 0) {
+          if (body.tempValue === 0 && body.humidityValue === 0) {
             throw new ValidationError(`${body.devSerial}: Temp and Humi value must be greater than 0`);
           } else {
             throw new ValidationError(`${body.devSerial}: Unknown error`);

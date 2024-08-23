@@ -158,17 +158,15 @@ const deviceEvent = async (clientid: string, event: string): Promise<string> => 
       const result = await prisma.devices.update({
         where: { devSerial: clientid },
         data: { 
-          backupStatus: event === "client.connected" ? "1" : "0",
-          updateAt: getDateFormat(new Date())
+          backupStatus: event === "client.connected" ? "1" : "0"
         }
       });
       await removeCache("device");
-      console.log(`Device ${clientid} is ${event === "client.connected" ? "online" : "offline"}`);
       socket.emit("send_message", { 
         device: result.devDetail, 
         message: event === "client.connected" ? "Device online" : "Device offline", 
         hospital: result.wardId,
-        time: result.updateAt.toString() 
+        time: getDateFormat(new Date()).toString()
       });
     }
     return "OK";
