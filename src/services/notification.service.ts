@@ -152,6 +152,31 @@ const editNotification = async (notiId: string, body: Notifications): Promise<No
   }
 };
 
+const deviceEvent = async (clientid: string, event: string): Promise<string> => {
+  try {
+    if (clientid.substring(0, 4) === "eTPV" || clientid.substring(0, 4) === "iTSV") {
+      const result = await prisma.devices.update({
+        where: { devSerial: clientid },
+        data: { 
+          backupStatus: event === "client.connected" ? "1" : "0",
+          updateAt: getDateFormat(new Date())
+        }
+      });
+      await removeCache("device");
+      console.log(`Device ${clientid} is ${event === "client.connected" ? "online" : "offline"}`);
+      socket.emit("send_message", { 
+        device: result.devDetail, 
+        message: event === "client.connected" ? "Device online" : "Device offline", 
+        hospital: result.wardId,
+        time: result.updateAt.toString() 
+      });
+    }
+    return "OK";
+  } catch (error) {
+    throw error;
+  } 
+}
+
 const pushNotification = async (topic: string, title: string, detail: string) => {
   try {
     const message: Message = {
@@ -230,5 +255,6 @@ export {
   editNotification,
   pushNotification,
   backupNoti,
-  findHistoryNotification
+  findHistoryNotification,
+  deviceEvent
 };

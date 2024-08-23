@@ -17,7 +17,7 @@ import fs from 'node:fs';
 import YAML from 'yaml';
 import { backupData, getCompareDevice } from "../controllers";
 import { BaseResponse } from '../models';
-import { historyList } from '../services';
+import { deviceEvent, historyList } from '../services';
 import { verifyToken } from '../middlewares';
 
 const file = fs.readFileSync("./swagger.yaml", "utf8");
@@ -47,6 +47,22 @@ router.use('/history', verifyToken, async (req: Request, res: Response<BaseRespo
       message: 'Successful',
       success: true, 
       data: await historyList(res.locals.token)
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+router.post('/mqtt/event', async (req: Request, res: Response<BaseResponse<Promise<string>>>, next: NextFunction) => {
+  try {
+    type EventDevice = {
+      clientid: string,
+      event: string
+    };
+    const data = req.body as EventDevice;
+    res.status(200).json({ 
+      message: 'Successful',
+      success: true, 
+      data: deviceEvent(data.clientid, data.event)
     });
   } catch (error) {
     next(error);
