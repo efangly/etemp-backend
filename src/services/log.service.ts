@@ -62,7 +62,7 @@ const logList = async (query: TQueryLog, token: ResToken): Promise<LogDays[]> =>
             prisma.logDays.findMany(
               logCondition({
                 devSerial: query.devSerial,
-                sendTime: { gte: getDistanceTime('day') },
+                sendTime: { gte: getDistanceTime('week') },
                 ...condition as Prisma.LogDaysWhereInput
               })
             ),
@@ -83,7 +83,7 @@ const logList = async (query: TQueryLog, token: ResToken): Promise<LogDays[]> =>
             prisma.logDays.findMany(
               logCondition({
                 devSerial: query.devSerial,
-                sendTime: { gte: getDistanceTime('day') },
+                sendTime: { gte: getDistanceTime('month') },
                 ...condition as Prisma.LogDaysWhereInput
               })
             ),
@@ -200,7 +200,7 @@ const addLog = async (body: LogDays | LogDays[]) => {
           if (body.tempValue === 0 && body.humidityValue === 0) {
             throw new ValidationError(`${body.devSerial}: Temp and Humi value must be greater than 0`);
           } else {
-            throw new ValidationError(`${body.devSerial}: Unknown error`);
+            throw new ValidationError(`${body.devSerial}: Temp ${body.tempValue.toString()} Humi ${body.humidityValue.toString()}`);
           }
         } else {
           throw new ValidationError(`${body.devSerial}: Expected years ${currentYear}. received ${sendTimeYear}`);

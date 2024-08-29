@@ -4,7 +4,8 @@ import path from "node:path";
 import { Configs, Devices } from "@prisma/client";
 import { BaseResponse, ZChangeSeqBody, ZChangeSeqParam, ZQueryDevice } from "../models";
 import { TDevice, ZConfig, ZConfigParam, ZDevice, ZDeviceParam } from "../models";
-import { addDevice, 
+import { 
+  addDevice, 
   compareDevice, 
   deviceById, 
   deviceList, 
@@ -13,7 +14,9 @@ import { addDevice,
   editSequence, 
   findConfigById, 
   removeDevice, 
-  findConfig 
+  findConfig,
+  updateFirmware, 
+  deviceWithLog
 } from "../services";
 
 const getDevice = async (req: Request, res: Response<BaseResponse<Devices[]>>, next: NextFunction) => {
@@ -21,7 +24,19 @@ const getDevice = async (req: Request, res: Response<BaseResponse<Devices[]>>, n
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await deviceList(res.locals.token)
+      data: await deviceList()
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getDeviceWithLog = async (req: Request, res: Response<BaseResponse<Devices[]>>, next: NextFunction) => {
+  try {
+    res.status(200).json({
+      message: 'Successful',
+      success: true,
+      data: await deviceWithLog(res.locals.token)
     });
   } catch (error) {
     next(error);
@@ -69,6 +84,18 @@ const updateDevice = async (req: Request, res: Response<BaseResponse<Devices>>, 
     next(error);
   }
 };
+
+const versionUpdate = async (req: Request, res: Response<BaseResponse<Devices>>, next: NextFunction) => {
+  try {
+    res.status(200).json({
+      message: 'Successful',
+      success: true,
+      data: await updateFirmware(req.params.devSerial, req.body.version)
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 
 const deleteDevice = async (req: Request, res: Response<BaseResponse<Devices>>, next: NextFunction) => {
   try {
@@ -151,6 +178,7 @@ const getCompareDevice = async (req: Request, res: Response<BaseResponse>, next:
 
 export {
   getDevice,
+  getDeviceWithLog,
   getDeviceByid,
   createDevice,
   updateDevice,
@@ -159,5 +187,6 @@ export {
   getConfigById,
   updateConfig,
   changeSeq,
-  getCompareDevice
+  getCompareDevice,
+  versionUpdate
 };

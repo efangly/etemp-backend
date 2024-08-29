@@ -9,7 +9,22 @@ import { ResToken, TDevice, TQueryDevice } from "../models";
 import { addHistory } from "./history.service";
 import { format } from "date-fns";
 
-const deviceList = async (token?: ResToken): Promise<Devices[]> => {
+const deviceList = async (): Promise<Devices[]> => {
+  try {
+    const cache = await checkCachedData("deviceonly");
+    if (cache) return JSON.parse(cache);
+    const result = await prisma.devices.findMany({
+      orderBy: { devSeq: "asc"}
+    });
+    // set cache
+    await setCacheData("deviceonly", 3600 * 24, JSON.stringify(result));
+    return result;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const deviceWithLog = async (token?: ResToken): Promise<Devices[]> => {
   try {
     let { conditions, keyName } = setCondition(token);
     const cache = await checkCachedData(keyName);
@@ -38,7 +53,7 @@ const deviceList = async (token?: ResToken): Promise<Devices[]> => {
   } catch (error) {
     throw error;
   }
-};
+}
 
 const deviceById = async (deviceId: string): Promise<Devices | null> => {
   try {
@@ -75,6 +90,8 @@ const addDevice = async (body: TDevice, pic?: Express.Multer.File): Promise<Devi
           create: {
             confId: `CONF-${uuidv4()}`,
             macAddWiFi: body.config?.macAddWiFi,
+            ssid: "RDE_2.4GHz",
+            ssidPass: "rde05012566",
             createAt: getDateFormat(new Date()),
             updateAt: getDateFormat(new Date())
           }
@@ -82,9 +99,13 @@ const addDevice = async (body: TDevice, pic?: Express.Multer.File): Promise<Devi
         probe: {
           create: {
             probeId: `PID-${uuidv4()}`,
-            probeName: "",
-            probeType: "",
+            probeName: "SHT-31",
+            probeType: "SHT-31",
             probeCh: "1",
+            delayTime: "5",
+            door: 1,
+            tempMax: 35,
+            humMax: 100,
             createAt: getDateFormat(new Date()),
             updateAt: getDateFormat(new Date())
           }
@@ -119,6 +140,19 @@ const editDevice = async (deviceId: string, body: Devices, token: ResToken, pic?
     throw error;
   }
 };
+
+const updateFirmware = async (devSerial: string, firmwareName: string) => {
+  try {
+    const result = await prisma.devices.update({
+      where: { devSerial: devSerial },
+      data: { firmwareVersion: firmwareName }
+    });
+    removeCache("device");
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
 
 const removeDevice = async (deviceId: string): Promise<Devices> => {
   try {
@@ -322,6 +356,7 @@ const setSplitCondition = (device: number, diff: number, data: LogDays[]) => {
 
 export {
   deviceList,
+  deviceWithLog,
   deviceById,
   addDevice,
   editDevice,
@@ -330,5 +365,6 @@ export {
   findConfigById,
   editConfig,
   editSequence,
-  compareDevice
+  compareDevice,
+  updateFirmware
 };

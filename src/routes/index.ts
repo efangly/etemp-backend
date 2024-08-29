@@ -1,4 +1,4 @@
-import type { NextFunction, Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import express, { Router } from 'express';
 import authRouter from './auth';
 import userRouter from './user';
@@ -15,10 +15,8 @@ import firmwareRouter from './firmware';
 import swaggerUi from 'swagger-ui-express';
 import fs from 'node:fs';
 import YAML from 'yaml';
-import { backupData, getCompareDevice } from "../controllers";
 import { BaseResponse } from '../models';
-import { deviceEvent, historyList } from '../services';
-import { verifyToken } from '../middlewares';
+import utilsRouter from './utils';
 
 const file = fs.readFileSync("./swagger.yaml", "utf8");
 const router = Router();
@@ -39,36 +37,8 @@ router.use('/img', express.static('public/images'));
 router.use('/font', express.static('public/fonts'));
 router.use('/firmware', express.static('public/firmwares'));
 router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(YAML.parse(file)));
-router.use('/backup', backupData);
-router.use('/compare', verifyToken, getCompareDevice);
-router.use('/history', verifyToken, async (req: Request, res: Response<BaseResponse>, next: NextFunction) => {
-  try {
-    res.status(200).json({ 
-      message: 'Successful',
-      success: true, 
-      data: await historyList(res.locals.token)
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-router.post('/mqtt/event', async (req: Request, res: Response<BaseResponse<Promise<string>>>, next: NextFunction) => {
-  try {
-    type EventDevice = {
-      clientid: string,
-      event: string
-    };
-    const data = req.body as EventDevice;
-    res.status(200).json({ 
-      message: 'Successful',
-      success: true, 
-      data: deviceEvent(data.clientid, data.event)
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-router.use('/', (req: Request, res: Response<BaseResponse<null>>) => {
+router.use('/utils', utilsRouter);
+router.use('/', (_req: Request, res: Response<BaseResponse<null>>) => {
   res.status(404).json({ 
     message: 'Not Found',
     success: false, 
