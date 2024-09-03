@@ -4,7 +4,7 @@ import path from "node:path";
 import { v4 as uuidv4 } from 'uuid';
 import { getHospitalImage, getDateFormat, checkCachedData, setCacheData, removeCache } from "../utils";
 import { Hospitals, Prisma } from "@prisma/client";
-import { HttpError, NotFoundError, ValidationError } from "../error";
+import { NotFoundError, ValidationError } from "../error";
 import { ResToken } from "../models";
 
 const hospitalList = async (token: ResToken): Promise<Hospitals[]> => {

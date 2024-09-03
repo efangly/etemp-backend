@@ -62,6 +62,7 @@ const addWard = async (body: Wards, token: ResToken) => {
       include: { hospital: true }
     });
     await removeCache("ward");
+    await removeCache("hospital");
     return result;
   } catch (error) {
     throw error;
@@ -76,6 +77,7 @@ const editWard = async (wardId: string, body: Wards) => {
       data: body
     });
     await removeCache("ward");
+    await removeCache("hospital");
     return result;
   } catch (error) {
     throw error;
@@ -85,6 +87,7 @@ const editWard = async (wardId: string, body: Wards) => {
 const removeWard = async (wardId: string) => {
   try {
     await removeCache("ward");
+    await removeCache("hospital");
     return await prisma.wards.delete({ where: { wardId: wardId } });
   } catch (error) {
     throw error;

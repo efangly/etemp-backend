@@ -36,6 +36,7 @@ const deviceWithLog = async (token?: ResToken): Promise<Devices[]> => {
         probe: true,
         config: true,
         noti: { orderBy: { createAt: 'desc' } },
+        ward: { select: { wardName: true, hospital: { select: { hosName: true } } } },
         _count: {
           select: {
             warranty: { where: { warrStatus: true } },
@@ -113,6 +114,7 @@ const addDevice = async (body: TDevice, pic?: Express.Multer.File): Promise<Devi
       }
     });
     removeCache("device");
+    removeCache("deviceonly");
     return result;
   } catch (error) {
     throw error;
