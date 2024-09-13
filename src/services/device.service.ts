@@ -32,7 +32,7 @@ const deviceWithLog = async (token?: ResToken): Promise<Devices[]> => {
     const result = await prisma.devices.findMany({
       where: conditions,
       include: {
-        log: { take: 1, orderBy: { sendTime: 'desc' } },
+        log: { take: 1, orderBy: [{ sendTime: 'desc' }, { createAt: 'desc' }] },
         probe: true,
         config: true,
         noti: { orderBy: { createAt: 'desc' } },
@@ -143,11 +143,11 @@ const editDevice = async (deviceId: string, body: Devices, token: ResToken, pic?
   }
 };
 
-const updateFirmware = async (devSerial: string, firmwareName: string) => {
+const updateFirmware = async (devSerial: string, body: Devices) => {
   try {
     const result = await prisma.devices.update({
       where: { devSerial: devSerial },
-      data: { firmwareVersion: firmwareName }
+      data: body
     });
     removeCache("device");
     return result;
@@ -210,6 +210,7 @@ const findConfigById = async (deviceId: string): Promise<Devices | null> => {
       where: { devSerial: deviceId },
       select: {
         devSerial: true,
+        devDetail: true,
         config: true,
         probe: true
       }
@@ -232,6 +233,27 @@ const editConfig = async (deviceId: string, body: Configs, token: ResToken): Pro
     removeCache("device");
     removeCache("config");
     return result;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const editDeviceConfig = async (deviceId: string, body: Configs): Promise<Devices> => {
+  try {
+    body.updateAt = getDateFormat(new Date());
+    const result = await prisma.devices.update({
+      where: { devSerial: deviceId },
+      select: { 
+        devSerial: true, 
+        devDetail: true,
+        config: true, 
+        probe: true 
+      },
+      data: { config: { update: body } },
+    });
+    removeCache("device");
+    removeCache("config");
+    return result as unknown as Devices;
   } catch (error) {
     throw error;
   }
@@ -368,5 +390,6 @@ export {
   editConfig,
   editSequence,
   compareDevice,
-  updateFirmware
+  updateFirmware,
+  editDeviceConfig
 };

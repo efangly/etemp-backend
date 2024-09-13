@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { JsonWebTokenError, verify } from "jsonwebtoken";
+import { JsonWebTokenError, TokenExpiredError, verify } from "jsonwebtoken";
 import { HttpError } from "../error";
 
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
@@ -15,8 +15,10 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
   } catch (error) {
     if (error instanceof JsonWebTokenError) {
       next(new HttpError(401, `${error.name} : ${error.message}`));
+    } else if (error instanceof TokenExpiredError) {
+      next(new HttpError(401, `${error.name} : ${error.message}`));
     } else {
-      next(error);
+      next(new HttpError(401, `An unknown error occurred, ${String(error)}`));
     }
   }
 }

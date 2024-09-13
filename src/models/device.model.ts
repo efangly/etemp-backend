@@ -1,3 +1,5 @@
+import { sub } from "date-fns";
+import { get } from "http";
 import { z } from "zod";
 
 export const ZDeviceParam = z.object({ devId: z.string() });
@@ -20,12 +22,17 @@ export type TQueryDevice = z.infer<typeof ZQueryDevice>;
 export const ZConfig = z.object({
   confId: z.string().optional(),
   mode: z.string().optional(),
+  modeEth: z.string().optional(),
   ip: z.string().optional(),
+  ipEth: z.string().optional(),
   macAddEth: z.string().optional(),
   macAddWiFi: z.string().optional(),
   subNet: z.string().optional(),
+  subNetEth: z.string().optional(),
   getway: z.string().optional(),
+  getwayEth: z.string().optional(),
   dns: z.string().optional(),
+  dnsEth: z.string().optional(),
   ssid: z.string().optional(),
   ssidPass: z.string().optional(),
   sim: z.string().optional(),
@@ -42,6 +49,8 @@ export const ZConfig = z.object({
   firstTime: z.string().optional(),
   secondTime: z.string().optional(),
   thirdTime: z.string().optional(),
+  muteDoor: z.string().optional(),
+  muteLong: z.string().optional(),
   devSerial: z.string().optional(),
 });
 

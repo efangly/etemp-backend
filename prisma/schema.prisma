@@ -63,12 +63,17 @@ model Probes {
 model Configs {
   confId       String   @id @default(uuid()) @db.VarChar(100)
   mode         String?  @default("0") @db.Char(1)
+  modeEth      String?  @default("0") @db.Char(1)
   ip           String?  @db.VarChar(50)
+  ipEth        String?  @db.VarChar(50)
   macAddEth    String?  @db.VarChar(50)
   macAddWiFi   String?  @db.VarChar(50)
   subNet       String?  @db.VarChar(50)
+  subNetEth    String?  @db.VarChar(50)
   getway       String?  @db.VarChar(50)
+  getwayEth    String?  @db.VarChar(50)
   dns          String?  @db.VarChar(50)
+  dnsEth       String?  @db.VarChar(50)
   ssid         String?  @db.VarChar(100)
   ssidPass     String?  @db.VarChar(100)
   sim          String?  @db.VarChar(100)
@@ -85,6 +90,8 @@ model Configs {
   firstTime    String?  @db.VarChar(4) //ตั้งค่าการส่งตามเวลา ค่าเริ่มต้นคือ null
   secondTime   String?  @db.VarChar(4) //ตั้งค่าการส่งตามเวลา ค่าเริ่มต้นคือ null
   thirdTime    String?  @db.VarChar(4) //ตั้งค่าการส่งตามเวลา ค่าเริ่มต้นคือ null
+  muteDoor     String   @default("0") @db.Char(1) //ปิดเสียงเตือนเมื่อเปิดปิดเซ็นเซอร์ประตู 0 คือเปิด 1 คือปิด
+  muteLong     String   @default("0") @db.Char(1) //ปิดเสียงเตือนเมื่อเปิดปิดalarm 0 คือเปิด 1 คือปิด
   devSerial    String   @unique @db.VarChar(100)
   createAt     DateTime @default(now())
   updateAt     DateTime @default(now()) @updatedAt

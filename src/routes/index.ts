@@ -15,8 +15,8 @@ import firmwareRouter from './firmware';
 import swaggerUi from 'swagger-ui-express';
 import fs from 'node:fs';
 import YAML from 'yaml';
-import { BaseResponse } from '../models';
 import utilsRouter from './utils';
+import { verifyToken } from '../middlewares';
 
 const file = fs.readFileSync("./swagger.yaml", "utf8");
 const router = Router();
@@ -36,9 +36,10 @@ router.use('/firmwares', firmwareRouter);
 router.use('/img', express.static('public/images'));
 router.use('/font', express.static('public/fonts'));
 router.use('/firmware', express.static('public/firmwares'));
+router.use('/logs', verifyToken, express.static('public/logs'));
 router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(YAML.parse(file)));
 router.use('/utils', utilsRouter);
-router.use('/', (_req: Request, res: Response<BaseResponse<null>>) => {
+router.use('/', (_req: Request, res: Response) => {
   res.status(404).json({ 
     message: 'Not Found',
     success: false, 

@@ -16,7 +16,8 @@ import {
   removeDevice, 
   findConfig,
   updateFirmware, 
-  deviceWithLog
+  deviceWithLog,
+  editDeviceConfig
 } from "../services";
 
 const getDevice = async (req: Request, res: Response<BaseResponse<Devices[]>>, next: NextFunction) => {
@@ -87,10 +88,11 @@ const updateDevice = async (req: Request, res: Response<BaseResponse<Devices>>, 
 
 const versionUpdate = async (req: Request, res: Response<BaseResponse<Devices>>, next: NextFunction) => {
   try {
+    const body = ZDevice.parse(req.body);
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await updateFirmware(req.params.devSerial, req.body.version)
+      data: await updateFirmware(req.params.devSerial, body as unknown as Devices)
     });
   } catch (error) {
     next(error);
@@ -149,6 +151,20 @@ const updateConfig = async (req: Request, res: Response<BaseResponse<Configs>>, 
   }
 };
 
+const updateDeviceConfig = async (req: Request, res: Response<BaseResponse<Devices>>, next: NextFunction) => {
+  try {
+    const params = ZConfigParam.parse(req.params);
+    const body = ZConfig.parse(req.body);
+    res.status(200).json({
+      message: 'Successful',
+      success: true,
+      data: await editDeviceConfig(params.devSerial, body as unknown as Configs)
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const changeSeq = async (req: Request, res: Response<BaseResponse<boolean>>, next: NextFunction) => {
   try {
     const params = ZChangeSeqParam.parse(req.params);
@@ -188,5 +204,6 @@ export {
   updateConfig,
   changeSeq,
   getCompareDevice,
-  versionUpdate
+  versionUpdate,
+  updateDeviceConfig
 };

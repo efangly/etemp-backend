@@ -5,18 +5,24 @@ import { createLog } from '../utils';
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { fromZodError } from "zod-validation-error";
 import { z } from "zod";
+import { TokenExpiredError } from 'jsonwebtoken';
 
 export const globalErrorHanlder = (error: unknown, req: Request, res: Response<BaseResponse<null>>, next: NextFunction) => {
   let statusCode = 500;
   let message = '';
   if (error instanceof HttpError) {
     statusCode = error.statusCode;
+    if (error instanceof TokenExpiredError) {
+      statusCode = 401;
+      message = `${error.name} : ${error.message}`;
+    }
   }
   if (error instanceof Error) {
-    statusCode = 400;
     if (error instanceof PrismaClientKnownRequestError) {
+      statusCode = 400;
       message = `PrismaError: ${error.code} [${error.meta?.modelName}: ${error.meta?.cause}]`;
     } else if (error instanceof z.ZodError) {
+      statusCode = 400;
       message = fromZodError(error).toString();
     } else {
       message = error.message;
