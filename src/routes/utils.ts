@@ -3,6 +3,7 @@ import { backupData, getCompareDevice, getDevice } from '../controllers';
 import { verifyToken } from '../middlewares';
 import { BaseResponse } from '../models';
 import { deviceEvent, historyList } from '../services';
+import { z } from 'zod';
 
 const utilsRouter = Router();
 
@@ -22,11 +23,11 @@ utilsRouter.get('/history', verifyToken, async (_req: Request, res: Response<Bas
 });
 utilsRouter.post('/mqtt', async (req: Request, res: Response<BaseResponse<Promise<string>>>, next: NextFunction) => {
   try {
-    type EventDevice = {
-      clientid: string,
-      event: string
-    };
-    const data = req.body as EventDevice;
+    const EventDevice = z.object({
+      clientid: z.string(),
+      event: z.string()
+    });
+    const data = EventDevice.parse(req.body);
     res.status(200).json({ 
       message: 'Successful',
       success: true, 

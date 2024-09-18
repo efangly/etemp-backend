@@ -1,7 +1,7 @@
 import { prisma, redisConn } from "../configs";
 import { v4 as uuidv4 } from 'uuid';
 import { LogDays, Prisma } from "@prisma/client";
-import { getDateFormat, getDistanceTime, removeCache, setCacheData, splitLog } from "../utils";
+import { getDateFormat, getDateFullYear, getDistanceTime, removeCache, setCacheData, splitLog } from "../utils";
 import { ResToken, TQueryLog } from "../models";
 import { NotFoundError, ValidationError } from "../error";
 import { backupNoti } from "./notification.service";
@@ -153,40 +153,42 @@ const findLog = async (logId: string): Promise<LogDays> => {
 
 const addLog = async (body: LogDays | LogDays[]) => {
   try {
+    const currentYear = format(new Date(), "yyyy");
     if (Array.isArray(body)) {
       let logArr: LogDays[] = [];
       body.forEach((log) => {
-        const sendTimeYear = format(log.sendTime, "yyyy");
-        const currentYear = format(new Date(), "yyyy");
-        if (log.tempValue !== 0 && log.humidityValue !== 0 && sendTimeYear === currentYear) {
-          logArr.push({
-            logId: `LOG-${uuidv4()}`,
-            devSerial: log.devSerial,
-            tempValue: log.tempValue,
-            tempAvg: log.tempAvg,
-            humidityValue: log.humidityValue,
-            humidityAvg: log.humidityAvg,
-            sendTime: getDateFormat(log.sendTime || new Date()),
-            ac: log.ac,
-            door1: log.door1,
-            door2: log.door2,
-            door3: log.door3,
-            internet: log.internet,
-            probe: log.probe,
-            battery: log.battery,
-            ambient: log.ambient,
-            sdCard: log.sdCard,
-            createAt: getDateFormat(new Date()),
-            updateAt: getDateFormat(new Date()),
-          });
+        const sendTimeYear = getDateFullYear(log.sendTime);
+        if (sendTimeYear) {
+          if (log.tempValue !== 0 && log.humidityValue !== 0 && sendTimeYear === currentYear) {
+            logArr.push({
+              logId: `LOG-${uuidv4()}`,
+              devSerial: log.devSerial,
+              tempValue: log.tempValue,
+              tempAvg: log.tempAvg,
+              humidityValue: log.humidityValue,
+              humidityAvg: log.humidityAvg,
+              sendTime: getDateFormat(log.sendTime),
+              ac: log.ac,
+              door1: log.door1,
+              door2: log.door2,
+              door3: log.door3,
+              internet: log.internet,
+              probe: log.probe,
+              battery: log.battery,
+              ambient: log.ambient,
+              sdCard: log.sdCard,
+              createAt: getDateFormat(new Date()),
+              updateAt: getDateFormat(new Date()),
+            });
+          }
         }
       });
       removeCache("log");
       removeCache("device");
       return logArr.length > 0 ? await prisma.logDays.createMany({ data: logArr }) : [];
     } else {
-      const sendTimeYear = format(body.sendTime, "yyyy");
-      const currentYear = format(new Date(), "yyyy");
+      const sendTimeYear = getDateFullYear(body.sendTime); 
+      if (sendTimeYear === undefined) throw new ValidationError(`${body.devSerial}: Sendtime is invalid, ${body.sendTime}`);
       if (body.tempValue !== 0 && body.humidityValue !== 0 && sendTimeYear === currentYear) {
         body.logId = `LOG-${uuidv4()}`;
         body.sendTime = getDateFormat(body.sendTime);

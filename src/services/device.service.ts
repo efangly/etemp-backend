@@ -3,9 +3,9 @@ import path from "node:path";
 import { prisma } from "../configs";
 import { v4 as uuidv4 } from 'uuid';
 import { getDeviceImage, getDateFormat, getDistanceTime, objToString, checkCachedData, setCacheData, removeCache, splitLog } from "../utils";
-import { Configs, Devices, LogDays, Prisma } from "@prisma/client";
+import { Configs, Devices, LogDays, Prisma, Probes } from "@prisma/client";
 import { NotFoundError } from "../error";
-import { ResToken, TDevice, TQueryDevice } from "../models";
+import { ResToken, TAdjustConfig, TDevice, TQueryDevice } from "../models";
 import { addHistory } from "./history.service";
 import { format } from "date-fns";
 
@@ -91,7 +91,7 @@ const addDevice = async (body: TDevice, pic?: Express.Multer.File): Promise<Devi
           create: {
             confId: `CONF-${uuidv4()}`,
             macAddWiFi: body.config?.macAddWiFi,
-            ssid: "RDE_2.4GHz",
+            ssid: "RDE2_2.4GHz",
             ssidPass: "rde05012566",
             createAt: getDateFormat(new Date()),
             updateAt: getDateFormat(new Date())
@@ -238,9 +238,9 @@ const editConfig = async (deviceId: string, body: Configs, token: ResToken): Pro
   }
 };
 
-const editDeviceConfig = async (deviceId: string, body: Configs): Promise<Devices> => {
+const editDeviceConfig = async (deviceId: string, body: TAdjustConfig): Promise<Devices> => {
   try {
-    body.updateAt = getDateFormat(new Date());
+    
     const result = await prisma.devices.update({
       where: { devSerial: deviceId },
       select: { 
@@ -249,7 +249,17 @@ const editDeviceConfig = async (deviceId: string, body: Configs): Promise<Device
         config: true, 
         probe: true 
       },
-      data: { config: { update: body } },
+      data: { 
+        config: { 
+          update: body.config ? body.config as unknown as Configs : undefined
+        }, 
+        probe: { 
+          updateMany: body.probe ? {
+            where: { devSerial: deviceId, probeCh: body.probe.probeCh },
+            data: body.probe
+          } : undefined
+        } 
+        },
     });
     removeCache("device");
     removeCache("config");

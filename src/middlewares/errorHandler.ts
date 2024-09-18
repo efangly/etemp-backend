@@ -25,7 +25,8 @@ export const globalErrorHanlder = (error: unknown, req: Request, res: Response<B
       statusCode = 400;
       message = fromZodError(error).toString();
     } else {
-      message = error.message;
+      statusCode = 400;
+      message = `${error.name}: ${error.message}`;
     }
     console.error(`${error.name}: ${error.message}`); 
   } else {

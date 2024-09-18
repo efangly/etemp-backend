@@ -1,6 +1,7 @@
 import { sub } from "date-fns";
 import { get } from "http";
 import { z } from "zod";
+import { ZProbe } from "./probe.model";
 
 export const ZDeviceParam = z.object({ devId: z.string() });
 export const ZConfigParam = z.object({ devSerial: z.string() });
@@ -75,3 +76,10 @@ export const ZDevice = z.object({
   duration: z.number().optional(),
   config:  ZConfig.optional()
 });
+
+export const ZAdjustConfig = z.object({
+  config: ZConfig.optional(),
+  probe: ZProbe.optional()
+});
+
+export type TAdjustConfig = z.infer<typeof ZAdjustConfig>;

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import fs from "node:fs"
 import path from "node:path";
 import { Configs, Devices } from "@prisma/client";
-import { BaseResponse, ZChangeSeqBody, ZChangeSeqParam, ZQueryDevice } from "../models";
+import { BaseResponse, ZAdjustConfig, ZChangeSeqBody, ZChangeSeqParam, ZQueryDevice } from "../models";
 import { TDevice, ZConfig, ZConfigParam, ZDevice, ZDeviceParam } from "../models";
 import { 
   addDevice, 
@@ -154,11 +154,11 @@ const updateConfig = async (req: Request, res: Response<BaseResponse<Configs>>, 
 const updateDeviceConfig = async (req: Request, res: Response<BaseResponse<Devices>>, next: NextFunction) => {
   try {
     const params = ZConfigParam.parse(req.params);
-    const body = ZConfig.parse(req.body);
+    const body = ZAdjustConfig.parse(req.body);
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await editDeviceConfig(params.devSerial, body as unknown as Configs)
+      data: await editDeviceConfig(params.devSerial, body)
     });
   } catch (error) {
     next(error);

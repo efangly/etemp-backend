@@ -1,4 +1,4 @@
-import express,{ Application } from "express";
+import express,{ Application, NextFunction, Response, Request } from "express";
 import morgan from "morgan";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -12,7 +12,19 @@ dotenv.config();
 const port: number = parseInt(process.env.PORT as string, 10) || 8080;
 
 //middleware
-app.use(express.json());
+app.use((req: Request, res: Response, next: NextFunction) => {
+  express.json()(req, res, (err) => {
+    if (err) {
+      console.error('Invalid JSON', err);
+      return res.status(400).json({ 
+        message: 'Invalid JSON',
+        success: false,
+        data: null,
+      });
+    }
+    next();
+  });
+});
 app.use(cors({ origin: '*' }));
 app.use(morgan("dev"));
 

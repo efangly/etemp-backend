@@ -80,10 +80,10 @@ model Configs {
   email1       String?  @db.VarChar(200)
   email2       String?  @db.VarChar(200)
   email3       String?  @db.VarChar(200)
-  notiTime     String   @default("0") @db.Char(1) //ดีเลการส่งแจ้งเตือน 0 คือส่งทันที
+  notiTime     Int      @default(0) @db.SmallInt //ดีเลการส่งแจ้งเตือน 0 คือส่งทันที
   backToNormal String   @default("0") @db.Char(1) //ส่งแจ้งเตือนหลังอุณหภูมิกลับมาปกติ
   mobileNoti   String   @default("1") @db.Char(1) //เปิดปิดการแจ้งเตือนไปยังมือถือ
-  repeat       String   @default("1") @db.Char(1) //ตั้งค่าการส่งซ้ำ ค่าเริ่มต้นคือ 1
+  repeat       Int      @default(0) @db.SmallInt //ตั้งค่าการส่งซ้ำ ค่าเริ่มต้นคือ 1
   firstDay     String?  @db.VarChar(3) //ตั้งค่าการส่งตามวัน ค่าเริ่มต้นคือ null
   secondDay    String?  @db.VarChar(3) //ตั้งค่าการส่งตามวัน ค่าเริ่มต้นคือ null
   thirdDay     String?  @db.VarChar(3) //ตั้งค่าการส่งตามวัน ค่าเริ่มต้นคือ null
