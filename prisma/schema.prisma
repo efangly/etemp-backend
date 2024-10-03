@@ -140,7 +140,6 @@ model Users {
   updateAt     DateTime        @default(now()) @updatedAt
   ward         Wards           @relation(fields: [wardId], references: [wardId])
   role         Roles           @relation(fields: [userLevel], references: [roleId])
-  history      ConfigHistory[]
 }
 
 model Roles {
@@ -183,14 +182,20 @@ model Repairs {
 }
 
 model Warranties {
-  warrId     String   @id @db.VarChar(100)
-  devName    String   @db.VarChar(100)
-  invoice    String?  @db.VarChar(50)
-  expire     DateTime @default(now())
-  warrStatus Boolean  @default(false)
-  createAt   DateTime @default(now())
-  updateAt   DateTime @default(now()) @updatedAt
-  device     Devices  @relation(fields: [devName], references: [devName])
+  warrId          String   @id @db.VarChar(100)
+  devName         String   @db.VarChar(100)
+  productName     String?  @db.VarChar(255)
+  productModel    String?  @db.VarChar(255)
+  installDate     String?  @db.VarChar(255)
+  customerName    String?  @db.VarChar(255)
+  customerAddress String?  @db.VarChar(500)
+  saleDept        String?  @db.VarChar(100)
+  invoice         String?  @db.VarChar(50)
+  expire          DateTime @default(now())
+  warrStatus      Boolean  @default(false)
+  createAt        DateTime @default(now())
+  updateAt        DateTime @default(now()) @updatedAt
+  device          Devices  @relation(fields: [devName], references: [devName])
 }
 
 model LogDays {
@@ -255,5 +260,4 @@ model ConfigHistory {
   createAt  DateTime @default(now())
   updateAt  DateTime @default(now()) @updatedAt
   device    Devices  @relation(fields: [devSerial], references: [devSerial])
-  user      Users    @relation(fields: [userId], references: [userId])
 }

@@ -3,7 +3,7 @@ import path from "node:path";
 import { prisma } from "../configs";
 import { v4 as uuidv4 } from 'uuid';
 import { getDeviceImage, getDateFormat, getDistanceTime, objToString, checkCachedData, setCacheData, removeCache, splitLog } from "../utils";
-import { Configs, Devices, LogDays, Prisma, Probes } from "@prisma/client";
+import { Configs, Devices, LogDays, Prisma } from "@prisma/client";
 import { NotFoundError } from "../error";
 import { ResToken, TAdjustConfig, TDevice, TQueryDevice } from "../models";
 import { addHistory } from "./history.service";
@@ -37,6 +37,7 @@ const deviceWithLog = async (token?: ResToken): Promise<Devices[]> => {
         config: true,
         noti: { orderBy: { createAt: 'desc' } },
         ward: { select: { wardName: true, hospital: { select: { hosName: true } } } },
+        warranty: { take: 1, select: { expire: true }, orderBy: { createAt: 'desc' } },
         _count: {
           select: {
             warranty: { where: { warrStatus: true } },
@@ -58,17 +59,32 @@ const deviceWithLog = async (token?: ResToken): Promise<Devices[]> => {
 
 const deviceById = async (deviceId: string): Promise<Devices | null> => {
   try {
-    const result = await prisma.devices.findUnique({
+    const devId = await prisma.devices.findUnique({ 
       where: { devId: deviceId },
       include: {
         ward: { include: { hospital: { select: { hosName: true } } } },
         log: { orderBy: { sendTime: 'desc' } },
         probe: { orderBy: { probeCh: 'asc' } },
+        warranty: { take: 1, select: { expire: true }, orderBy: { createAt: 'desc' } },
         config: true
       }
     });
-    if (!result) throw new NotFoundError(`Device not found for : ${deviceId}`);
-    return result
+    const devSerial = await prisma.devices.findUnique({ 
+      where: { devSerial: deviceId },
+      include: {
+        ward: { include: { hospital: { select: { hosName: true } } } },
+        log: { orderBy: { sendTime: 'desc' } },
+        probe: { orderBy: { probeCh: 'asc' } },
+        warranty: { take: 1, select: { expire: true }, orderBy: { createAt: 'desc' } },
+        config: true
+      }
+    });
+    if (!devId && !devSerial) throw new NotFoundError(`Device not found for : ${deviceId}`);
+    if (devId) {
+      return devId;
+    } else {
+      return devSerial;
+    }
   } catch (error) {
     throw error;
   }
@@ -240,7 +256,6 @@ const editConfig = async (deviceId: string, body: Configs, token: ResToken): Pro
 
 const editDeviceConfig = async (deviceId: string, body: TAdjustConfig): Promise<Devices> => {
   try {
-    
     const result = await prisma.devices.update({
       where: { devSerial: deviceId },
       select: { 
@@ -250,6 +265,7 @@ const editDeviceConfig = async (deviceId: string, body: TAdjustConfig): Promise<
         probe: true 
       },
       data: { 
+        devDetail: body.devDetail ? body.devDetail : undefined,
         config: { 
           update: body.config ? body.config as unknown as Configs : undefined
         }, 
@@ -259,7 +275,7 @@ const editDeviceConfig = async (deviceId: string, body: TAdjustConfig): Promise<
             data: body.probe
           } : undefined
         } 
-        },
+      },
     });
     removeCache("device");
     removeCache("config");
@@ -342,8 +358,8 @@ const setCondition = (token?: ResToken) => {
       keyName = `device:${token.hosId}`;
       break;
     case "1":
-      conditions = { NOT: { wardId: "WID-DEVELOPMENT" } };
-      keyName = "device:WID-DEVELOPMENT";
+      conditions = { NOT: { ward: { hosId: "HID-DEVELOPMENT" } } };
+      keyName = "device:HID-DEVELOPMENT";
       break;
     default:
       conditions = undefined;

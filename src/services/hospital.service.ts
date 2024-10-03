@@ -29,7 +29,8 @@ const hospitalList = async (token: ResToken): Promise<Hospitals[]> => {
     if (cache) return JSON.parse(cache) as unknown as Hospitals[];
     const result = await prisma.hospitals.findMany({ 
       where: conditions,
-      include: { ward: true } 
+      include: { ward: { orderBy: { wardSeq: 'asc' } } },
+      orderBy: { hosName: 'asc' }
     });
     // set cache
     await setCacheData(keyName, 3600, JSON.stringify(result));

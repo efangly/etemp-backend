@@ -7,4 +7,4 @@ node_modules
 *.ttf
 /dist
 /public
-*.DS_Store
+.DS_Store

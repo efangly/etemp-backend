@@ -6,6 +6,7 @@ import { checkCachedData, getDateFormat, getDistanceTime, removeCache, setCacheD
 import { v4 as uuidv4 } from 'uuid';
 import { ResToken } from "../models";
 dotenv.config();
+let isSend = false;
 
 const notificationList = async (token: ResToken): Promise<Notifications[]> => {
   try {
@@ -28,7 +29,7 @@ const notificationList = async (token: ResToken): Promise<Notifications[]> => {
         conditions = undefined;
         keyName = "noti";
     }
-    const cache =  await checkCachedData(keyName);
+    const cache = await checkCachedData(keyName);
     if (cache) return JSON.parse(cache);
     const result = await prisma.notifications.findMany({
       where: conditions,
@@ -117,20 +118,33 @@ const addNotification = async (body: Notifications): Promise<Notifications> => {
     body.notiId = `NID-${uuidv4()}`;
     body.createAt = getDateFormat(new Date());
     body.updateAt = getDateFormat(new Date());
-    const result = await prisma.notifications.create({ 
-      data: body, 
-      include: { 
-        device: { include: { ward: true } } 
-      } 
+    const result = await prisma.notifications.create({
+      data: body,
+      include: {
+        device: { include: { ward: true } }
+      }
     });
     const pushMessage = setDetailMessage(body.notiDetail);
-    pushNotification('test', result.device.devDetail!, pushMessage);
-    socket.emit("send_message", { 
-      device: result.device.devDetail, 
-      message: pushMessage, 
-      hospital: result.device.ward.hosId,
-      time: body.createAt.toString() 
-    });
+    if (result.device.ward.hosId === "HID-DEVELOPMENT") {
+      pushNotification('admin', result.device.devDetail!, pushMessage);
+    } else {
+      pushNotification(result.device.wardId, result.device.devDetail!, pushMessage);
+      pushNotification(result.device.ward.hosId, result.device.devDetail!, pushMessage);
+      pushNotification('admin', result.device.devDetail!, pushMessage);
+      pushNotification('service', result.device.devDetail!, pushMessage);
+    }
+    if (!isSend) {
+      isSend = true;
+      socket.emit("send_message", {
+        device: result.device.devDetail,
+        message: pushMessage,
+        hospital: result.device.ward.hosId,
+        time: body.createAt.toString()
+      });
+      setTimeout(() => {
+        isSend = false;
+      }, 5000);
+    }
     await removeCache("device");
     await removeCache("noti");
     return result;
@@ -157,14 +171,12 @@ const deviceEvent = async (clientid: string, event: string): Promise<string> => 
     if (clientid.substring(0, 4) === "eTPV" || clientid.substring(0, 4) === "iTSV") {
       const result = await prisma.devices.update({
         where: { devSerial: clientid },
-        data: { 
-          backupStatus: event === "client.connected" ? "1" : "0"
-        }
+        data: { backupStatus: event === "client.connected" ? "1" : "0" }
       });
       await removeCache("device");
-      socket.emit("send_message", { 
-        device: result.devDetail, 
-        message: event === "client.connected" ? "Device online" : "Device offline", 
+      socket.emit("send_message", {
+        device: result.devDetail,
+        message: event === "client.connected" ? "Device online" : "Device offline",
         hospital: result.wardId,
         time: getDateFormat(new Date()).toString()
       });
@@ -172,7 +184,7 @@ const deviceEvent = async (clientid: string, event: string): Promise<string> => 
     return "OK";
   } catch (error) {
     throw error;
-  } 
+  }
 }
 
 const pushNotification = async (topic: string, title: string, detail: string) => {

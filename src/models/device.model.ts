@@ -1,5 +1,3 @@
-import { sub } from "date-fns";
-import { get } from "http";
 import { z } from "zod";
 import { ZProbe } from "./probe.model";
 
@@ -40,10 +38,10 @@ export const ZConfig = z.object({
   email1: z.string().optional(),
   email2: z.string().optional(),
   email3: z.string().optional(),
-  notiTime: z.string().optional(),
+  notiTime: z.number().optional(),
   backToNormal: z.string().optional(),
   mobileNoti: z.string().optional(),
-  repeat: z.string().optional(),
+  repeat: z.number().optional(),
   firstDay: z.string().optional(),
   secondDay: z.string().optional(),
   thirdDay: z.string().optional(),
@@ -78,6 +76,7 @@ export const ZDevice = z.object({
 });
 
 export const ZAdjustConfig = z.object({
+  devDetail: z.string().optional(),
   config: ZConfig.optional(),
   probe: ZProbe.optional()
 });

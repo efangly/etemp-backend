@@ -10,11 +10,11 @@ const historyList = async (token: ResToken): Promise<ConfigHistory[]> => {
     let keyName: string = "";
     switch (token?.userLevel) {
       case "3":
-        conditions = { user: { wardId: token.wardId } };
+        conditions = { device: { wardId: token.wardId } };
         keyName = `history:${token.wardId}`;
         break;
       case "2":
-        conditions = { user: { ward: { hosId: token.hosId } } };
+        conditions = { device: { ward: { hosId: token.hosId } } };
         keyName = `history:${token.hosId}`;
         break;
       default:
@@ -29,7 +29,7 @@ const historyList = async (token: ResToken): Promise<ConfigHistory[]> => {
       select: {
         detail: true,
         devSerial: true,
-        user: { select: { displayName: true } },
+        userId: true,
         createAt: true
       },
       orderBy: { createAt: 'desc' }

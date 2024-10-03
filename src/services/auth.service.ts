@@ -4,7 +4,7 @@ import { sign } from "jsonwebtoken";
 import { v4 as uuidv4 } from 'uuid';
 import { Users } from "@prisma/client";
 import { getDateFormat, removeCache } from "../utils";
-import { ResLogin, TLogin, TRegisUser } from "../models";
+import { ResLogin, ResToken, TLogin, TRegisUser, TResetPass } from "../models";
 import { HttpError } from "../error";
 
 const regisUser = async (params: TRegisUser, pic?: Express.Multer.File): Promise<Users> => {
@@ -13,11 +13,7 @@ const regisUser = async (params: TRegisUser, pic?: Express.Multer.File): Promise
       select: {
         userId: true,
         userLevel: true,
-        ward: {
-          include: {
-            hospital: true
-          }
-        }
+        ward: { include: { hospital: true } }
       },
       data: {
         userId: `UID-${params.userId || uuidv4()}`,
@@ -33,6 +29,8 @@ const regisUser = async (params: TRegisUser, pic?: Express.Multer.File): Promise
       }
     });
     await removeCache("user");
+    await removeCache("ward");
+    await removeCache("hospital");
     return result as unknown as Users;
   } catch (error) {
     throw error;
@@ -72,12 +70,22 @@ const userLogin = async (login: TLogin): Promise<ResLogin> => {
   }
 }
 
-const resetPassword = async (password: string, userId: string): Promise<string> => {
+const resetPassword = async (password: TResetPass, userId: string, token: ResToken): Promise<string> => {
   try {
+    if (token.userLevel === "4"  || token.userLevel === "3" || token.userLevel === "2") {
+      const result = await prisma.users.findUnique({
+        where: { userId: userId },
+        select: { userPassword: true }
+      });
+      if (!result) throw new HttpError(400, "User not found!!");
+      if (!password.oldPassword) throw new HttpError(400, "User not have password!!");
+      const match = await bcrypt.compare(password.oldPassword, result.userPassword);
+      if (!match) throw new HttpError(400, "Old password not match!!");
+    }
     await prisma.users.update({
       where: { userId: userId },
       data: {
-        userPassword: await hashPassword(password),
+        userPassword: await hashPassword(password.password),
         updateAt: getDateFormat(new Date())
       }
     });

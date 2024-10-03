@@ -31,6 +31,14 @@ export const isSuperAdmin = (req: Request, res: Response, next: NextFunction) =>
   }
 }
 
+export const isService = (req: Request, res: Response, next: NextFunction) => {
+  if (res.locals.token.userLevel === "0" || res.locals.token.userLevel === "1") {
+    next();
+  } else {
+    next(new HttpError(403, "Access denied"));
+  }
+}
+
 export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
   if (res.locals.token.userLevel === "3" || res.locals.token.userLevel === "4") {
     next(new HttpError(403, "Access denied"));

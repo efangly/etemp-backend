@@ -6,7 +6,8 @@ export const ZLogin = z.object({
   password: z.string()
 });
 export const ZResetPass = z.object({
-  password: z.string()
+  password: z.string(),
+  oldPassword: z.string().optional()
 });
 export const ZRegisUser = z.object({
   userId: z.string().optional(),
@@ -37,6 +38,7 @@ export const ZUserBody = z.object({
 
 export type TLogin = z.infer<typeof ZLogin>;
 export type TRegisUser = z.infer<typeof ZRegisUser>;
+export type TResetPass = z.infer<typeof ZResetPass>;
 export type ResLogin = {
   token: string, 
   userId: string, 
