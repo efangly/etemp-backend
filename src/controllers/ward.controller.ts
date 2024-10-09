@@ -35,7 +35,7 @@ const createWard = async (req: Request, res: Response<BaseResponse<Wards>>, next
     res.status(201).json({
       message: 'Successful',
       success: true,
-      data: await addWard(body as Wards, res.locals.token)
+      data: await addWard(body as Wards)
     });
   } catch (error) {
     next(error);

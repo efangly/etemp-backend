@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ZProbe } from "./probe.model";
+import { ZWard } from "./ward.model";
 
 export const ZDeviceParam = z.object({ devId: z.string() });
 export const ZConfigParam = z.object({ devSerial: z.string() });
@@ -78,7 +79,8 @@ export const ZDevice = z.object({
 export const ZAdjustConfig = z.object({
   devDetail: z.string().optional(),
   config: ZConfig.optional(),
-  probe: ZProbe.optional()
+  probe: ZProbe.optional(),
+  ward: ZWard.optional()
 });
 
 export type TAdjustConfig = z.infer<typeof ZAdjustConfig>;

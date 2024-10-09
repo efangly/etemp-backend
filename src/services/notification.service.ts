@@ -120,9 +120,7 @@ const addNotification = async (body: Notifications): Promise<Notifications> => {
     body.updateAt = getDateFormat(new Date());
     const result = await prisma.notifications.create({
       data: body,
-      include: {
-        device: { include: { ward: true } }
-      }
+      include: { device: { include: { ward: { include: { hospital: true } } } } }
     });
     const pushMessage = setDetailMessage(body.notiDetail);
     if (result.device.ward.hosId === "HID-DEVELOPMENT") {
@@ -133,18 +131,14 @@ const addNotification = async (body: Notifications): Promise<Notifications> => {
       pushNotification('admin', result.device.devDetail!, pushMessage);
       pushNotification('service', result.device.devDetail!, pushMessage);
     }
-    if (!isSend) {
-      isSend = true;
-      socket.emit("send_message", {
-        device: result.device.devDetail,
-        message: pushMessage,
-        hospital: result.device.ward.hosId,
-        time: body.createAt.toString()
-      });
-      setTimeout(() => {
-        isSend = false;
-      }, 5000);
-    }
+    socket.emit("send_message", {
+      device: result.device.devDetail,
+      message: pushMessage,
+      hospital: result.device.ward.hosId,
+      wardName: result.device.ward.wardName,
+      hospitalName: result.device.ward.hospital.hosName,
+      time: body.createAt.toString()
+    });
     await removeCache("device");
     await removeCache("noti");
     return result;
@@ -174,12 +168,18 @@ const deviceEvent = async (clientid: string, event: string): Promise<string> => 
         data: { backupStatus: event === "client.connected" ? "1" : "0" }
       });
       await removeCache("device");
-      socket.emit("send_message", {
-        device: result.devDetail,
-        message: event === "client.connected" ? "Device online" : "Device offline",
-        hospital: result.wardId,
-        time: getDateFormat(new Date()).toString()
-      });
+      if (!isSend) {
+        isSend = true;
+        socket.emit("send_message", {
+          device: result.devDetail,
+          message: event === "client.connected" ? "Device online" : "Device offline",
+          hospital: result.wardId,
+          time: getDateFormat(new Date()).toString()
+        });
+        setTimeout(() => {
+          isSend = false;
+        }, 5000);
+      }
     }
     return "OK";
   } catch (error) {

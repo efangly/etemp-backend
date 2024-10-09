@@ -14,6 +14,7 @@ const deviceList = async (): Promise<Devices[]> => {
     const cache = await checkCachedData("deviceonly");
     if (cache) return JSON.parse(cache);
     const result = await prisma.devices.findMany({
+      include: { config: true },
       orderBy: { devSeq: "asc"}
     });
     // set cache
@@ -274,9 +275,17 @@ const editDeviceConfig = async (deviceId: string, body: TAdjustConfig): Promise<
             where: { devSerial: deviceId, probeCh: body.probe.probeCh },
             data: body.probe
           } : undefined
-        } 
+        },
+        ward: { 
+          update: body.ward ? {
+            where: { wardId: body.ward.wardId },
+            data: body.ward
+          } : undefined
+        }
       },
     });
+    removeCache("hospital");
+    removeCache("ward");
     removeCache("device");
     removeCache("config");
     return result as unknown as Devices;
@@ -332,6 +341,7 @@ const compareDevice = async (query: TQueryDevice, token: ResToken) => {
       return {
         devSerial: item.devSerial,
         devDetail: item.devDetail,
+        wardId: item.ward.wardId,
         wardName: item.ward.wardName,
         hosName: item.ward.hospital.hosName,
         log: setSplitCondition(result.length, diffDays, item.logBak.concat(item.log))

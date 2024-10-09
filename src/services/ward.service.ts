@@ -50,9 +50,9 @@ const findWard = async (wardId: string): Promise<Wards | null> => {
   }
 }
 
-const addWard = async (body: Wards, token: ResToken) => {
+const addWard = async (body: Wards) => {
   try {
-    const seq: Wards[] = await wardList(token);
+    const seq: Wards[] = await prisma.wards.findMany({ orderBy: { wardSeq: 'asc' } });
     body.wardId = `WID-${uuidv4()}`;
     body.wardSeq = seq.length === 0 ? 1 : seq[seq.length - 1].wardSeq + 1;
     body.createAt = getDateFormat(new Date());

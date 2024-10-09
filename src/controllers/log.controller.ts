@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { LogDays } from "@prisma/client";
-import { BaseResponse } from "../models";
-import { ZLogParam, ZQueryLog } from "../models";
+import { BaseResponse, ZConfigParam, ZLogParam, ZQueryLog } from "../models";
 import { logList, findLog, addLog, removeLog, backupLog } from "../services";
 
 const getLog = async (req: Request, res: Response<BaseResponse<LogDays[]>>, next: NextFunction) => {
@@ -42,13 +41,13 @@ const createLog = async (req: Request, res: Response<BaseResponse>, next: NextFu
   }
 };
 
-const deleteLog = async (req: Request, res: Response<BaseResponse<LogDays>>, next: NextFunction) => {
+const deleteLog = async (req: Request, res: Response<BaseResponse>, next: NextFunction) => {
   try {
-    const params = ZLogParam.parse(req.params);
+    const params = ZConfigParam.parse(req.params);
     res.status(200).json({
       message: 'Successful',
       success: true,
-      data: await removeLog(params.logId)
+      data: await removeLog(params.devSerial)
     });
   } catch (error) {
     next(error);

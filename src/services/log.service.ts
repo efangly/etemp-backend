@@ -185,6 +185,7 @@ const addLog = async (body: LogDays | LogDays[]) => {
       });
       removeCache("log");
       removeCache("device");
+      backupLog();
       return logArr.length > 0 ? await prisma.logDays.createMany({ data: logArr }) : [];
     } else {
       const sendTimeYear = getDateFullYear(body.sendTime); 
@@ -214,11 +215,23 @@ const addLog = async (body: LogDays | LogDays[]) => {
   }
 };
 
-const removeLog = async (logId: string) => {
+const removeLog = async (serialNumber: string) => {
   try {
-    return await prisma.logDays.delete({
-      where: { logId: logId }
-    });
+    await prisma.$transaction([
+      prisma.logDaysBackup.deleteMany({
+        where: { devSerial: serialNumber }
+      }),
+      prisma.logDays.deleteMany({
+        where: { devSerial: serialNumber }
+      }),
+      prisma.notifications.deleteMany({
+        where: { devSerial: serialNumber }
+      }),
+      prisma.notificationsBackup.deleteMany({
+        where: { devSerial: serialNumber }
+      })
+    ]);
+    return "Delete log success";
   } catch (error) {
     throw error;
   }
