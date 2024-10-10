@@ -51,6 +51,7 @@ export const ZConfig = z.object({
   thirdTime: z.string().optional(),
   muteDoor: z.string().optional(),
   muteLong: z.string().optional(),
+  hardReset: z.string().optional(),
   devSerial: z.string().optional(),
 });
 
