@@ -11,14 +11,13 @@ import { format } from "date-fns";
 
 const deviceList = async (): Promise<Devices[]> => {
   try {
-    const cache = await checkCachedData("deviceonly");
-    if (cache) return JSON.parse(cache);
     const result = await prisma.devices.findMany({
-      include: { config: true },
+      include: { 
+        config: true,
+        log: { take: 1, orderBy: [{ sendTime: 'desc' }, { createAt: 'desc' }] }
+      },
       orderBy: { devSeq: "asc"}
     });
-    // set cache
-    await setCacheData("deviceonly", 3600 * 24, JSON.stringify(result));
     return result;
   } catch (error) {
     throw error;
@@ -37,7 +36,7 @@ const deviceWithLog = async (token?: ResToken): Promise<Devices[]> => {
         probe: true,
         config: true,
         noti: { orderBy: { createAt: 'desc' } },
-        ward: { select: { wardName: true, hospital: { select: { hosName: true } } } },
+        ward: { select: { wardName: true, hospital: { select: { hosId: true, hosName: true } } } },
         warranty: { take: 1, select: { expire: true }, orderBy: { createAt: 'desc' } },
         _count: {
           select: {
@@ -131,7 +130,6 @@ const addDevice = async (body: TDevice, pic?: Express.Multer.File): Promise<Devi
       }
     });
     removeCache("device");
-    removeCache("deviceonly");
     return result;
   } catch (error) {
     throw error;

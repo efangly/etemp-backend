@@ -27,7 +27,7 @@ export const globalErrorHanlder = (error: unknown, req: Request, res: Response<B
     console.error('An unknown error occurred');
     message = `An unknown error occurred, ${String(error)}`;
   }
-  createLog(`${req.method} ${req.originalUrl} ${statusCode}`, message);
+  if (statusCode !== 401) createLog(`${req.method} ${req.originalUrl} ${statusCode}`, message);
   res.status(statusCode).send({
     message,
     success: false,

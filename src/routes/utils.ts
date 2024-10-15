@@ -2,7 +2,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { backupData, getCompareDevice, getDevice } from '../controllers';
 import { verifyToken } from '../middlewares';
 import { BaseResponse } from '../models';
-import { deviceEvent, historyList } from '../services';
+import { addScheduleNotification, deviceEvent, historyList } from '../services';
 import { z } from 'zod';
 import { prisma } from '../configs';
 
@@ -58,6 +58,18 @@ utilsRouter.post('/mqtt', async (req: Request, res: Response<BaseResponse<Promis
       message: 'Successful',
       success: true,
       data: deviceEvent(data.clientid, data.event)
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+utilsRouter.post('/schedule', async (req: Request, res: Response<BaseResponse>, next: NextFunction) => {
+  try {
+    res.status(201).json({
+      message: 'Successful',
+      success: true,
+      data: await addScheduleNotification(req.body)
     });
   } catch (error) {
     next(error);

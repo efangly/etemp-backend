@@ -147,6 +147,28 @@ const addNotification = async (body: Notifications): Promise<Notifications> => {
   };
 };
 
+const addScheduleNotification = async (body: Notifications[]): Promise<string> => {
+  try {
+    const data: Notifications[] = [];
+    body.forEach((device) => {
+      data.push({
+        notiId: `NID-${uuidv4()}`,
+        devSerial: device.devSerial!,
+        notiDetail: device.notiDetail!,
+        notiStatus: false,
+        createAt: getDateFormat(new Date()),
+        updateAt: getDateFormat(new Date())
+      })
+    });
+    await prisma.notifications.createMany({ data: data });
+    await removeCache("device");
+    await removeCache("noti");
+    return "Schedule notification success";
+  } catch (error) {
+    throw error;
+  }
+}
+
 const editNotification = async (notiId: string, body: Notifications): Promise<Notifications> => {
   try {
     body.updateAt = getDateFormat(new Date());
@@ -228,8 +250,22 @@ const setDetailMessage = (msg: string): string => {
     case "AC":
       detailMessage = msgType[1] === "ON" ? "Power on" : "Power off";
       break;
+    case "REPORT":
+      detailMessage = msgType[1];
+      break;
     default:
-      detailMessage = `${msgType[0]}: ${msgType[1]} is ${msgType[2] === "ON" ? "opened" : "closed"}`;
+      if (msgType[1] === "TEMP") {
+        detailMessage = `${msgType[0]}: Temperature `;
+        if (msgType[2] === "OVER") {
+          detailMessage += "is too high";
+        } else if (msgType[2] === "LOWER") {
+          detailMessage += "is too low";
+        } else {
+          detailMessage += "returned to normal";
+        }
+      } else {
+        detailMessage = `${msgType[0]}: ${msgType[1]} is ${msgType[2] === "ON" ? "opened" : "closed"}`;
+      }
   }
   return detailMessage;
 }
@@ -266,5 +302,6 @@ export {
   pushNotification,
   backupNoti,
   findHistoryNotification,
+  addScheduleNotification,
   deviceEvent
 };

@@ -31,7 +31,7 @@ const probeList = async (token: ResToken): Promise<Probes[]> => {
     if (cache) return JSON.parse(cache);
     const result = await prisma.probes.findMany({
       where: conditions,
-      include: { device: true }
+      include: { device: { include: { ward: true } } }
     });
     // set cache
     await setCacheData(keyName, 3600, JSON.stringify(result));
