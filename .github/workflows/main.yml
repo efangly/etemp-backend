@@ -29,6 +29,6 @@ jobs:
       id: slack
       uses: slackapi/slack-github-action@v1.27.0
       with:
-        payload-delimiter: "Build thanespgm/tms-backend Success"
+        payload-delimiter: "_"
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
