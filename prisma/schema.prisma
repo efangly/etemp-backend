@@ -84,9 +84,9 @@ model Configs {
   backToNormal String   @default("0") @db.Char(1) //ส่งแจ้งเตือนหลังอุณหภูมิกลับมาปกติ
   mobileNoti   String   @default("1") @db.Char(1) //เปิดปิดการแจ้งเตือนไปยังมือถือ
   repeat       Int      @default(0) @db.SmallInt //ตั้งค่าการส่งซ้ำ ค่าเริ่มต้นคือ 1
-  firstDay     String?  @default("ALL") @db.VarChar(3)
-  secondDay    String?  @default("ALL") @db.VarChar(3)
-  thirdDay     String?  @default("ALL") @db.VarChar(3)
+  firstDay     String?  @default("OFF") @db.VarChar(3)
+  secondDay    String?  @default("OFF") @db.VarChar(3)
+  thirdDay     String?  @default("OFF") @db.VarChar(3)
   firstTime    String?  @default("0000") @db.VarChar(4)
   secondTime   String?  @default("0000") @db.VarChar(4)
   thirdTime    String?  @default("0000") @db.VarChar(4)

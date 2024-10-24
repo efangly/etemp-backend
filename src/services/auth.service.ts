@@ -57,7 +57,7 @@ const userLogin = async (login: TLogin): Promise<ResLogin> => {
         const hosName: string | null = result.ward.hospital.hosName;
         const wardId: string | null = result.wardId;
         const userStatus: boolean = result.userStatus;
-        const token: string = sign({ userId, userLevel, hosId, wardId }, String(process.env.JWT_SECRET), { expiresIn: '7d' });
+        const token: string = sign({ userId, userLevel, hosId, wardId }, String(process.env.JWT_SECRET), { expiresIn: String(process.env.EXPIRE_TIME) });
         return { token, userId, hosId, wardId, userLevel, hosPic, hosName, userStatus, userName, displayName, userPic };
       } else {
         throw new HttpError(400, "Wrong user or password!!");

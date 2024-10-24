@@ -5,6 +5,9 @@ import { BaseResponse } from '../models';
 import { addScheduleNotification, deviceEvent, historyList } from '../services';
 import { z } from 'zod';
 import { prisma } from '../configs';
+import dotenv from "dotenv";
+import axios from 'axios';
+dotenv.config();
 
 const utilsRouter = Router();
 
@@ -70,6 +73,19 @@ utilsRouter.post('/schedule', async (req: Request, res: Response<BaseResponse>, 
       message: 'Successful',
       success: true,
       data: await addScheduleNotification(req.body)
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+utilsRouter.post('/ticket', async (req: Request, res: Response<BaseResponse>, next: NextFunction) => {
+  try {
+    const ZTicket = z.object({ text: z.string() });
+    res.status(201).json({
+      message: 'Successful',
+      success: true,
+      data: await axios.post(String(process.env.SLACK_WEBHOOK), ZTicket.parse(req.body))
     });
   } catch (error) {
     next(error);

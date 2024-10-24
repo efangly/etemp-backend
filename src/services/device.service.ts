@@ -226,6 +226,7 @@ const findConfigById = async (deviceId: string): Promise<Devices | null> => {
       select: {
         devSerial: true,
         devDetail: true,
+        devStatus: true,
         config: true,
         probe: true
       }
