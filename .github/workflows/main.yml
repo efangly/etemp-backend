@@ -24,7 +24,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: thanespgm/tms-backend
+        tags: thanespgm/etemp-backend
     - name: Send success message to slack
       id: slack
       uses: slackapi/slack-github-action@v1.27.0
