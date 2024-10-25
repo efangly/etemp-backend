@@ -82,10 +82,11 @@ utilsRouter.post('/schedule', async (req: Request, res: Response<BaseResponse>, 
 utilsRouter.post('/ticket', async (req: Request, res: Response<BaseResponse>, next: NextFunction) => {
   try {
     const ZTicket = z.object({ text: z.string() });
+    await axios.post(String(process.env.SLACK_WEBHOOK), ZTicket.parse(req.body))
     res.status(201).json({
       message: 'Successful',
       success: true,
-      data: await axios.post(String(process.env.SLACK_WEBHOOK), ZTicket.parse(req.body))
+      data: "Send ticket success"
     });
   } catch (error) {
     next(error);
